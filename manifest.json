@@ -1,0 +1,16 @@
+{
+  "name": "Maestro de Lubricación Concentradora",
+  "short_name": "Lubricación",
+  "description": "Buscador del maestro de lubricación: TAG, lubricante, cantidades y frecuencias.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f4ef",
+  "theme_color": "#b06e10",
+  "lang": "es",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
