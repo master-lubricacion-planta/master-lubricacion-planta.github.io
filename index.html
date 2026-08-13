@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#b06e10">
+<meta name="theme-color" content="#0b1c47">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -14,38 +14,46 @@
 <title>Maestro de Lubricación</title>
 <style>
 :root{
-  --bg:#f6f4ef; --surface:#ffffff; --line:#e6e0d4; --ink:#241f15; --ink-2:#6d6553; --ink-3:#9a9180;
-  --accent:#b06e10; --accent-soft:#f5e7cf; --accent-ink:#7a4c08;
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b;
   --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
-  --chip-bg:#ece6da; --hit:#f3e2bd;
-  --card-grad:linear-gradient(135deg,#fdfbf7,#f3ede1);
-  --shadow:0 1px 3px rgba(60,45,15,.08),0 6px 18px rgba(60,45,15,.07);
+  --chip-bg:#e7ecf5; --hit:#ffe2c4;
+  --card-grad:linear-gradient(135deg,#ffffff,#eef2f9);
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#15120d; --surface:#201c15; --line:#3a3427; --ink:#f0eade; --ink-2:#aaa08b; --ink-3:#7c7361;
-    --accent:#e5a33c; --accent-soft:#3a2e17; --accent-ink:#f0c37a;
+    --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+    --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+    --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+    --orange:#f5822b;
     --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
-    --chip-bg:#2c2820; --hit:#4a3a15;
-    --card-grad:linear-gradient(135deg,#262117,#1c1812);
+    --chip-bg:#1a2750; --hit:#5c3a12;
+    --card-grad:linear-gradient(135deg,#152249,#0e1836);
     --shadow:0 1px 3px rgba(0,0,0,.45);
   }
 }
 :root[data-theme="dark"]{
-  --bg:#15120d; --surface:#201c15; --line:#3a3427; --ink:#f0eade; --ink-2:#aaa08b; --ink-3:#7c7361;
-  --accent:#e5a33c; --accent-soft:#3a2e17; --accent-ink:#f0c37a;
+  --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+  --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+  --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+  --orange:#f5822b;
   --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
-  --chip-bg:#2c2820; --hit:#4a3a15;
-  --card-grad:linear-gradient(135deg,#262117,#1c1812);
+  --chip-bg:#1a2750; --hit:#5c3a12;
+  --card-grad:linear-gradient(135deg,#152249,#0e1836);
   --shadow:0 1px 3px rgba(0,0,0,.45);
 }
 :root[data-theme="light"]{
-  --bg:#f6f4ef; --surface:#ffffff; --line:#e6e0d4; --ink:#241f15; --ink-2:#6d6553; --ink-3:#9a9180;
-  --accent:#b06e10; --accent-soft:#f5e7cf; --accent-ink:#7a4c08;
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b;
   --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
-  --chip-bg:#ece6da; --hit:#f3e2bd;
-  --card-grad:linear-gradient(135deg,#fdfbf7,#f3ede1);
-  --shadow:0 1px 3px rgba(60,45,15,.08),0 6px 18px rgba(60,45,15,.07);
+  --chip-bg:#e7ecf5; --hit:#ffe2c4;
+  --card-grad:linear-gradient(135deg,#ffffff,#eef2f9);
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -53,14 +61,14 @@ body{background:var(--bg); color:var(--ink); font:16px/1.45 -apple-system,"Segoe
 .mono{font-family:ui-monospace,"Cascadia Mono","SF Mono",Consolas,monospace}
 button{font:inherit; color:inherit}
 
-header{position:sticky; top:0; z-index:10; background:var(--bg); padding:12px 14px 10px; border-bottom:1px solid var(--line)}
+header{position:sticky; top:0; z-index:10; background:linear-gradient(100deg,var(--navy),var(--navy-2)); padding:12px 14px 12px; border-bottom:3px solid var(--orange)}
 .brand{display:flex; align-items:center; gap:10px; margin-bottom:10px}
 #homebtn{border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .logo svg{width:22px;height:22px;fill:#fff}
-.brand h1{font-size:17px;font-weight:800;margin:0;letter-spacing:-.01em}
-.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.1em}
-#back{margin-left:auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;display:none;align-items:center;gap:5px}
+.brand h1{font-size:17px;font-weight:800;margin:0;letter-spacing:-.01em;color:var(--on-navy)}
+.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+#back{margin-left:auto;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:var(--on-navy);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;display:none;align-items:center;gap:5px}
 #back svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
 
 .searchwrap{position:relative}
@@ -265,10 +273,12 @@ function compHTML(c,terms){
   const isGrease=fold(c.tipo_lub||'').includes('grasa');
   const badge=c.tipo_lub?`<span class="badge ${isGrease?'grease':'oil'}">${esc(c.tipo_lub)}</span>`:'';
   const lub=c.lub_actual||c.lub_recomendado||'';
+  const fmtL=v=>{const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?esc(v)+' L':(n%1?n:n.toFixed(0))+'L';};
+  const fmtG=v=>{const n=parseFloat(String(v).replace(',','.'));if(isNaN(n))return esc(v)+' g';return n>=1000?(Math.round(n/100)/10)+'Kg':(n%1?n:n.toFixed(0))+'g';};
   let qty='';
-  if(c.aceite_lt) qty=`${esc(c.aceite_lt)} Lt`;
-  else if(c.grasa_grs) qty=`${esc(c.grasa_grs)} grs`;
-  else if(c.cantidad) qty=esc(c.cantidad);
+  if(c.aceite_lt) qty=fmtL(c.aceite_lt);
+  else if(c.grasa_grs) qty=fmtG(c.grasa_grs);
+  else if(c.cantidad) qty=esc(c.cantidad)+(isGrease?'g':'L');
   let freq='';
   if(c.cambio_hrs) freq=`· cambio cada ${esc(c.cambio_hrs)} hrs`;
   else if(c.relub_hrs) freq=`· re-lubricar cada ${esc(c.relub_hrs)} hrs`;
