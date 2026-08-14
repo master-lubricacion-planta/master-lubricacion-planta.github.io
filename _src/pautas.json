@@ -1,0 +1,944 @@
+[
+{
+"id": "QB2-0300-IOC4-PLN-1003",
+"titulo": "PM S-Alimentador tornillo",
+"equipo": "Alimentador de tornillo",
+"area": "Instalación de reactivos",
+"ubicacion": "0390-ZMF-003-02",
+"acts": [
+{
+"n": 1,
+"g": "Reductor",
+"d": "CAMBIAR - Aceite",
+"lim": "Comentarios Condicionales: Según instructivo de cambio de aceite."
+},
+{
+"n": 2,
+"g": "Reductor",
+"d": "INSPECCIONAR - Nivel de aceite",
+"lim": "Nivel debe estar en lo indicado en mirilla con equipo detenido\n\nComentarios Condicionales: Si excede o disminuye el nivel optimo, normalizar"
+}
+]
+},
+{
+"id": "QB2-0300-IOC4-PLN-1048",
+"titulo": "PI S-Espesador de relave",
+"equipo": "Espesador de Relave",
+"area": "Espesamiento Relave",
+"ubicacion": "0410-TKF-28",
+"acts": [
+{
+"n": 1,
+"g": "Unidades Motriz",
+"d": "MEDIR - Temperatura de la carcasa del reductor planetario mediante termografía",
+"lim": "Temperatura no mayor a 50 °C\n\nComentarios Condicionales: Si excede el límite aceptable generar OT para investigar la causa y/o ajustar frecuencia de inspección inmediata"
+},
+{
+"n": 2,
+"g": "Unidad Motriz N°1",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin carga acumulada, sin soltura entre componentes, sin corrosión, sin piezas deterioradas.\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 3,
+"g": "Unidad Motriz N°1",
+"d": "INSPECCIONAR - Nivel de aceite engranaje principal con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 4,
+"g": "Unidad Motriz N°1",
+"d": "INSPECCIONAR - Nivel de aceite alojamiento rodamientos superiores con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 5,
+"g": "Unidad Motriz N°1",
+"d": "INSPECCIONAR - Nivel de aceite reducror principal",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 6,
+"g": "Unidad Motriz N°1",
+"d": "INSPECCIONAR - Nivel de aceite reductor secundario con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 7,
+"g": "Unidad Motriz N°2",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin carga acumulada, sin soltura entre componentes, sin corrosión, sin piezas deterioradas.\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 8,
+"g": "Unidad Motriz N°2",
+"d": "INSPECCIONAR - Nivel de aceite engranaje principal con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 9,
+"g": "Unidad Motriz N°2",
+"d": "INSPECCIONAR - Nivel de aceite alojamiento rodamientos superiores con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 10,
+"g": "Unidad Motriz N°2",
+"d": "INSPECCIONAR - Nivel de aceite reducror principal",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 11,
+"g": "Unidad Motriz N°2",
+"d": "INSPECCIONAR - Nivel de aceite reductor secundario con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 12,
+"g": "Unidad Motriz N°3",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin carga acumulada, sin soltura entre componentes, sin corrosión, sin piezas deterioradas.\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 13,
+"g": "Unidad Motriz N°3",
+"d": "INSPECCIONAR - Nivel de aceite engranaje principal con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 14,
+"g": "Unidad Motriz N°3",
+"d": "INSPECCIONAR - Nivel de aceite alojamiento rodamientos superiores con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 15,
+"g": "Unidad Motriz N°3",
+"d": "INSPECCIONAR - Nivel de aceite reducror principal",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 16,
+"g": "Unidad Motriz N°3",
+"d": "INSPECCIONAR - Nivel de aceite reductor secundario con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 17,
+"g": "Unidad Motriz N°5",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin carga acumulada, sin soltura entre componentes, sin corrosión, sin piezas deterioradas.\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 18,
+"g": "Unidad Motriz N°5",
+"d": "INSPECCIONAR - Nivel de aceite engranaje principal con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 19,
+"g": "Unidad Motriz N°5",
+"d": "INSPECCIONAR - Nivel de aceite alojamiento rodamientos superiores con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 20,
+"g": "Unidad Motriz N°5",
+"d": "INSPECCIONAR - Nivel de aceite reducror principal",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 21,
+"g": "Unidad Motriz N°5",
+"d": "INSPECCIONAR - Nivel de aceite reductor secundario con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 22,
+"g": "Unidad Motriz N°6",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin carga acumulada, sin soltura entre componentes, sin corrosión, sin piezas deterioradas.\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 23,
+"g": "Unidad Motriz N°6",
+"d": "INSPECCIONAR - Nivel de aceite engranaje principal con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 24,
+"g": "Unidad Motriz N°6",
+"d": "INSPECCIONAR - Nivel de aceite alojamiento rodamientos superiores con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 25,
+"g": "Unidad Motriz N°6",
+"d": "INSPECCIONAR - Nivel de aceite reducror principal",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+},
+{
+"n": 26,
+"g": "Unidad Motriz N°6",
+"d": "INSPECCIONAR - Nivel de aceite reductor secundario con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funcionamiento, regularizar inmediatamente o generar OT"
+}
+]
+},
+{
+"id": "QB2-0300-IOC4-PLN-569",
+"titulo": "PDM M-UH Espesador de relave",
+"equipo": "UH Espesador de relave",
+"area": "Espesamiento Relave",
+"ubicacion": "0410-ZMH-033",
+"acts": [
+{
+"n": 1,
+"g": "Unidad hidráulica",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin carga acumulada, sin fugas en flexibles y/o conexiones, sin soltura entre componentes, sin corrosión, sin piezas deterioradas.\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 2,
+"g": "Unidad hidráulica",
+"d": "INSPECCIONAR - Indicación de presión de descarga",
+"lim": "Presión mayor a 1800 psi\n\nComentarios Condicionales: Si disminuye el límite aceptable generar OT para investigar la causa y/o ajustar frecuencia de inspección, en caso de observarse una presión menor a 500 psi generar OT de avería para revisión en el corto plazo"
+},
+{
+"n": 3,
+"g": "Unidad hidráulica",
+"d": "INSPECCIONAR - Indicación de temperatura del tanque",
+"lim": "Temperatura no mayor a 50 °C\n\nComentarios Condicionales: Si excede el límite aceptable generar OT para investigar la causa y/o ajustar frecuencia de inspección, en caso de observarse una temperatura mayor a 65.55 °C generar OT de avería para revisión en el corto plazo"
+},
+{
+"n": 4,
+"g": "Unidad hidráulica",
+"d": "INSPECCIONAR - Saturación en filtro aireador silica gel",
+"lim": "De acuerdo a color de saturación indicado en el filtro\n\nComentarios Condicionales: En caso de saturación cambiar el componente de ser posible de lo contrario OT"
+},
+{
+"n": 5,
+"g": "Unidad hidráulica",
+"d": "INSPECCIONAR - Indicación de presión en filtro de retorno",
+"lim": "Presión no mayor a 50 psi\n\nComentarios Condicionales: Si excede el límite aceptable generar OT para reemplazo de filtro"
+},
+{
+"n": 6,
+"g": "Unidad hidráulica",
+"d": "TOMAR - Muestra de aceite",
+"lim": "Comentarios Condicionales: Según instructivo de toma de muestra"
+},
+{
+"n": 7,
+"g": "Unidad hidráulica",
+"d": "INSPECCIONAR - Nivel de aceite con equipo operando",
+"lim": "Según la marca en el visor\n\nComentarios Condicionales: Si se encuentra fuera del limite aceptable de un 80%, normalizar inmediatamente o de lo contrario generar OT para normalizar"
+},
+{
+"n": 8,
+"g": "Motor eléctrico",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas de grasa por separación del espesante, se debe investigar causa y generar OT para su reelubricación, en caso de obstrucción de la rejilla se ventilación se debe generar OT para su limpieza"
+},
+{
+"n": 9,
+"g": "Motor eléctrico",
+"d": "MEDIR - Temperatura de la carcasa del motor con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 60 °C\n\nComentarios Condicionales: Si excede el límite aceptable generar OT para investigar la causa y/o ajustar frecuencia de inspección"
+}
+]
+},
+{
+"id": "QB2-0300-IOC4-PLN-873",
+"titulo": "PI M-Sistema Envasado Moly",
+"equipo": "Sistema Envasado Moly",
+"area": "Planta Molibdeno",
+"ubicacion": "370-ZML-001",
+"acts": [
+{
+"n": 1,
+"g": "Motor 1 Transportadora de Rodillos",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas de lubricante\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT, en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 2,
+"g": "Motor 1 Transportadora de Rodillos",
+"d": "MEDIR- Temperatura de la carcasa del motor",
+"lim": "Temperatura no mayor a 60 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 3,
+"g": "Motor 1 Transportadora de Rodillos",
+"d": "MEDIR- Temperatura de la carcasa de los rodamientos del motor",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 4,
+"g": "Motor 1 Transportadora de Rodillos",
+"d": "INSPECCIONAR - Lubricación rodamiento lado carga",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 5,
+"g": "Motor 1 Transportadora de Rodillos",
+"d": "INSPECCIONAR - Lubricación rodamiento lado libre",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 6,
+"g": "Motor 2 Transportadora de Rodillos",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas de lubricante\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT, en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 7,
+"g": "Motor 2 Transportadora de Rodillos",
+"d": "MEDIR- Temperatura de la carcasa del motor",
+"lim": "Temperatura no mayor a 60 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 8,
+"g": "Motor 2 Transportadora de Rodillos",
+"d": "MEDIR- Temperatura de la carcasa de los rodamientos del motor",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 9,
+"g": "Motor 2 Transportadora de Rodillos",
+"d": "INSPECCIONAR - Lubricación rodamiento lado carga",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 10,
+"g": "Motor 2 Transportadora de Rodillos",
+"d": "INSPECCIONAR - Lubricación rodamiento lado libre",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 11,
+"g": "Motor Ventilador Colector de Polvo",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas de lubricante\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT, en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 12,
+"g": "Motor Ventilador Colector de Polvo",
+"d": "MEDIR- Temperatura de la carcasa del motor",
+"lim": "Temperatura no mayor a 60 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 13,
+"g": "Motor Ventilador Colector de Polvo",
+"d": "MEDIR- Temperatura de la carcasa de los rodamientos del motor",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 14,
+"g": "Motor Ventilador Colector de Polvo",
+"d": "INSPECCIONAR - Lubricación rodamiento lado carga",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 15,
+"g": "Motor Ventilador Colector de Polvo",
+"d": "INSPECCIONAR - Lubricación rodamiento lado libre",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 16,
+"g": "Motor Ventilador Inflado",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas de lubricante\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT, en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 17,
+"g": "Motor Ventilador Inflado",
+"d": "MEDIR- Temperatura de la carcasa del motor",
+"lim": "Temperatura no mayor a 60 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 18,
+"g": "Motor Ventilador Inflado",
+"d": "MEDIR- Temperatura de la carcasa de los rodamientos del motor",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 19,
+"g": "Motor Ventilador Inflado",
+"d": "INSPECCIONAR - Lubricación rodamiento lado carga",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 20,
+"g": "Motor Ventilador Inflado",
+"d": "INSPECCIONAR - Lubricación rodamiento lado libre",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 21,
+"g": "Motor Sistema de elevación",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas de lubricante\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT, en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 22,
+"g": "Motor Sistema de elevación",
+"d": "MEDIR- Temperatura de la carcasa del motor",
+"lim": "Temperatura no mayor a 60 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 23,
+"g": "Motor Sistema de elevación",
+"d": "MEDIR- Temperatura de la carcasa de los rodamientos del motor",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT"
+},
+{
+"n": 24,
+"g": "Motor Sistema de elevación",
+"d": "INSPECCIONAR - Lubricación rodamiento lado carga",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 25,
+"g": "Motor Sistema de elevación",
+"d": "INSPECCIONAR - Lubricación rodamiento lado libre",
+"lim": "Sin fugas, ruidos anormales y/o alza de temperatura\n\nComentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+}
+]
+},
+{
+"id": "QB2-0300-IOC4-PLN-957",
+"titulo": "PI M-Agitador TK almac floculante",
+"equipo": "Agitador TK almacenamiento floculante",
+"area": "Instalación de reactivos",
+"ubicacion": "",
+"acts": [
+{
+"n": 1,
+"g": "Reductor",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos internos anormales, sin piezas faltantes (tapón de relleno), sin evidencia de fugas, sin acumulación de contaminación sistema de enfriamiento\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas, piezas faltantes y/o ruidos internos anormales se debe investigar causa y generar OT , en caso de obstrucción de sistema de enfriamiento se debe generar OT"
+},
+{
+"n": 2,
+"g": "Reductor",
+"d": "MEDIR - Temperatura de la carcasa con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 3,
+"g": "Reductor",
+"d": "INSPECCIONAR - Filtro aireador de silica gel",
+"lim": "De acuerdo a color de saturación indicado en el filtro\n\nComentarios Condicionales: En caso de saturación cambiar el componente de ser posible de lo contrario generar OT para su reemplazo"
+},
+{
+"n": 4,
+"g": "Reductor",
+"d": "INSPECCIONAR - Indicación de temperatura del aceite",
+"lim": "Temperatura no mayor a 80 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 5,
+"g": "Reductor",
+"d": "MEDIR - Temperatura de la carcasa del reductor con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 6,
+"g": "Reductor",
+"d": "MEDIR - Temperatura en la carcasa de los rodamientos del reductor",
+"lim": "Temperatura no mayor a 80 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 7,
+"g": "Reductor",
+"d": "INSPECCIONAR - Indicación de presión del aceite",
+"lim": "Presión en rango normal de operación\n\nComentarios Condicionales: En caso de presión menor se debe investigar causa y generar OT"
+},
+{
+"n": 8,
+"g": "Reductor",
+"d": "INSPECCIONAR - Nivel de aceite con equipo operando",
+"lim": "Nivel debe estar en lo indicado en mirilla con equipo operando\n\nComentarios Condicionales: En caso de un nivel de aceite bajo se debe verificar nivel real con equipo detenido"
+},
+{
+"n": 9,
+"g": "Motor",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT , en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 10,
+"g": "Motor",
+"d": "MEDIR - Temperatura de la carcasa con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 11,
+"g": "Motor",
+"d": "MEDIR - Temperatura de la carcasa de los rodamientos con pirómetro y/o camara termográfica",
+"lim": "Temperatura no mayor a 80 °C\n\nComentarios Condicionales: Si excede el rango límite aceptable generar OT para investigar la causa y/o ajustar frecuencia de inspección"
+},
+{
+"n": 12,
+"g": "Motor",
+"d": "INSPECCIONAR - Lubricación lado carga",
+"lim": "Lubricador automático en correcto funcionamiento\n\nComentarios Condicionales: En caso de mal funcionamiento investigar causa de ser posible corregir de lo contrario generar OT"
+},
+{
+"n": 13,
+"g": "Motor",
+"d": "INSPECCIONAR - Lubricación lado libre",
+"lim": "Lubricador automático en correcto funcionamiento\n\nComentarios Condicionales: En caso de mal funcionamiento investigar causa de ser posible corregir de lo contrario generar OT"
+}
+]
+},
+{
+"id": "QB2-0300-IOC4-PLN-960",
+"titulo": "PI M-Agitador TK maduración floculante",
+"equipo": "Agitador TK maduración floculante",
+"area": "Instalación de reactivos",
+"ubicacion": "0390-ZMF-003-07",
+"acts": [
+{
+"n": 1,
+"g": "Reductor",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos internos anormales, sin piezas faltantes (tapón de relleno), sin evidencia de fugas, sin acumulación de contaminación sistema de enfriamiento\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas, piezas faltantes y/o ruidos internos anormales se debe investigar causa y generar OT , en caso de obstrucción de sistema de enfriamiento se debe generar OT"
+},
+{
+"n": 2,
+"g": "Reductor",
+"d": "MEDIR - Temperatura de la carcasa con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 3,
+"g": "Reductor",
+"d": "INSPECCIONAR - Filtro aireador de silica gel",
+"lim": "De acuerdo a color de saturación indicado en el filtro\n\nComentarios Condicionales: En caso de saturación cambiar el componente de ser posible de lo contrario generar OT para su reemplazo"
+},
+{
+"n": 4,
+"g": "Reductor",
+"d": "INSPECCIONAR - Indicación de temperatura del aceite",
+"lim": "Temperatura no mayor a 80 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 5,
+"g": "Reductor",
+"d": "MEDIR - Temperatura de la carcasa del reductor con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 6,
+"g": "Reductor",
+"d": "MEDIR - Temperatura en la carcasa de los rodamientos del reductor",
+"lim": "Temperatura no mayor a 80 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 7,
+"g": "Reductor",
+"d": "INSPECCIONAR - Indicación de presión del aceite",
+"lim": "Presión en rango normal de operación\n\nComentarios Condicionales: En caso de presión menor se debe investigar causa y generar OT"
+},
+{
+"n": 8,
+"g": "Reductor",
+"d": "INSPECCIONAR - Nivel de aceite con equipo operando",
+"lim": "Nivel debe estar en lo indicado en mirilla con equipo operando\n\nComentarios Condicionales: En caso de un nivel de aceite bajo se debe verificar nivel real con equipo detenido"
+},
+{
+"n": 9,
+"g": "Motor",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT , en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 10,
+"g": "Motor",
+"d": "MEDIR - Temperatura de la carcasa con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: En caso de exceder el límite aceptable se debe investigar causa y generar OT"
+},
+{
+"n": 11,
+"g": "Motor",
+"d": "MEDIR - Temperatura de la carcasa de los rodamientos con pirómetro y/o camara termográfica",
+"lim": "Temperatura no mayor a 80 °C\n\nComentarios Condicionales: Si excede el rango límite aceptable generar OT para investigar la causa y/o ajustar frecuencia de inspección"
+},
+{
+"n": 12,
+"g": "Motor",
+"d": "INSPECCIONAR - Lubricación lado carga",
+"lim": "Lubricador automático en correcto funcionamiento\n\nComentarios Condicionales: En caso de mal funcionamiento investigar causa de ser posible corregir de lo contrario generar OT"
+},
+{
+"n": 13,
+"g": "Motor",
+"d": "INSPECCIONAR - Lubricación lado libre",
+"lim": "Lubricador automático en correcto funcionamiento\n\nComentarios Condicionales: En caso de mal funcionamiento investigar causa de ser posible corregir de lo contrario generar OT"
+}
+]
+},
+{
+"id": "QB2-0300-IOC4-PLN-975",
+"titulo": "PI S-Bba floculante espesante concen",
+"equipo": "Bba floculante espesante concentrado",
+"area": "Instalación de reactivos",
+"ubicacion": "0390-ZMF-002-",
+"acts": [
+{
+"n": 1,
+"g": "Bomba",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin soltura entre componentes, sin corrosión, sin piezas deterioradas y con todas sus proteccionesLeve goteo es aceptable para la lubricación del sello húmedo\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 2,
+"g": "Bomba",
+"d": "INSPECCIONAR - Indicación de caudal de proceso",
+"lim": "Caudal mayor a 1 m³/h\n\nComentarios Condicionales: Si disminuye el límite aceptable generar OT para investigar la causa, en caso de observarse un caudal menor a 5067 m³/h generar OT para revisión en el corto plazo"
+},
+{
+"n": 3,
+"g": "Bomba",
+"d": "INSPECCIONAR - Indicación de presión en la descarga",
+"lim": "Presión no mayor a 500 Kpa (72.5 Psi)\n\nComentarios Condicionales: Si se detecta una condición operacional que exceda el límite aceptable informar de inmediato al dueño del área y continuar con la inspección cuando la condición haya sido controlada"
+},
+{
+"n": 4,
+"g": "Bomba",
+"d": "INSPECCIONAR - Lubricación rodamiento bomba",
+"lim": "Comentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 5,
+"g": "Bomba",
+"d": "MEDIR - Temperatura de la carcasa de bomba con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 60°C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT para normalizar"
+},
+{
+"n": 6,
+"g": "Motor",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin acumulación de contaminación en rejilla de ventilación y sin evidencia de fugas\n\nComentarios Condicionales: En caso de encontrar evidencia de fugas se debe investigar causa y generar OT, en caso de obstrucción de la rejilla se ventilación se debe generar OT"
+},
+{
+"n": 7,
+"g": "Motor",
+"d": "INSPECCIONAR - Lubricación rodamiento lado carga",
+"lim": "Comentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 8,
+"g": "Motor",
+"d": "INSPECCIONAR - Lubricación rodamiento lado libre",
+"lim": "Comentarios Condicionales: En caso de ruidos anormales, alza de temperatura, investigar causa, relubricar o de lo contrario generar OT para realizarlo"
+},
+{
+"n": 9,
+"g": "Motor",
+"d": "MEDIR - Temperatura de la carcasa con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 50 °C y un ΔT no mayor a 10 °C (entre componentes y cargas similares)\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT para normalizar"
+},
+{
+"n": 10,
+"g": "Motor",
+"d": "MEDIR - Temperatura de la carcasa de los rodamientos con pirómetro y/o camara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: Si excede el límite aceptable se debe investigar causa y/o generar OT para normalizar"
+},
+{
+"n": 11,
+"g": "Reductor",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin ruidos inusuales, sin contaminación, sin fugas de aceite, sin soltura entre componentes, sin corrosión, sin piezas deterioradas, sin correas sueltas ó dañadas, poleas de transmisión en buen estado\n\nComentarios Condicionales: Si se evidencia alguna anomalía, componentes fuera de posición o problemas en el montaje generar OT para revisar de forma inmediata"
+},
+{
+"n": 12,
+"g": "Reductor",
+"d": "INSPECCIONAR - Nivel de aceite con equipo operando",
+"lim": "Según marca indicada en visor\n\nComentarios Condicionales: Si el nivel se encuentra fuera del rango optimo de funciaonmeinto, regularizar inmediatamente o generar OT"
+},
+{
+"n": 13,
+"g": "Reductor",
+"d": "MEDIR - Temperatura de la carcasa del reductor con pirómetro y/o cámara termográfica",
+"lim": "Temperatura no mayor a 70 °C\n\nComentarios Condicionales: Si excede el límite aceptable generar OT para investigar la causa y/o ajustar frecuencia de inspección"
+}
+]
+},
+{
+"id": "QB2-0600-IOC4-PLN-093",
+"titulo": "PDM M-Bbas Cntr Gabbioneta (B)",
+"equipo": "Bbas Cntr Gabbioneta",
+"area": "Pipelines",
+"ubicacion": "0655-PPC-",
+"acts": [
+{
+"n": 1,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin evidencia de fugas, protecciones y componentes fuera de su posición o sueltos\nComentarios Condicionales: En caso de encontrar condiciones subestándar, investigar causa y generar aviso"
+},
+{
+"n": 2,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR - Saturación en filtro respiradero",
+"lim": "De acuerdo a color de saturación indicado en el filtro\nComentarios Condicionales: En caso de saturación cambiar el componente de ser posible de lo contrario generar aviso"
+},
+{
+"n": 3,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR - Saturación en filtro de aceite (succión)",
+"lim": "Indicador de saturación dentro del rango normal de funcionamiento\nComentarios Condicionales: En caso indicador fuera del rango generar aviso para cambio del componente"
+},
+{
+"n": 3,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR-Temperatura de aceite",
+"lim": "Rango se debe mantener entre 30°C y 60°C.\n\nComentarios Condicionales: En caso indicador fuera del rango generar aviso para cambio del componente"
+},
+{
+"n": 3,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR-Fugas de aceite",
+"lim": "Revisar fugas por flanges - valvulas - cañerias\n\nComentarios Condicionales: En caso indicador fuera del rango generar aviso para cambio del componente"
+},
+{
+"n": 3,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR-Temperatura de aceite descansos motor",
+"lim": "Rango se debe mantener entre 30°C y 60°C.\n\nComentarios Condicionales: En caso indicador fuera del rango generar aviso para cambio del componente"
+},
+{
+"n": 3,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR-Temperatura de aceite descansos bomba",
+"lim": "Rango se debe mantener entre 30°C y 60°C."
+},
+{
+"n": 3,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR- Presión del sistema  y presión de aceite descansos bomba",
+"lim": "Rango se debe mantener entre 22 psi a 37 psi."
+},
+{
+"n": 3,
+"g": "Unidad de lubricación",
+"d": "INSPECCIONAR-Presión de aceite descansos  motor",
+"lim": "Rango se debe mantener entre 22 psi a 37 psi."
+},
+{
+"n": 4,
+"g": "Unidad de lubricación",
+"d": "TOMAR - Muestra de aceite",
+"lim": "Comentarios Condicionales: Según instructivo de toma de muestra"
+}
+]
+},
+{
+"id": "QB2-0600-IOC4-PLN-098",
+"titulo": "PI S-Bba Geho",
+"equipo": "Bba Geho",
+"area": "Pipelines",
+"ubicacion": "0621-PPP-601",
+"acts": [
+{
+"n": 1,
+"g": "Sistema de lubricación",
+"d": "INSPECCIONAR - Nivel de aceite",
+"lim": "Nivel del indicador de aceite sobre la mitad de lo indicado en mirilla\nComentarios Condicionales: En caso de bajo nivel añadir aceite"
+},
+{
+"n": 2,
+"g": "Sistema de lubricación",
+"d": "INSPECCIONAR - Alarmas en panel HMI",
+"lim": "Sin alarmas encendidas\nComentarios Condicionales: En caso de alarmas encendidas investigar causa y normalizar"
+},
+{
+"n": 3,
+"g": "Sistema de lubricación",
+"d": "INSPECCIONAR - Flujo de aceite en sensor de caudal",
+"lim": "Comentarios Condicionales: En caso de flujo de aceite fuera de rango investigar causa y generar aviso"
+},
+{
+"n": 4,
+"g": "Sistema de lubricación",
+"d": "INSPECCIONAR - Bloqueo en filtro doble",
+"lim": "Indicador de bloqueo debe estar vacío o de color verde\nComentarios Condicionales: En caso de que el indicador de bloqueo este de color rojo se debe investigar cauda y de ser necesario cambiar filtro"
+},
+{
+"n": 5,
+"g": "Sistema de lubricación",
+"d": "INSPECCIONAR - Bloqueo en filtro de aceite",
+"lim": "Si la presión de vacío del manómetro esta entre -0,7 y -1,0\nComentarios Condicionales: Investigar causa del filtro bloqueado y de ser necesario reemplazar filtro"
+},
+{
+"n": 6,
+"g": "Power end",
+"d": "INSPECCIONAR - Nivel de aceite",
+"lim": "Nivel del indicador de aceite sobre la mitad de lo indicado en mirilla\nComentarios Condicionales: En caso de bajo nivel añadir aceite"
+},
+{
+"n": 7,
+"g": "Power end",
+"d": "INSPECCIONAR - Bloqueo en filtro de aceite",
+"lim": "Si la presión de vacío del manómetro esta entre -0,7 y -1,0\nComentarios Condicionales: Investigar causa del filtro bloqueado y de ser necesario reemplazar filtro"
+},
+{
+"n": 8,
+"g": "Unidad de nivelado",
+"d": "INSPECCIONAR - Fugas",
+"lim": "Sin evidencia de fugas\nComentarios Condicionales: En caso de fugas se debe investigar causa y de ser necesario generar aviso"
+},
+{
+"n": 9,
+"g": "Sistema de líquido propulsor",
+"d": "INSPECCIONAR - Fugas",
+"lim": "Sin evidencia de fugas\nComentarios Condicionales: En caso de fugas se debe investigar causa y de ser necesario generar aviso"
+},
+{
+"n": 10,
+"g": "Sistema de líquido propulsor",
+"d": "INSPECCIONAR - Burbujas de aire en válvulas de ventilación",
+"lim": "Sin burbujas de aire en las mangueras transparentes\nComentarios Condicionales: En caso de burbujas investigar posibles fuga en el sistema de líquido propulsor"
+},
+{
+"n": 11,
+"g": "Sistema de líquido propulsor",
+"d": "INSPECCIONAR - Alarmas en panel HMI",
+"lim": "Sin alarmas encendidas\nComentarios Condicionales: En caso de alarmas encendidas investigar causa y normalizar"
+},
+{
+"n": 12,
+"g": "Sistema de líquido propulsor",
+"d": "INSPECCIONAR - Bloqueo en filtros",
+"lim": "Indicador de bloque debe estar dentro del rango de funcionamiento\nComentarios Condicionales: Investigar causa y de ser necesario reemplazar filtro"
+},
+{
+"n": 13,
+"g": "Sistema de líquido propulsor",
+"d": "INSPECCIONAR - Nivel de líquido en depósito",
+"lim": "Nivel sobre el mínimo indicado en mirilla\nComentarios Condicionales: En caso de nivel del líquido bajo se debe rellenar"
+},
+{
+"n": 14,
+"g": "Sistema de líquido propulsor",
+"d": "COMPROBAR - Presión en acumulador",
+"lim": "Menor a 1800 KPa\nComentarios Condicionales: En caso de desvío, investigar causa y de ser necesario generar aviso"
+},
+{
+"n": 15,
+"g": "Sistema de líquido propulsor",
+"d": "INSPECCIONAR - Fugas en acumulador",
+"lim": "Sin evidencia de fugas\nComentarios Condicionales: En caso de fugas se debe investigar causa y de ser necesario generar aviso"
+},
+{
+"n": 16,
+"g": "Sistema de líquido propulsor",
+"d": "INSPECCIONAR - Secuencia de actuación en válvulas de llenado y salida",
+"lim": "En correcto secuencia de funcionamiento\nComentarios Condicionales: En caso de desvío, investigar causa y de ser necesario generar aviso"
+}
+]
+},
+{
+"id": "QB2-0600-MTN2-PLN-027",
+"titulo": "PDM M-Agitadores (B)",
+"equipo": "Agitadores",
+"area": "Pipelines",
+"ubicacion": "0621-AGA-60",
+"acts": [
+{
+"n": 1,
+"g": "",
+"d": "INSPECCIONAR - Condición subestándar",
+"lim": "Sin evidencia de fugas, protecciones y componentes fuera de su posición o sueltos\nComentarios Condicionales: En caso de encontrar condiciones subestándar, investigar causa y generar aviso"
+},
+{
+"n": 2,
+"g": "",
+"d": "INSPECCIONAR - Saturación en filtro respiradero",
+"lim": "De acuerdo a color de saturación indicado en el filtro\nComentarios Condicionales: En caso de saturación cambiar el componente de ser posible de lo contrario generar aviso"
+},
+{
+"n": 5,
+"g": "",
+"d": "INSPECCIONAR - Saturación en filtro de aceite (succión)",
+"lim": "El manometro debe indicar una presión menor a 8 PSI\nComentarios Condicionales: En caso de presión mayor a 8 PSI generar aviso para cambio del componente"
+},
+{
+"n": 2,
+"g": "Sistema motriz",
+"d": "INSPECCIONAR - Fugas en acoplamiento",
+"lim": "Sin rastros de lubricante en la vandeja inferior del acoplamiento\nComentarios Condicionales: En caso de fugas se debe generar aviso para programar lubricación del acople"
+},
+{
+"n": 3,
+"g": "Sistema motriz",
+"d": "INSPECCIONAR - Lubricación en rodamientos",
+"lim": "Lubricador automático en correcto funcionamiento\nComentarios Condicionales: En caso de mal funcionamiento investigar causa de ser posible corregir de lo contrario generar aviso"
+},
+{
+"n": 3,
+"g": "Reductor",
+"d": "INSPECCIONAR - Lubricación en rodamientos motor eléctrico",
+"lim": "Lubricador automático en correcto funcionamiento\nComentarios Condicionales: En caso de mal funcionamiento investigar causa de ser posible corregir de lo contrario generar aviso"
+},
+{
+"n": 6,
+"g": "Reductor",
+"d": "TOMAR - Muestra de aceite",
+"lim": "Comentarios Condicionales: Según instructivo de toma de muestra"
+},
+{
+"n": 7,
+"g": "Reductor",
+"d": "INSPECCIONAR - Nivel de aceite",
+"lim": "Nivel no debe estar bajo la mitad de la mirilla\nComentarios Condicionales: En caso de bajo nivel generar aviso para añadir aceite"
+}
+]
+},
+{
+"id": "QB2-0600-MTN2-PLN-043",
+"titulo": "PI S-Harnero lineal rotativo (B)",
+"equipo": "Harnero lineal rotativo",
+"area": "Pipelines",
+"ubicacion": "0621-SCB-601",
+"acts": [
+{
+"n": 1,
+"g": "",
+"d": "INSPECCIONAR - Lubricación en rodamientos polines",
+"lim": "Punto de lubricación bien conectado y sin fugas de lubricante\nComentarios Condicionales: En caso de fugas en puntos de lubricación, investigar causa y generar aviso"
+},
+{
+"n": 2,
+"g": "",
+"d": "INSPECCIONAR - Lubricación en rodamientos polea motriz",
+"lim": "Punto de lubricación bien conectado y sin fugas de lubricante\nComentarios Condicionales: En caso de fugas en puntos de lubricación, investigar causa y generar aviso"
+},
+{
+"n": 2,
+"g": "",
+"d": "INSPECCIONAR - Nivel de grasa en contenedor de grasa sistema de lubricación automático",
+"lim": "Nivel del contenedor no debe estar bajo según autonomia programada\nComentarios Condicionales: En caso de nivel bajo según autonomia programada generar aviso para rellenar contenedor"
+}
+]
+},
+{
+"id": "QB2-0600-MTN2-PLN-047",
+"titulo": "PM M-Harnero lineal rotativo",
+"equipo": "Harnero lineal rotativo",
+"area": "Pipelines",
+"ubicacion": "",
+"acts": [
+{
+"n": 1,
+"g": "",
+"d": "LUBRICAR - Contenedor de grasa",
+"lim": "Comentarios Condicionales: Rellenar contenedor de grasa del sistema de lubricación automatico hasta el nivel indicado"
+}
+]
+}
+]

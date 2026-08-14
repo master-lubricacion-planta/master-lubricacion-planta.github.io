@@ -1,0 +1,366 @@
+<title>Maestro de Lubricación</title>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b;
+  --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
+  --chip-bg:#e7ecf5; --hit:#ffe2c4;
+  --card-grad:linear-gradient(135deg,#ffffff,#eef2f9);
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+    --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+    --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+    --orange:#f5822b;
+    --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
+    --chip-bg:#1a2750; --hit:#5c3a12;
+    --card-grad:linear-gradient(135deg,#152249,#0e1836);
+    --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+  --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+  --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+  --orange:#f5822b;
+  --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
+  --chip-bg:#1a2750; --hit:#5c3a12;
+  --card-grad:linear-gradient(135deg,#152249,#0e1836);
+  --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b;
+  --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
+  --chip-bg:#e7ecf5; --hit:#ffe2c4;
+  --card-grad:linear-gradient(135deg,#ffffff,#eef2f9);
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg); color:var(--ink); font:16px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif; -webkit-text-size-adjust:100%}
+.mono{font-family:ui-monospace,"Cascadia Mono","SF Mono",Consolas,monospace}
+button{font:inherit; color:inherit}
+
+header{position:sticky; top:0; z-index:10; background:linear-gradient(100deg,var(--navy),var(--navy-2)); padding:12px 14px 12px; border-bottom:3px solid var(--orange)}
+.brand{display:flex; align-items:center; gap:10px; margin:0 auto 10px; max-width:820px}
+.searchwrap{max-width:820px;margin:0 auto}
+#homebtn{border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.logo svg{width:22px;height:22px;fill:#fff}
+.brand h1{font-size:17px;font-weight:800;margin:0;letter-spacing:-.01em;color:var(--on-navy)}
+.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+.tabs{display:flex;align-items:center;gap:10px;max-width:820px;margin:8px auto 8px}
+.tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:4px 2px 6px;border-bottom:3px solid transparent}
+.tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
+.tabs .slash{color:var(--on-navy-2);font-weight:300;font-size:17px}
+.brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:0 0 auto}
+.tecklogo{height:26px;width:auto;display:block}
+.adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
+#back{margin-left:10px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:var(--on-navy);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;display:none;align-items:center;gap:5px}
+#back svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+.searchwrap{position:relative}
+.searchwrap>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--ink-3);fill:none;stroke-width:2;pointer-events:none}
+#q{width:100%;padding:13px 40px;font-size:16px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);outline:none;box-shadow:var(--shadow)}
+#q:focus{border-color:var(--accent)}
+#clear{position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:var(--chip-bg);color:var(--ink-2);width:28px;height:28px;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;display:none}
+
+main{padding:14px;max-width:820px;margin:0 auto}
+#count{font-size:12.5px;color:var(--ink-3);padding:0 2px 10px}
+.mlink{color:var(--accent-ink);font-weight:700;text-decoration:none;background:var(--accent-soft);padding:3px 10px;border-radius:999px;margin-left:6px;display:inline-block}
+
+/* ---- home ---- */
+.welcome{margin:4px 2px 14px}
+.welcome h2{font-size:20px;margin:0 0 2px;letter-spacing:-.02em}
+.welcome p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.areagrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.acard{
+  position:relative;border:1px solid var(--line);border-radius:16px;background:var(--card-grad);
+  padding:14px 12px 12px;cursor:pointer;text-align:left;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:8px;min-height:118px;overflow:hidden;
+  transition:transform .12s ease;
+}
+.acard:active{transform:scale(.97)}
+.acard:focus-visible{outline:2px solid var(--accent)}
+.aicon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.aicon svg{width:27px;height:27px}
+.acard.hasphoto{padding:0;min-height:150px}
+.aphoto{display:block;height:82px;background-size:cover;background-position:center;border-radius:15px 15px 0 0}
+.acard.hasphoto .atext{padding:8px 12px 0}
+.acard.hasphoto .cnt{padding:0 12px 10px}
+.acard .aname{font-weight:800;font-size:15px;line-height:1.2}
+.acard .anum{font-size:11px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.acard .cnt{font-size:12px;color:var(--ink-2)}
+.pautasbtn{display:flex;align-items:center;gap:8px;background:var(--navy);color:var(--on-navy);border-radius:14px;padding:14px 16px;margin:0 0 14px;text-decoration:none;font-size:15px;box-shadow:var(--shadow);border-left:4px solid var(--orange)}
+.pautasbtn span{margin-left:auto;font-size:20px;color:var(--on-navy-2)}
+.statsrow{display:flex;gap:10px;margin:0 0 14px}
+.stat{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow)}
+.stat .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat .l{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+
+/* ---- results ---- */
+.hint{color:var(--ink-2);text-align:center;padding:40px 20px;font-size:15px}
+.hint b{color:var(--ink)}
+mark{background:var(--hit);color:inherit;border-radius:2px;padding:0 1px}
+.equip{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden}
+.ehead{width:100%;text-align:left;border:0;background:none;padding:13px 14px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.ehead:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.ehead .tag{font-weight:800;font-size:15px}
+.ehead .meta{flex:1;min-width:0}
+.ehead .desc{font-size:13px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ehead .eqname{font-weight:800;color:var(--ink);font-size:13.5px}
+.ehead .arealbl{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.ehead .n{flex:0 0 auto;font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.caret{width:14px;height:14px;stroke:var(--ink-3);fill:none;stroke-width:2.5;transition:transform .15s}
+.equip.open .caret{transform:rotate(90deg)}
+.comps{display:none;border-top:1px solid var(--line)}
+.eqdoc{display:flex;align-items:center;gap:8px;margin:10px 14px 2px;padding:9px 12px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;text-decoration:none;color:var(--accent-ink);font-size:13.5px;font-weight:700}
+.eqdoc svg{width:17px;height:17px;fill:var(--accent-ink);flex:0 0 auto}
+.eqdoc span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.eqdoc b{flex:0 0 auto}
+.equip.open .comps{display:block}
+.comp{padding:12px 14px;border-bottom:1px solid var(--line)}
+.comp:last-child{border-bottom:0}
+.comp-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.comp-name{font-weight:700;font-size:14px}
+.badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}
+.badge.oil{background:var(--oil-bg);color:var(--oil)}
+.badge.grease{background:var(--grease-bg);color:var(--grease)}
+.lubline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--accent-soft);border-radius:10px;padding:9px 11px;margin-bottom:8px}
+.lubline .lub{font-weight:800;font-size:15px;color:var(--accent-ink)}
+.lubline .qty{background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);font-weight:800;font-size:15.5px;padding:2px 11px;border-radius:999px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lubline .freq{font-size:13px;color:var(--ink-2)}
+.lubline .tdslink{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--accent-ink);text-decoration:none;background:var(--surface);border:1px solid var(--line);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.lubline .hdslink{font-size:12.5px;font-weight:700;color:#a33b12;text-decoration:none;background:var(--surface);border:1px solid #d98a5f;padding:3px 10px;border-radius:999px;white-space:nowrap}
+:root[data-theme="dark"] .lubline .hdslink{color:#f0a479;border-color:#8a4a26}
+@media (prefers-color-scheme: dark){ .lubline .hdslink{color:#f0a479;border-color:#8a4a26} }
+:root[data-theme="light"] .lubline .hdslink{color:#a33b12;border-color:#d98a5f}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:13px}
+.kv{min-width:0}
+.kv .k{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.kv .v{overflow-wrap:break-word}
+.kv.wide{grid-column:1 / -1}
+footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+<header>
+  <div class="brand">
+    <button id="homebtn" aria-label="Ir al inicio">
+      <span class="logo"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></span>
+      <span><h1>Maestro de Lubricación</h1><span class="sub">Concentradora</span></span>
+    </button>
+    <span class="brandright">
+      <img class="tecklogo" src="__TECKLOGO__" alt="Teck">
+      <span class="adminline">Admin: Nicolás Saravia</span>
+    </span>
+    <button id="back" aria-label="Volver al inicio"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg>Inicio</button>
+  </div>
+  <nav class="tabs">
+    <a class="on" href="index.html">Maestro de Lubricación</a>
+    <span class="slash">/</span>
+    <a href="pautas.html">Pautas Plan Semanal</a>
+  </nav>
+  <div class="searchwrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    <input id="q" type="search" placeholder="Buscar TAG o descripción…" autocomplete="off" autocapitalize="characters">
+    <button id="clear" aria-label="Limpiar búsqueda">✕</button>
+  </div>
+</header>
+<main>
+  <div id="home"></div>
+  <div id="count"></div>
+  <div id="results"></div>
+</main>
+<footer>Maestro de Lubricación · Concentradora Teck QB · __NREC__ puntos de lubricación en 551 equipos<br>Administrador: Nicolás Saravia Alegría</footer>
+
+<script>
+const DATA = __DATA__;
+
+/* ---------- áreas: nombre, ícono y color ---------- */
+const ICONS = {
+  chancado:'<path d="M12 3 4 9v3l8-5.6L20 12V9l-8-6zM6 14l3.2 2L6 20h4l2-3 2 3h4l-3.2-4L18 14l-2-1.5-4 2.8-4-2.8L6 14z"/>',
+  molienda:'<circle cx="12" cy="12" r="8" fill="none" stroke-width="2.4" stroke="currentColor"/><circle cx="12" cy="12" r="3.4"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3" stroke="currentColor" stroke-width="2" fill="none"/>',
+  pebble:'<circle cx="8" cy="14" r="4.4"/><circle cx="15.5" cy="9.5" r="3.4"/><circle cx="16.5" cy="16.5" r="2.6"/>',
+  flotacion:'<circle cx="8" cy="16" r="3.6"/><circle cx="14.5" cy="11" r="2.8"/><circle cx="10.5" cy="7" r="2"/><circle cx="17.5" cy="5.8" r="1.5"/>',
+  espesamiento:'<path d="M3 7h18l-3 4H6L3 7zm4 6h10l-1.6 6H8.6L7 13z"/>',
+  molibdeno:'<path d="M12 2l2.4 6.6H21l-5.3 4 2 6.9-5.7-4.2-5.7 4.2 2-6.9L3 8.6h6.6L12 2z"/>',
+  reactivos:'<path d="M9 3h6v2h-1v5.2l4.8 8.1A2 2 0 0 1 17 21H7a2 2 0 0 1-1.8-2.7L10 10.2V5H9V3zm2.5 9-3 5.5h7l-3-5.5h-1z"/>',
+  relaves:'<path d="M3 18c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0v3H3v-3zm2-6h14l2 4H3l2-4zm3-7h8l2 5H6l2-5z"/>',
+  torre:'<path d="M9 3h6l2 7h-2.5l1.5 11h-8L9.5 10H7l2-7zm1 15h4M10 14h4" stroke="currentColor" stroke-width="1.6"/>',
+  tmf:'<path d="M4 20h16v-2H4v2zm1-4h14l-2.5-9h-9L5 16zm5.5-6h3l.8 4h-4.6l.8-4z"/>',
+  pipeline:'<path d="M3 9h4v6H3V9zm14 0h4v6h-4V9zM7 10.5h10v3H7v-3z"/>'
+};
+const MANUAL='https://teckresources.sharepoint.com/sites/manualinteractivo/SitePages/';
+const AREAS = {
+  'Area 210':{name:'Chancado', icon:'chancado', hue:24, photo:'chancado', manual:MANUAL+'Chancado.aspx'},
+  'Area 220':{name:'Chancado', icon:'chancado', hue:32, photo:'chancado', manual:MANUAL+'Chancado.aspx'},
+  'Area 240':{name:'Molienda', icon:'molienda', hue:38, photo:'molienda', manual:MANUAL+'58mzfw54.aspx'},
+  'Area 310':{name:'Molienda', icon:'molienda', hue:44, photo:'molienda', manual:MANUAL+'58mzfw54.aspx'},
+  'Area 320':{name:'Pebble', icon:'pebble', hue:18, photo:'pebble', manual:MANUAL+'58mzfw54.aspx'},
+  'Area 330':{name:'Flotación', icon:'flotacion', hue:200, photo:'flotacion', manual:MANUAL+'hyqoxooo.aspx'},
+  'Area 340':{name:'Espesamiento', icon:'espesamiento', hue:262, photo:'flotcol', manual:MANUAL+'60n78nzs.aspx'},
+  'Area 370':{name:'Molibdeno', icon:'molibdeno', hue:215, photo:'flotcol', manual:MANUAL+'hyqoxoooSelectiva.aspx'},
+  'Area 390':{name:'Reactivos', icon:'reactivos', hue:150, photo:'flotcol', manual:MANUAL+'InfoGeneralOP-PLANTA.aspx'},
+  'Area 410':{name:'Relaves', icon:'relaves', hue:16, photo:'espesador', manual:MANUAL+'InfoGeneralT-FLUIDO.aspx'},
+  'Area 920':{name:'Torre de Enfriamiento', icon:'torre', hue:190, photo:'agua', manual:MANUAL+'InfoGeneralOP-PLANTA.aspx'},
+  'Area TMF':{name:'TMF', icon:'tmf', hue:100, photo:'tmf', manual:'https://teckresources.sharepoint.com/sites/manualinteractivo'},
+  'Area Pipeline':{name:'Pipeline', icon:'pipeline', hue:230, photo:'concentrado', manual:MANUAL+'1v1l2zlbtransporteconcentrado.aspx'}
+};
+const PHOTOS = __PHOTOS__;
+const EQDOCS = __EQDOCS__; /* TAG -> {u:url documento, n:nombre} */
+const LUBDOCS = __LUBDOCS__; /* nombre normalizado -> url ficha técnica */
+const HDSDOCS = __HDSDOCS__; /* nombre normalizado -> url hoja de seguridad */
+const tdsFor = name => { if(!name) return null; const k=fold(name).replace(/\s+/g,' ').trim(); return LUBDOCS[k]||null; };
+const hdsFor = name => { if(!name) return null; const k=fold(name).replace(/\s+/g,' ').trim(); return HDSDOCS[k]||null; };
+
+/* ---------- índice ---------- */
+const fold = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const equipos = new Map();
+for (const r of DATA){
+  const key = r.tag + '|' + r.hoja;
+  if(!equipos.has(key)) equipos.set(key,{tag:r.tag,hoja:r.hoja,area:r.area||'',area_desc:r.area_desc||'',equipo:r.equipo||'',desc:r.descripcion||'',comps:[]});
+  const e = equipos.get(key);
+  if(!e.desc && r.descripcion) e.desc = r.descripcion;
+  e.comps.push(r);
+}
+const LIST = [...equipos.values()];
+for(const e of LIST){
+  e.search = fold([e.tag,e.equipo,e.desc,e.area_desc,...e.comps.map(c=>[c.componente,c.lub_actual,c.lub_recomendado,c.vendor].join(' '))].join(' '));
+}
+
+/* ---------- estado ---------- */
+let areaFilter = null;
+const q=document.getElementById('q'), clearBtn=document.getElementById('clear');
+const homeEl=document.getElementById('home'), resultsEl=document.getElementById('results'), countEl=document.getElementById('count');
+const backBtn=document.getElementById('back');
+
+const esc = s => (s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function hi(text,terms){
+  let raw=(text??'').toString();
+  if(!terms.length) return esc(raw);
+  const folded=fold(raw); const ranges=[];
+  for(const term of terms){ let i=0; while((i=folded.indexOf(term,i))!==-1){ranges.push([i,i+term.length]); i+=term.length;} }
+  if(!ranges.length) return esc(raw);
+  ranges.sort((a,b)=>a[0]-b[0]);
+  const merged=[ranges[0]];
+  for(const r of ranges.slice(1)){const last=merged[merged.length-1]; if(r[0]<=last[1]) last[1]=Math.max(last[1],r[1]); else merged.push(r);}
+  let res='',pos=0;
+  for(const [a,b] of merged){res+=esc(raw.slice(pos,a))+'<mark>'+esc(raw.slice(a,b))+'</mark>'; pos=b;}
+  return res+esc(raw.slice(pos));
+}
+function kv(k,v,wide,terms){
+  if(v===undefined||v===null||v==='') return '';
+  return `<div class="kv${wide?' wide':''}"><div class="k">${k}</div><div class="v">${hi(v,terms||[])}</div></div>`;
+}
+
+/* ---------- home ---------- */
+function areaCard(hoja){
+  const a=AREAS[hoja]||{name:hoja,icon:'molienda',hue:40};
+  const eqs=LIST.filter(e=>e.hoja===hoja);
+  const pts=eqs.reduce((s,e)=>s+e.comps.length,0);
+  const num=hoja.replace('Area ','');
+  const ph=a.photo&&PHOTOS[a.photo];
+  const visual = ph
+    ? `<span class="aphoto" style="background-image:url('${ph}')"></span>`
+    : `<span class="aicon" style="background:hsl(${a.hue} 55% 90%);color:hsl(${a.hue} 60% 32%)"><svg viewBox="0 0 24 24" fill="currentColor">${ICONS[a.icon]}</svg></span>`;
+  return `<button class="acard${ph?' hasphoto':''}" data-area="${hoja}">
+    ${visual}
+    <span class="atext"><span class="anum">Área ${esc(num)}</span><br><span class="aname">${esc(a.name)}</span></span>
+    <span class="cnt">${eqs.length} equipos · ${pts} ptos</span>
+  </button>`;
+}
+function renderHome(){
+  const hojas=[...new Set(DATA.map(r=>r.hoja))];
+  homeEl.innerHTML = `
+    <div class="welcome"><h2>¿Qué equipo buscas hoy?</h2><p>Busca por TAG o descripción, o entra a un área.</p></div>
+    <div class="statsrow">
+      <div class="stat"><div class="v">${LIST.length}</div><div class="l">Equipos</div></div>
+      <div class="stat"><div class="v">${DATA.length}</div><div class="l">Ptos. lubricación</div></div>
+      <div class="stat"><div class="v">${hojas.length}</div><div class="l">Áreas</div></div>
+    </div>
+    <div class="areagrid">${hojas.map(areaCard).join('')}</div>`;
+  homeEl.querySelectorAll('.acard').forEach(b=>{ b.onclick=()=>{ areaFilter=b.dataset.area; render(); window.scrollTo(0,0); }; });
+}
+
+/* ---------- resultados ---------- */
+function compHTML(c,terms){
+  const isGrease=fold(c.tipo_lub||'').includes('grasa');
+  const badge=c.tipo_lub?`<span class="badge ${isGrease?'grease':'oil'}">${esc(c.tipo_lub)}</span>`:'';
+  const lub=c.lub_actual||c.lub_recomendado||'';
+  const fmtL=v=>{const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?esc(v)+' L':(n%1?n:n.toFixed(0))+'L';};
+  const fmtG=v=>{const n=parseFloat(String(v).replace(',','.'));if(isNaN(n))return esc(v)+' g';return n>=1000?(Math.round(n/100)/10)+'Kg':(n%1?n:n.toFixed(0))+'g';};
+  let qty='';
+  if(c.aceite_lt) qty=fmtL(c.aceite_lt);
+  else if(c.grasa_grs) qty=fmtG(c.grasa_grs);
+  else if(c.cantidad) qty=esc(c.cantidad)+(isGrease?'g':'L');
+  let freq='';
+  if(c.cambio_hrs) freq=`· cambio cada ${esc(c.cambio_hrs)} hrs`;
+  else if(c.relub_hrs) freq=`· re-lubricar cada ${esc(c.relub_hrs)} hrs`;
+  return `<div class="comp">
+    <div class="comp-top"><span class="comp-name">${hi(c.componente||'Componente',terms)}</span>${badge}</div>
+    ${lub?`<div class="lubline"><span class="lub">${hi(lub,terms)}</span>${qty?`<span class="qty">${qty}</span>`:''}${freq?`<span class="freq">${freq}</span>`:''}${tdsFor(lub)?`<a class="tdslink" href="${tdsFor(lub)}" target="_blank" rel="noopener">Ficha técnica ↗</a>`:''}${hdsFor(lub)?`<a class="hdslink" href="${hdsFor(lub)}" target="_blank" rel="noopener">HDS ↗</a>`:''}</div>`:''}
+    <div class="grid">
+      ${kv('Lubricante recomendado', c.lub_recomendado!==lub?c.lub_recomendado:'',false,terms)}
+      ${kv('Equivalente', c.lub_equivalente,false,terms)}
+      ${kv('Mejor desempeño', c.lub_mejor,false,terms)}
+      ${kv('Vendor', c.vendor,false,terms)}
+      ${kv('ISO VG / Espesante', c.iso_vg)}
+      ${kv('Limpieza ISO 4406', c.iso_limpieza)}
+      ${kv('Cambio aceite', c.cambio_hrs?c.cambio_hrs+' hrs':'')}
+      ${kv('Re-lubricación', c.relub_hrs?c.relub_hrs+' hrs':'')}
+      ${kv('Lubricador automático', c.lub_auto)}
+      ${kv('Rodamientos', c.rodamientos)}
+      ${kv('Especificación técnica', c.iso_spec,true)}
+    </div>
+  </div>`;
+}
+function render(){
+  const terms=fold(q.value).split(/\s+/).filter(Boolean);
+  const isHome = !terms.length && !areaFilter;
+  homeEl.style.display = isHome?'block':'none';
+  backBtn.style.display = isHome?'none':'flex';
+  if(isHome){ countEl.textContent=''; resultsEl.innerHTML=''; renderHome(); return; }
+
+  let list=LIST;
+  if(areaFilter) list=list.filter(e=>e.hoja===areaFilter);
+  if(terms.length) list=list.filter(e=>terms.every(t=>e.search.includes(t)));
+  const shown=list.slice(0,80);
+  const a=areaFilter?(AREAS[areaFilter]||{name:areaFilter}):null;
+  const manualLink = a&&a.manual ? ` <a class="mlink" href="${a.manual}" target="_blank" rel="noopener">Manual Interactivo ↗</a>` : '';
+  countEl.innerHTML=esc((a?`${a.name} (${areaFilter.replace('Area ','Área ')}) · `:'')+`${list.length} equipo${list.length!==1?'s':''}`+(list.length>80?' — mostrando 80, afina la búsqueda':''))+manualLink;
+  const autoOpen=shown.length<=3;
+  resultsEl.innerHTML = shown.map(e=>`
+    <div class="equip${autoOpen?' open':''}">
+      <button class="ehead" aria-expanded="${autoOpen}">
+        <div class="meta">
+          <div class="tag mono">${hi(e.tag,terms)}</div>
+          <div class="desc">${e.equipo?`<span class="eqname">${hi(e.equipo,terms)}</span>`:''}${e.equipo&&e.desc?' — ':''}${hi(e.desc,terms)}</div>
+          <div class="arealbl">${esc((AREAS[e.hoja]||{}).name||e.hoja)} · ${esc(e.hoja.replace('Area ','Área '))}</div>
+        </div>
+        <div class="n">${e.comps.length} pto${e.comps.length!==1?'s':''}
+          <svg class="caret" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </div>
+      </button>
+      <div class="comps">${EQDOCS[e.tag]?`<a class="eqdoc" href="${EQDOCS[e.tag].u}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM8 12h8v1.6H8V12zm0 3.5h8v1.6H8v-1.6z"/></svg><span>Documento del equipo: ${esc(EQDOCS[e.tag].n)}</span><b>↗</b></a>`:''}${e.comps.map(c=>compHTML(c,terms)).join('')}</div>
+    </div>`).join('') || `<div class="hint">Sin resultados${q.value?` para “${esc(q.value)}”`:''}.</div>`;
+  resultsEl.querySelectorAll('.ehead').forEach(b=>{
+    b.onclick=()=>{const card=b.parentElement; card.classList.toggle('open'); b.setAttribute('aria-expanded',card.classList.contains('open'));};
+  });
+}
+
+/* ---------- eventos ---------- */
+let t; q.addEventListener('input',()=>{clearTimeout(t); t=setTimeout(render,120); clearBtn.style.display=q.value?'block':'none';});
+clearBtn.onclick=()=>{q.value=''; clearBtn.style.display='none'; render(); q.focus();};
+const goHome=()=>{areaFilter=null; q.value=''; clearBtn.style.display='none'; render(); window.scrollTo(0,0);};
+backBtn.onclick=goHome;
+document.getElementById('homebtn').onclick=goHome;
+render();
+</script>
