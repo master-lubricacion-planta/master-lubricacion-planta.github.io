@@ -1,4 +1,4 @@
-const CACHE = 'lubricacion-v13';
+const CACHE = 'lubricacion-v14';
 const ASSETS = ['./', './index.html', './pautas.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
