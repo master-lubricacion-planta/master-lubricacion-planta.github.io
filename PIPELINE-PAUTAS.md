@@ -5,30 +5,47 @@ https://master-lubricacion-planta.github.io/pautas.html
 
 ## Descubrimientos clave (ya probados — NO re-investigar)
 
-1. **Las pautas NO viven en Máximo**: los attachments de las OT son enlaces a la biblioteca SharePoint
-   `https://teckresources.sharepoint.com/sites/QB2OP/Gerencia Operaciones Integradas/3. CF-Documentos Controlados Operacionales - Técnicos/`
-   con nombres `QB2-XXXX-IOC4-PLN-<n>.xlsx` (1.759 archivos). No hace falta entrar OT por OT a Máximo.
+**⚠️ MÉTODO CORREGIDO (semana 33, Domingo): la búsqueda por TAG en SharePoint NO es confiable.**
+Se probó primero el método "buscar por TAG en SharePoint" (puntos 2-3 antiguos, abajo) y en la
+verificación posterior contra Máximo se encontró que **32 de 40 pautas asignadas así estaban
+mal** (traía el documento de la disciplina/frecuencia equivocada) y que **5 OT que parecían LUB
+por su descripción o nombre de archivo en realidad son Tipo=INSP** (inspección mecánica, no
+lubricación) — Máximo es la única fuente de verdad fiable. Usar SIEMPRE el método de la sección
+"Verificación por Máximo" de abajo como método PRINCIPAL, no como paso opcional.
 
-2. **Asociar TAG → pauta con el buscador de SharePoint** (indexa el contenido; el TAG va dentro del archivo).
-   En una pestaña de `teckresources.sharepoint.com` (sesión del usuario), por cada TAG del plan:
-   ```js
-   const q='"<TAG>" path:"https://teckresources.sharepoint.com/sites/QB2OP/Gerencia Operaciones Integradas/3. CF-Documentos Controlados Operacionales - Técnicos" filetype:xlsx';
-   fetch("/sites/QB2OP/_api/search/query?querytext='"+encodeURIComponent(q.replace(/'/g,"''"))+"'&selectproperties='Path'&rowlimit=20",{headers:{Accept:'application/json;odata=nometadata'}})
-   ```
-   Devuelve varias pautas candidatas por TAG (distintas disciplinas/frecuencias).
+1. **Las pautas viven adjuntas a cada OT en Máximo** (Attachments), y también existen como copia
+   en la biblioteca SharePoint `https://teckresources.sharepoint.com/sites/QB2OP/Gerencia Operaciones
+   Integradas/3. CF-Documentos Controlados Operacionales - Técnicos/` con nombres
+   `QB2-XXXX-IOC4-PLN-<n>.xlsx` (1.759 archivos) — SharePoint solo sirve para DESCARGAR el archivo
+   una vez que Máximo dijo cuál es el correcto, no para decidir cuál es.
 
-3. **Elegir la pauta correcta entre candidatas**: descargarlas y comparar el título de la pauta
-   (celda fila 2, col 29: ej. "PI M-Agitador TK almac floculante") con la descripción de la OT
-   (PI/PM/PDM + S/M + equipo). La especialidad del plan es LUB. En duda, preferir coincidencia
-   de prefijo (PI↔PI, PDM↔PDM) y frecuencia (S=semanal, M=mensual).
+2. **Verificación por Máximo (MÉTODO PRINCIPAL — hacer para cada OT, no es opcional)**:
+   App "Seguimiento de órdenes de trabajo (TCK)" en `teck.maximo.com`.
+   - Filtrar exacto por lote de OT: en el campo "Orden de trabajo" de Vista de lista, escribir
+     `=OT1,=OT2,=OT3,...` (con el signo `=` antes de CADA número, separados por coma) y Enter.
+     Sin el `=` el filtro hace "contains" y trae basura (registros ACT... no relacionados).
+   - Para cada OT: abrir el registro (click en el número) → leer **"Tipo de Orden de trabajo"**
+     (panel derecho). **Solo Tipo=LUB es lubricación** — excluir INSP, MECH, PDM genérico, etc.
+     aunque la descripción de la OT o el nombre del archivo adjunto contengan la palabra "LUB".
+   - Click en el link "Attachments" (ícono de clip, arriba del panel derecho) → popup
+     "View Attachments" → columna "Document" trae el nombre real `QB2-...-PLN-<n>.xlsx`.
+     `get_page_text` lee el popup sin necesidad de screenshot (más rápido).
+   - Los doclinks NO están expuestos por OSLC/API (probado: 500/400/vacío, y `fetch()` con cookies
+     de sesión es bloqueado por política del navegador) — hay que leer la UI.
 
-4. **Descargar SIN bloqueo de Chrome**: navegar la pestaña a
+3. **Descargar el PLN correcto desde SharePoint SIN bloqueo de Chrome**: navegar la pestaña a
    `https://teckresources.sharepoint.com/sites/QB2OP/_layouts/15/download.aspx?SourceUrl=<ruta URL-encoded>`
-   (una navegación por archivo → cae en `C:\Users\alexa\Downloads`). NO usar clicks de descarga masiva (Chrome los bloquea).
+   (una navegación por archivo → cae en `C:\Users\alexa\Downloads`). Para varios archivos a la vez,
+   abrir una pestaña nueva por archivo y navegar todas en paralelo (bypasea el límite de Chrome de
+   "varias descargas automáticas"; navegar secuencial en la misma pestaña también funciona pero es
+   más lento).
 
-5. **Verificación por Máximo (opcional, para casos dudosos)**: en pestaña de `teck.maximo.com`:
-   - OT → datos: `fetch('/maximo/oslc/os/mxwodetail?oslc.where=wonum="<OT>"&oslc.select=wonum,jpnum,location,assetnum&lean=1',{headers:{Accept:'application/json'}})` (funciona).
-   - Los doclinks NO están expuestos por OSLC (probado: 500/400/vacío). Para confirmar el PLN de una OT hay que abrir la OT en la UI (app "Seguimiento de órdenes de trabajo (TCK)" → buscar OT → Attachments) y leer el nombre del archivo.
+4. **Delegar el trabajo mecánico de OT-por-OT a un agente en background** (Agent tool): dado el
+   volumen (decenas de OT por día), conviene lanzar un agente por día que recorra la lista con el
+   método del punto 2 y reporte una tabla {ot, tipo, estado, archivo(s)}. Indicarle que abra su
+   PROPIA pestaña nueva en el mismo navegador (la sesión ya está autenticada y se comparte entre
+   pestañas) si se van a correr agentes en paralelo, para no pisarse unos a otros navegando la
+   misma pestaña.
 
 ## Archivos del pipeline (scratchpad de la sesión original, copiar si se pierde)
 
