@@ -58,18 +58,52 @@ lubricación) — Máximo es la única fuente de verdad fiable. Usar SIEMPRE el 
   genera `index.html` y `pautas.html` en `lubricacion-pwa`, sube versión del service worker.
 - Imágenes de equipo: mayor imagen embebida del xlsx → `pautas-img/<PLN>.jpg` (máx 560px, JPEG q72).
 
-## Procedimiento por lote (repetir por día del plan)
+## Procedimiento por lote (repetir por día del plan) — MÉTODO ACTUAL (vía Máximo)
 
-1. Tomar TAGs de las OT sin pauta del día (`plan_w33.json`, pauta=null).
-2. Búsqueda SharePoint por cada TAG → lista de PLN candidatos (dedupe global).
-3. Descargar los PLN nuevos (download.aspx, uno por uno) → mover de Downloads a `C:\Users\alexa\Desktop\Pautas\`.
-4. Correr el extractor sobre los nuevos → agregar a `pautas.json` + extraer imagen.
-5. Asociar OT→PLN (título vs descripción de OT; regla del punto 3 de arriba). Actualizar el mapeo en el script de extracción del plan.
-6. `python build.py` → `git add -A && git commit && git push` en `lubricacion-pwa`.
-7. Verificar en https://master-lubricacion-planta.github.io/pautas.html (esperar ~1 min el deploy).
+1. Tomar los números de OT sin pauta del día (`plan_w33.json`, pauta=null).
+2. Delegar a un Agent (subagente, uno por día, SIEMPRE SECUENCIAL — nunca en paralelo, ver
+   advertencia de sesión compartida arriba) que recorra Máximo con el filtro `=OT1,=OT2,...` y
+   reporte {ot, tipo_orden_trabajo, estado, archivo(s)_adjunto(s)} de cada una.
+3. Con el resultado: descartar toda OT con Tipo ≠ LUB (aunque la descripción o el nombre del
+   archivo digan "lubricación"). De las que sí son LUB, listar los PLN nuevos (no presentes aún
+   en `pautas.json`).
+4. Descargar los PLN nuevos por `download.aspx` (varias pestañas en paralelo está bien para esto,
+   es SharePoint, no Máximo — no hay riesgo de sesión compartida).
+5. Correr `extract_pauta.py` sobre cada uno → agrega a `pautas.json` + extrae imagen.
+6. Mapear OT→PLN en `plan_w33.json` con el diccionario verificado (ya no hace falta comparar
+   título vs descripción — el archivo adjunto en Máximo YA es la asociación correcta).
+7. `python build.py` → copiar `pautas.json`/`plan_w33.json` a `_src/` → `git add -A && git commit
+   && git push` en `lubricacion-pwa`.
+8. Verificar en https://master-lubricacion-planta.github.io/pautas.html (esperar ~1 min el deploy).
 
-## Estado actual
+Casos especiales encontrados: algún PLN vive en otra biblioteca/disciplina (`QB2-1400-IOC4-PLN-…`,
+`QB2-0300-MTN2-PLN-…` en vez de `QB2-0300-IOC4-PLN-…`) — si el download.aspx da error, buscar el
+Path exacto por SharePoint search antes de reintentar. Algunas OT LUB genuinas no tienen ningún
+xlsx adjunto (solo foto, o adjunto en otra biblioteca no ubicada) — quedan sin pauta digital,
+está bien, la app las muestra como "sin pauta digital" sin romperse.
 
-- Semana 33 cargada completa (259 OT). Sábado 15.08: 23/23 con pauta digital. Resto de días: pendiente.
-- Pautas digitalizadas: 13 (ver pautas.json). PLN-734 (Chute Bypass Pebbles) ya descargada en Downloads, pendiente de incorporar.
-- Cada semana nueva: pedir el Excel del programa al usuario, extraer con el patrón de `plan_w33.json` (hoja CON_LUB_YxxWxx, días JUEVES→MIÉRCOLES), y cruzar TAGs con la biblioteca de pautas ya acumulada.
+## Estado actual (semana 33 — 2026-08-15)
+
+Las 7 jornadas de la semana 33 fueron verificadas contra Máximo (259 OT totales):
+
+| Día        | Con pauta LUB | Total OT |
+|------------|---------------|----------|
+| Sábado     | 23            | 23       |
+| Domingo    | 40            | 45       |
+| Jueves     | 33            | 48       |
+| Viernes    | 55            | 60       |
+| Lunes      | 40            | 51       |
+| Martes     | 22            | 31       |
+| Miércoles  | 0             | 1        |
+| **Total**  | **213**       | **259**  |
+
+Pautas digitalizadas en biblioteca: 103 (`pautas.json`). Las OT sin pauta son: (a) genuinamente
+Tipo≠LUB (mecánicas/inspección, descartadas correctamente), o (b) Tipo=LUB pero sin xlsx
+localizable (adjunto solo foto, o en biblioteca SharePoint distinta a la habitual — casos aislados,
+no bloquean el resto).
+
+Cada semana nueva: pedir el Excel del programa al usuario, extraer con el patrón de
+`plan_w33.json` (hoja CON_LUB_YxxWxx, días JUEVES→MIÉRCOLES), y repetir el procedimiento por
+lote de arriba — pero como la biblioteca de pautas ya tiene 103 documentos, muchas OT de semanas
+futuras (mismo TAG, misma pauta recurrente) deberían resolverse sin tener que descargar nada
+nuevo, solo verificando en Máximo qué PLN está adjunto.
