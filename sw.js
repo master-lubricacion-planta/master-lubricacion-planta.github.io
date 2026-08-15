@@ -1,5 +1,5 @@
-const CACHE = 'lubricacion-v14';
-const ASSETS = ['./', './index.html', './pautas.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE = 'lubricacion-v15';
+const ASSETS = ['./', './index.html', './pautas.html', './panorama.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

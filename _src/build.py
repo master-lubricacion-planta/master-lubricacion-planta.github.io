@@ -107,10 +107,19 @@ pout=(ptpl.replace('__PAUTAS__',json.dumps(pautas,ensure_ascii=False).replace('<
           .replace('__OVERRIDES__',json.dumps(overrides,ensure_ascii=False).replace('</','<\\/'))
           .replace('__TECKLOGO__',tecklogo))
 open(os.path.join(pwa,'pautas.html'),'w',encoding='utf-8').write(pout)
+
+ntpl=open(base+r'\panorama_template.html',encoding='utf-8').read()
+nout=(ntpl.replace('__PAUTAS__',json.dumps(pautas,ensure_ascii=False).replace('</','<\\/'))
+          .replace('__PLANES__',json.dumps(planes,ensure_ascii=False).replace('</','<\\/'))
+          .replace('__TECKLOGO__',tecklogo))
+open(os.path.join(pwa,'panorama.html'),'w',encoding='utf-8').write(nout)
+
 sw=open(os.path.join(pwa,'sw.js'),encoding='utf-8').read()
 m=re.search(r'lubricacion-v(\d+)',sw)
 sw=sw.replace(m.group(0),'lubricacion-v'+str(int(m.group(1))+1))
 if './pautas.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./pautas.html', './manifest.json'")
+if './panorama.html' not in sw:
+    sw=sw.replace("'./manifest.json'","'./panorama.html', './manifest.json'")
 open(os.path.join(pwa,'sw.js'),'w',encoding='utf-8').write(sw)
 print('build OK | pautas.html', os.path.getsize(os.path.join(pwa,'pautas.html'))//1024,'KB')
