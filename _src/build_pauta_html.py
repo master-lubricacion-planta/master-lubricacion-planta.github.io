@@ -171,6 +171,44 @@ def build_cellmap(ws):
     return cm
 
 
+# Paleta del tema Office estandar, en el orden en que Excel indexa los colores de
+# tema dentro del xlsx: 0=lt1(blanco), 1=dk1(negro), 2=lt2, 3=dk2, 4..9=acentos 1-6.
+_THEME_RGB = ['FFFFFF', '000000', 'E7E6E6', '44546A', '4472C4', 'ED7D31', 'A5A5A5', 'FFC000', '5B9BD5', '70AD47']
+
+def _tint(rgb_hex, tint):
+    """Formula de tinte de Office: negativo oscurece, positivo aclara."""
+    out = ''
+    for i in (0, 2, 4):
+        c = int(rgb_hex[i:i + 2], 16)
+        c = c * (1 + tint) if tint < 0 else c * (1 - tint) + 255 * tint
+        out += format(max(0, min(255, int(round(c)))), '02X')
+    return out
+
+def _fill_rgb(cell):
+    """Color de relleno solido de la celda como RRGGBB, o None (los rellenos de tema
+    y con tinte los pierde xlsx2html; aqui los resolvemos a mano)."""
+    f = cell.fill
+    if not f or f.patternType != 'solid':
+        return None
+    c = f.fgColor
+    rgb = None
+    try:
+        if c.type == 'rgb' and isinstance(c.rgb, str):
+            rgb = c.rgb[-6:]
+        elif c.type == 'theme' and isinstance(c.theme, int) and c.theme < len(_THEME_RGB):
+            rgb = _tint(_THEME_RGB[c.theme], c.tint or 0)
+        elif c.type == 'indexed':
+            from openpyxl.styles.colors import COLOR_INDEX
+            v = COLOR_INDEX[c.indexed]
+            rgb = v[-6:]
+    except Exception:
+        return None
+    if not rgb or rgb.upper() in ('FFFFFF', '000000'):
+        # blanco = sin relleno visible; 'negro' suele ser el placeholder de "sin color"
+        return None
+    return rgb
+
+
 def apply_whitespace(ws, html, sheet_name):
     """Emula el comportamiento real de Excel con el texto:
     - celdas SIN ajustar texto (wrap_text falso): una sola linea que se 'derrama'
@@ -180,7 +218,8 @@ def apply_whitespace(ws, html, sheet_name):
     - celdas CON ajustar texto: respetar tambien los saltos de linea manuales
       (p.ej. el titulo 'PAUTA DE INSPECCION\nGERENCIA DE MANTENIMIENTO')."""
     html = html.replace('<table  style="border-collapse: collapse"',
-                        '<table  style="border-collapse: collapse;table-layout: fixed"', 1)
+                        '<table  style="border-collapse: collapse;table-layout: fixed;'
+                        "font-family: Calibri, 'Segoe UI', Arial, sans-serif\"", 1)
 
     # puede haber otros atributos (rowspan, colspan) entre id y style
     pattern = re.compile(r'(id="' + re.escape(sheet_name) + r'!(?P<coord>[A-Z]+\d+)"[^>]*? style="[^"]*)"')
@@ -188,10 +227,16 @@ def apply_whitespace(ws, html, sheet_name):
     def repl(m):
         coord = m.group('coord')
         try:
-            wrap = ws[coord].alignment.wrap_text
+            cell = ws[coord]
+            wrap = cell.alignment.wrap_text
         except Exception:
+            cell = None
             wrap = False
         rule = 'white-space:pre-wrap;word-wrap:break-word' if wrap else 'white-space:nowrap'
+        if cell is not None:
+            rgb = _fill_rgb(cell)
+            if rgb:
+                rule += ';background-color:#' + rgb
         return m.group(1) + ';' + rule + '"'
 
     return pattern.sub(repl, html)
