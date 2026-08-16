@@ -417,6 +417,7 @@ function renderForm(){
       </div>
       <div class="frow">
         <div><label>Técnico(s)</label><input id="ftec" value="${esc(d.tecnico||'')}" placeholder="Nombre"></div>
+        <div><label>Correo del técnico</label><input id="fmail" type="email" value="${esc(d.mail||'')}" placeholder="nombre@correo.com"></div>
         <div><label>Fecha</label><input id="ffecha" value="${esc(d.fecha||new Date().toLocaleDateString('es-CL'))}"></div>
         <div><label>Hora inicio</label><input id="fini" value="${esc(d.hini||'')}" placeholder="HH:MM"></div>
         <div><label>Hora término</label><input id="fter" value="${esc(d.hter||'')}" placeholder="HH:MM"></div>
@@ -430,12 +431,18 @@ function renderForm(){
       <button class="btn ghost" id="blimpiar">Borrar datos</button>
       <button class="btn primary" id="bimprimir">📄 Informe / Imprimir</button>
     </div>
+    <div class="btnbar">
+      <button class="btn primary" id="bemail" disabled>📧 Enviar PDF por correo</button>
+    </div>
+    <div class="lockmsg" id="femaillock">🔒 Para enviar el PDF completa los campos obligatorios: <b>N° de OT</b>, el <b>correo del técnico</b>, el <b>estado (B/M/N/A)</b> de todas las actividades y el <b>valor medido</b> de cada MEDIR.</div>
     <div class="fabspacer"></div>`;
   const persist=()=>{
-    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.mail=$('#fmail').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
     save(ot,d); renderFotos(o,d);
   };
-  ['#fot','#ftec','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
+  ['#fot','#ftec','#fmail','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
+  const bemail=$('#bemail');
+  if(bemail) bemail.onclick=()=>enviarPdfCorreo(o,d);
   document.querySelectorAll('.act').forEach(el=>{
     const n=el.dataset.n;
     const st=()=> d.acts[n]=d.acts[n]||{};
@@ -457,7 +464,7 @@ function renderForm(){
   /* Guardado explícito: recoge TODO lo que haya en pantalla (incluso campos sin confirmar aún) y lo escribe en el dispositivo. No requiere internet: usa localStorage/IndexedDB del propio teléfono. */
   const fab=$('#fabsave'); const fabtxt=fab.querySelector('.fabtxt');
   function saveAll(){
-    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.mail=$('#fmail').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
     document.querySelectorAll('.act').forEach(el=>{
       const n=el.dataset.n; const st=d.acts[n]=d.acts[n]||{};
       const v=el.querySelector('.val'); if(v) st.v=v.value;
@@ -472,6 +479,8 @@ function renderForm(){
 }
 
 async function renderFotos(o,d){
+  const bemail=$('#bemail'), lockmsg=$('#femaillock');
+  if(bemail){ const okmail=reqComplete(o,d) && (d.mail||'').includes('@'); bemail.disabled=!okmail; if(lockmsg) lockmsg.style.display=okmail?'none':''; }
   const box=$('#fotos'); if(!box) return;
   const ok=reqComplete(o,d);
   if(!ok){
@@ -526,6 +535,99 @@ async function renderInforme(ot){
     ${fotos.length?`<div class="fotosrep">${fotos.map(u=>`<img src="${u}">`).join('')}</div>`:''}
     <div class="foot"><span>Registrado en terreno con app Maestro de Lubricación · Admin: Nicolás Saravia</span><span>Firma: ______________________</span></div>
   </div>`;
+}
+
+/* ---------- PDF fiel al Excel + envío por correo (requiere internet) ---------- */
+const EMAILJS_SERVICE = 'service_qw7p6uj';
+const EMAILJS_TEMPLATE = 'hnyjpdc';
+const EMAILJS_PUBLIC = 'Sg2eiZUqWZiBMMxtz';
+let libsReady=null;
+function cargarLibs(){
+  if(libsReady) return libsReady;
+  libsReady=new Promise((resolve,reject)=>{
+    const scripts=[
+      'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js',
+      'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+    ];
+    let left=scripts.length;
+    scripts.forEach(src=>{
+      const s=document.createElement('script'); s.src=src;
+      s.onload=()=>{ if(--left===0) resolve(); };
+      s.onerror=()=>reject(new Error('No se pudo cargar '+src));
+      document.head.appendChild(s);
+    });
+  });
+  return libsReady;
+}
+function celda(root,sheet,ref){ return root.querySelector(`[id="${sheet}!${ref}"]`); }
+function marcarCelda(root,sheet,ref,texto){ const el=celda(root,sheet,ref); if(el) el.textContent=texto; }
+
+async function enviarPdfCorreo(o,d){
+  const btn=$('#bemail'); if(!btn||btn.disabled) return;
+  const p=byId[o.pauta];
+  if(!p.cellmap || !p.sheet){ alert('Esta pauta todavía no tiene la plantilla de PDF generada. Avisa al admin.'); return; }
+  const original=btn.textContent;
+  btn.disabled=true; btn.textContent='⏳ Preparando…';
+  try{
+    await cargarLibs();
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    if(typeof emailjs!=='undefined' && emailjs.init) emailjs.init(EMAILJS_PUBLIC);
+
+    const html=await (await fetch('pautas-html/'+p.id+'.html')).text();
+    const cont=document.createElement('div');
+    cont.style.cssText='position:absolute;left:0;top:99999px;background:#fff';
+    cont.innerHTML=html;
+    document.body.appendChild(cont);
+
+    const sh=p.sheet, cm=p.cellmap;
+    if(cm.ot) marcarCelda(cont,sh,cm.ot,'OT: '+(d.ot||o.ot));
+    if(cm.empresa) marcarCelda(cont,sh,cm.empresa,'Teck QB2 - Lubricación');
+    if(cm.fecha_inicio && cm.fecha_inicio[0]) marcarCelda(cont,sh,cm.fecha_inicio[0], (d.fecha||'')+' '+(d.hini||''));
+    if(cm.fecha_termino && cm.fecha_termino[0]) marcarCelda(cont,sh,cm.fecha_termino[0], (d.fecha||'')+' '+(d.hter||''));
+    if(cm.tecnicos && cm.tecnicos[0]) marcarCelda(cont,sh,cm.tecnicos[0], d.tecnico||'');
+    for(const a of cm.activities){
+      const st=(d.acts||{})[a.n]||{};
+      if(a.valor) marcarCelda(cont,sh,a.valor, st.v||'');
+      if(a.estado){
+        if(st.e) marcarCelda(cont,sh,a.estado, st.e);
+      }else{
+        const marks={B:a.b,M:a.m,NA:a.na};
+        const ref=marks[st.e];
+        if(ref) marcarCelda(cont,sh,ref,'X');
+      }
+    }
+
+    btn.textContent='⏳ Generando PDF…';
+    const canvas=await html2canvas(cont,{scale:1.3,useCORS:true});
+    document.body.removeChild(cont);
+    const {jsPDF}=window.jspdf;
+    const pdfDoc=new jsPDF({unit:'px',format:[canvas.width,canvas.height],orientation:canvas.width>canvas.height?'l':'p'});
+    pdfDoc.addImage(canvas.toDataURL('image/jpeg',0.85),'JPEG',0,0,canvas.width,canvas.height);
+    const blob=pdfDoc.output('blob');
+
+    btn.textContent='⏳ Subiendo PDF…';
+    const storage=firebase.storage();
+    const path='pdfs/'+(d.ot||o.ot)+'_'+Date.now()+'.pdf';
+    const ref=storage.ref().child(path);
+    const conTimeout=(p,ms,msg)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(msg)),ms))]);
+    await conTimeout(ref.put(blob,{contentType:'application/pdf'}), 25000, 'La subida del PDF tardó demasiado (¿Storage está habilitado?)');
+    const url=await conTimeout(ref.getDownloadURL(), 15000, 'No se pudo obtener el link del PDF');
+
+    btn.textContent='⏳ Enviando correo…';
+    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+      to_email: d.mail, tecnico_nombre: d.tecnico||'', ot_numero: d.ot||o.ot, equipo: o.desc||p.titulo, pdf_url: url
+    });
+
+    flash('📧 PDF enviado a '+d.mail);
+    btn.textContent='✓ Enviado';
+    setTimeout(()=>{ btn.textContent=original; btn.disabled=false; },2500);
+  }catch(e){
+    console.error(e);
+    alert('No se pudo enviar el PDF. Revisa tu conexión a internet e intenta de nuevo.\n\n'+(e&&e.message?e.message:''));
+    btn.textContent=original; btn.disabled=false;
+  }
 }
 
 render();
