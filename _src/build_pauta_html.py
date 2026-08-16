@@ -171,6 +171,78 @@ def build_cellmap(ws):
     return cm
 
 
+def inject_figures(ws, html, sheet_name):
+    """xlsx2html descarta las imagenes ancladas dentro de rangos fusionados (la celda
+    interior no existe como <td> en el HTML). Las inyectamos a mano dentro de la celda
+    maestra del rango fusionado donde esta anclada cada imagen (tipicamente FIGURAS)."""
+    import base64 as b64
+    merged_ranges = list(ws.merged_cells.ranges)
+
+    def master_coord(row, col):
+        coord = ws.cell(row=row, column=col).coordinate
+        for rng in merged_ranges:
+            if coord in rng:
+                return rng.coord.split(':')[0]
+        return coord
+
+    for im in ws._images:
+        try:
+            frm = im.anchor._from
+        except Exception:
+            continue
+        if frm.row < 5:
+            continue  # el logo del encabezado ya lo maneja xlsx2html
+        try:
+            data = im._data()
+        except Exception:
+            continue
+        fmt = (im.format or 'png').lower()
+        if fmt == 'wmf':
+            continue  # openpyxl no soporta wmf, ya viene descartada
+        # Excel puede mostrar solo un RECORTE de la imagen embebida (srcRect, en
+        # fracciones de 1/100000). Sin aplicarlo se veria la imagen cruda completa
+        # (p.ej. una captura de pantalla entera en vez de solo la figura del equipo).
+        try:
+            src_rect = im.anchor.pic.blipFill.srcRect
+        except Exception:
+            src_rect = None
+        if src_rect and any([src_rect.l, src_rect.t, src_rect.r, src_rect.b]):
+            from PIL import Image as PILImage
+            import io as _io
+            pil = PILImage.open(_io.BytesIO(data))
+            W, H = pil.size
+            l = (src_rect.l or 0) / 100000.0
+            t = (src_rect.t or 0) / 100000.0
+            r = (src_rect.r or 0) / 100000.0
+            b = (src_rect.b or 0) / 100000.0
+            box = (int(W * l), int(H * t), int(W * (1 - r)), int(H * (1 - b)))
+            if box[2] > box[0] and box[3] > box[1]:
+                pil = pil.crop(box)
+                buf = _io.BytesIO()
+                pil.convert('RGB').save(buf, 'PNG')
+                data = buf.getvalue()
+                fmt = 'png'
+        target = master_coord(frm.row + 1, frm.col + 1)
+        td_id = f'{sheet_name}!{target}'
+        marker = f'id="{td_id}"'
+        idx = html.find(marker)
+        if idx == -1:
+            continue
+        end_tag = html.find('>', idx)
+        if end_tag == -1:
+            continue
+        # altura de la celda contenedora para escalar la imagen sin desbordar
+        # (solo el estilo de ESTE td: desde el id hasta el cierre del tag)
+        td_open = html[idx:end_tag]
+        mh = re.search(r'height:\s*([\d.]+)pt', td_open)
+        h_style = f'max-height:{float(mh.group(1)) - 6:.0f}pt;' if mh else 'max-height:260pt;'
+        uri = 'data:image/' + fmt + ';base64,' + b64.b64encode(data).decode()
+        img_tag = (f'<img src="{uri}" style="{h_style}max-width:96%;display:block;'
+                   f'margin:6pt auto 6pt 30pt;object-fit:contain">')
+        html = html[:end_tag + 1] + img_tag + html[end_tag + 1:]
+    return html
+
+
 def main():
     pautas_path = os.path.join(SCRATCH, 'pautas.json')
     pautas = json.load(open(pautas_path, encoding='utf-8'))
@@ -200,6 +272,7 @@ def main():
             out = xlsx2html(xlsx_path, sheet=0)
             out.seek(0)
             html = out.read()
+            html = inject_figures(ws, html, ws.title)
             with open(os.path.join(OUT_HTML_DIR, pln_id + '.html'), 'w', encoding='utf-8') as f:
                 f.write(html)
             processed += 1

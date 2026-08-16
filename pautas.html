@@ -248,7 +248,7 @@ function syncCloud(ot,d){
   if(!cloudOk) return;
   try{
     cloudDb.collection('pautas').doc(ot).set({
-      ot: d.ot||ot, tecnico: d.tecnico||'', fecha: d.fecha||'', hini: d.hini||'', hter: d.hter||'',
+      ot: d.ot||ot, tecnico: d.tecnico||'', tecnico2: d.tecnico2||'', fecha: d.fecha||'', hini: d.hini||'', hter: d.hter||'',
       obsg: d.obsg||'', acts: d.acts||{}, updatedAt: new Date().toISOString()
     }, {merge:true}).catch(()=>{});
   }catch(e){}
@@ -394,7 +394,7 @@ function syncFromCloudIfNeeded(ot){
     /* Dispositivo nuevo sin datos propios (ej: PC de oficina): traemos lo que
        se completó en el celular. */
     localStorage.setItem(K(ot),JSON.stringify({
-      ot:cloud.ot||'', tecnico:cloud.tecnico||'', fecha:cloud.fecha||'', hini:cloud.hini||'', hter:cloud.hter||'',
+      ot:cloud.ot||'', tecnico:cloud.tecnico||'', tecnico2:cloud.tecnico2||'', fecha:cloud.fecha||'', hini:cloud.hini||'', hter:cloud.hter||'',
       obsg:cloud.obsg||'', acts:cloud.acts||{}
     }));
     if(view.name==='formulario' && view.ot===ot){ flash('☁ Datos traídos desde la nube'); render(); }
@@ -439,7 +439,8 @@ function renderForm(){
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
       </div>
       <div class="frow">
-        <div><label>Técnico(s)</label><input id="ftec" value="${esc(d.tecnico||'')}" placeholder="Nombre"></div>
+        <div><label>Técnico 1</label><input id="ftec" value="${esc(d.tecnico||'')}" placeholder="Nombre y apellido"></div>
+        <div><label>Técnico 2 (opcional)</label><input id="ftec2" value="${esc(d.tecnico2||'')}" placeholder="Nombre y apellido"></div>
         <div><label>Fecha</label><input id="ffecha" value="${esc(d.fecha||new Date().toLocaleDateString('es-CL'))}"></div>
         <div><label>Hora inicio</label><input id="fini" value="${esc(d.hini||'')}" placeholder="HH:MM"></div>
         <div><label>Hora término</label><input id="fter" value="${esc(d.hter||'')}" placeholder="HH:MM"></div>
@@ -460,10 +461,10 @@ function renderForm(){
     <p class="fsub">💡 Esta pauta también se puede abrir y descargar más tarde desde un computador de oficina — se sincroniza sola apenas haya internet.</p>
     <div class="fabspacer"></div>`;
   const persist=()=>{
-    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.tecnico2=$('#ftec2').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
     save(ot,d); renderFotos(o,d);
   };
-  ['#fot','#ftec','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
+  ['#fot','#ftec','#ftec2','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
   const bemail=$('#bemail');
   if(bemail) bemail.onclick=()=>descargarPdf(o,d);
   document.querySelectorAll('.act').forEach(el=>{
@@ -487,7 +488,7 @@ function renderForm(){
   /* Guardado explícito: recoge TODO lo que haya en pantalla (incluso campos sin confirmar aún) y lo escribe en el dispositivo. No requiere internet: usa localStorage/IndexedDB del propio teléfono. */
   const fab=$('#fabsave'); const fabtxt=fab.querySelector('.fabtxt');
   function saveAll(){
-    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.tecnico2=$('#ftec2').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
     document.querySelectorAll('.act').forEach(el=>{
       const n=el.dataset.n; const st=d.acts[n]=d.acts[n]||{};
       const v=el.querySelector('.val'); if(v) st.v=v.value;
@@ -549,7 +550,7 @@ async function renderInforme(ot){
         <div><b>${esc(o.tag)}</b> · ${esc(o.desc)} · Semana ${view.week} · ${esc(dia.nombre)} ${esc(dia.fecha)}</div></div>
       <div style="text-align:right"><span class="otbox">OT ${esc(d.ot||o.ot)}</span><br>${esc(o.pauta)}</div>
     </div>
-    <div>Técnico(s): <b>${esc(d.tecnico||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b></div>
+    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b></div>
     <table>
       <tr><th style="width:24px">N°</th><th>Actividad</th><th style="width:90px">Valor</th><th style="width:52px">Estado</th><th style="width:170px">Observación</th></tr>
       ${rows}
@@ -605,6 +606,7 @@ async function descargarPdf(o,d){
     if(cm.fecha_inicio && cm.fecha_inicio[0]) marcarCelda(cont,sh,cm.fecha_inicio[0], (d.fecha||'')+' '+(d.hini||''));
     if(cm.fecha_termino && cm.fecha_termino[0]) marcarCelda(cont,sh,cm.fecha_termino[0], (d.fecha||'')+' '+(d.hter||''));
     if(cm.tecnicos && cm.tecnicos[0]) marcarCelda(cont,sh,cm.tecnicos[0], d.tecnico||'');
+    if(cm.tecnicos && cm.tecnicos[1] && d.tecnico2) marcarCelda(cont,sh,cm.tecnicos[1], d.tecnico2);
     for(const a of cm.activities){
       const st=(d.acts||{})[a.n]||{};
       if(a.valor) marcarCelda(cont,sh,a.valor, st.v||'');
