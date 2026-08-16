@@ -94,24 +94,18 @@ def build_cellmap(ws):
             v = g(header_row, c)
             if v and isinstance(v, str) and 'Valor' in v:
                 valor_col = c
-        # fila siguiente suele tener B/M/NA
-        for c in range(1, 40):
-            v = g(header_row + 1, c)
-            if v == 'B':
-                b_col = c
-            elif v == 'M':
-                m_col = c
-            elif v == 'NA':
-                na_col = c
-        if not b_col:
+        # la fila con B/M/NA puede estar 1 o 2 filas bajo el encabezado (o en el mismo)
+        for rr in (header_row + 1, header_row + 2, header_row):
             for c in range(1, 40):
-                v = g(header_row, c)
+                v = g(rr, c)
                 if v == 'B':
                     b_col = c
                 elif v == 'M':
                     m_col = c
                 elif v == 'NA':
                     na_col = c
+            if b_col:
+                break
 
     activities = []
     if header_row and valor_col:
@@ -264,6 +258,14 @@ def fix_columns(ws, html, sheet_name):
     col_tags = list(re.finditer(r'<col\s+style="width: [\d.]+px">\n?', html))
     if len(col_tags) > n_visible:
         html = html[:col_tags[n_visible].start()] + html[col_tags[-1].end():]
+
+    # Con table-layout:fixed y ancho auto el navegador estira la tabla mas alla de la
+    # suma de columnas; fijamos el ancho exacto para que cada columna mida lo del Excel.
+    widths = [float(w) for w in re.findall(r'<col\s+style="width: ([\d.]+)px">', html)]
+    total = int(round(sum(widths))) + 4  # + bordes exteriores
+    html = re.sub(r'<table(\s+)style="([^"]*)"',
+                  lambda m: '<table' + m.group(1) + 'style="' + m.group(2) + ';width:' + str(total) + 'px"',
+                  html, count=1)
     return html
 
 

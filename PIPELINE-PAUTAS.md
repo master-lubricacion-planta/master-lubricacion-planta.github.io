@@ -82,6 +82,31 @@ Path exacto por SharePoint search antes de reintentar. Algunas OT LUB genuinas n
 xlsx adjunto (solo foto, o adjunto en otra biblioteca no ubicada) — quedan sin pauta digital,
 está bien, la app las muestra como "sin pauta digital" sin romperse.
 
+## PDF con formato idéntico al de Máximo (feature "Descargar PDF")
+
+`build_pauta_html.py` (scratchpad + `_src/`) genera por cada pauta un
+`pautas-html/<PLN>.html` (réplica visual del xlsx vía xlsx2html) + un `cellmap` en
+`pautas.json` (coordenadas de celda donde inyectar OT, fechas, técnicos 1-2, y
+valor/estado por actividad). En runtime (`pautas.html`) se rellena el HTML, se rasteriza
+con html2canvas y se pagina con jsPDF en hojas CARTA apaisadas, cortando siempre en
+bordes de fila. NO usar html2pdf.js (falla silenciosamente devolviendo canvas de altura 0).
+
+Correcciones de fidelidad que aplica el post-procesado (lecciones aprendidas, no
+re-descubrir): (1) emular `wrap_text` de Excel — celdas sin ajustar texto van con
+nowrap y se derraman como en Excel, las ajustadas usan pre-wrap respetando saltos
+manuales; (2) `table-layout:fixed` + ancho de tabla = suma exacta del colgroup (si no,
+el navegador la estira); (3) rellenos de tema con tinte resueltos a mano (gris #D9D9D9
+= tema 0 con tinte −0.15) porque xlsx2html los pierde; (4) Calibri global; (5) columnas
+OCULTAS de Excel: xlsx2html las omite del colgroup pero emite sus <td> → hay que
+ocultarlos y recortar cols sobrantes, si no aparece una "columna fantasma";
+(6) las imágenes ancladas dentro de celdas fusionadas (sección FIGURAS) se descartan
+por xlsx2html → se inyectan a mano en la celda maestra aplicando el recorte srcRect
+de Excel (la imagen cruda puede ser una captura de pantalla completa); (7) la fila
+B/M/NA del encabezado puede estar 1 o 2 filas bajo la fila "N°".
+
+QA: `qa_cellmaps.py` valida que las 104 pautas tengan cellmap completo (OT, técnicos,
+valor y estado por actividad, HTML existente). Correrlo tras regenerar.
+
 ## Estado actual (semana 33 — 2026-08-15)
 
 Las 7 jornadas de la semana 33 fueron verificadas contra Máximo (259 OT totales):
