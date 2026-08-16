@@ -171,6 +171,32 @@ def build_cellmap(ws):
     return cm
 
 
+def apply_whitespace(ws, html, sheet_name):
+    """Emula el comportamiento real de Excel con el texto:
+    - celdas SIN ajustar texto (wrap_text falso): una sola linea que se 'derrama'
+      sobre las celdas vecinas vacias (igual que Excel). xlsx2html en cambio las
+      envolvia en varias lineas, inflando la altura de las filas (p.ej. la seccion
+      SEGURIDAD/EPP quedaba mucho mas alta que en la pauta original).
+    - celdas CON ajustar texto: respetar tambien los saltos de linea manuales
+      (p.ej. el titulo 'PAUTA DE INSPECCION\nGERENCIA DE MANTENIMIENTO')."""
+    html = html.replace('<table  style="border-collapse: collapse"',
+                        '<table  style="border-collapse: collapse;table-layout: fixed"', 1)
+
+    # puede haber otros atributos (rowspan, colspan) entre id y style
+    pattern = re.compile(r'(id="' + re.escape(sheet_name) + r'!(?P<coord>[A-Z]+\d+)"[^>]*? style="[^"]*)"')
+
+    def repl(m):
+        coord = m.group('coord')
+        try:
+            wrap = ws[coord].alignment.wrap_text
+        except Exception:
+            wrap = False
+        rule = 'white-space:pre-wrap;word-wrap:break-word' if wrap else 'white-space:nowrap'
+        return m.group(1) + ';' + rule + '"'
+
+    return pattern.sub(repl, html)
+
+
 def inject_figures(ws, html, sheet_name):
     """xlsx2html descarta las imagenes ancladas dentro de rangos fusionados (la celda
     interior no existe como <td> en el HTML). Las inyectamos a mano dentro de la celda
@@ -272,6 +298,7 @@ def main():
             out = xlsx2html(xlsx_path, sheet=0)
             out.seek(0)
             html = out.read()
+            html = apply_whitespace(ws, html, ws.title)
             html = inject_figures(ws, html, ws.title)
             with open(os.path.join(OUT_HTML_DIR, pln_id + '.html'), 'w', encoding='utf-8') as f:
                 f.write(html)
