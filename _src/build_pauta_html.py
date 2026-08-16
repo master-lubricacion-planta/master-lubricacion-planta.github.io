@@ -242,6 +242,31 @@ def apply_whitespace(ws, html, sheet_name):
     return pattern.sub(repl, html)
 
 
+def fix_columns(ws, html, sheet_name):
+    """Dos defectos de xlsx2html con las columnas:
+    1. Las columnas OCULTAS de Excel (p.ej. la Y en las pautas) se omiten del
+       <colgroup> pero sus <td> igual se emiten, desplazando el ancho y creando
+       una 'columna fantasma' entre Descripcion y Limites. Se ocultan esos td.
+    2. Emite <col> extra para columnas con ancho definido mas alla del area usada
+       (p.ej. AQ), agrandando la pagina con espacio muerto a la derecha. Se
+       recorta el colgroup a las columnas visibles reales."""
+    from openpyxl.utils import get_column_letter
+    hidden = set()
+    for letter, dim in ws.column_dimensions.items():
+        if dim.hidden or (dim.width is not None and dim.width == 0):
+            hidden.add(letter)
+
+    for letter in hidden:
+        pat = re.compile(r'(id="' + re.escape(sheet_name) + '!' + letter + r'\d+"[^>]*? style="[^"]*)"')
+        html = pat.sub(lambda m: m.group(1) + ';display:none"', html)
+
+    n_visible = sum(1 for i in range(1, ws.max_column + 1) if get_column_letter(i) not in hidden)
+    col_tags = list(re.finditer(r'<col\s+style="width: [\d.]+px">\n?', html))
+    if len(col_tags) > n_visible:
+        html = html[:col_tags[n_visible].start()] + html[col_tags[-1].end():]
+    return html
+
+
 def inject_figures(ws, html, sheet_name):
     """xlsx2html descarta las imagenes ancladas dentro de rangos fusionados (la celda
     interior no existe como <td> en el HTML). Las inyectamos a mano dentro de la celda
@@ -344,6 +369,7 @@ def main():
             out.seek(0)
             html = out.read()
             html = apply_whitespace(ws, html, ws.title)
+            html = fix_columns(ws, html, ws.title)
             html = inject_figures(ws, html, ws.title)
             with open(os.path.join(OUT_HTML_DIR, pln_id + '.html'), 'w', encoding='utf-8') as f:
                 f.write(html)
