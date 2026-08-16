@@ -467,6 +467,7 @@ function renderForm(){
   ['#fot','#ftec','#ftec2','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
   const bemail=$('#bemail');
   if(bemail) bemail.onclick=()=>descargarPdf(o,d);
+  if(navigator.onLine) cargarLibsPdf().catch(()=>{}); /* precarga: el botón responde al instante */
   document.querySelectorAll('.act').forEach(el=>{
     const n=el.dataset.n;
     const st=()=> d.acts[n]=d.acts[n]||{};
@@ -628,11 +629,46 @@ async function descargarPdf(o,d){
     }
 
     btn.textContent='⏳ Generando PDF…';
+    /* Posición de cada fila para cortar las páginas justo en el borde de una fila
+       (nunca a mitad de un texto), igual que el PDF paginado que genera Máximo. */
+    const tabla=cont.querySelector('table');
+    const rowTops=tabla?[...tabla.querySelectorAll('tr')].map(tr=>tabla.offsetTop+tr.offsetTop):[];
+    const altoDom=cont.scrollHeight;
     const canvas=await html2canvas(cont,{scale:1.3,useCORS:true});
     document.body.removeChild(cont);
+
+    /* Páginas tamaño carta apaisadas con margen, como la pauta impresa desde Máximo. */
     const {jsPDF}=window.jspdf;
-    const pdfDoc=new jsPDF({unit:'px',format:[canvas.width,canvas.height],orientation:canvas.width>canvas.height?'l':'p'});
-    pdfDoc.addImage(canvas.toDataURL('image/jpeg',0.85),'JPEG',0,0,canvas.width,canvas.height);
+    const pdfDoc=new jsPDF({unit:'mm',format:'letter',orientation:'landscape'});
+    const MARGEN=8, ANCHO=279.4-2*MARGEN, ALTO=215.9-2*MARGEN;
+    const escala=canvas.height/altoDom;              /* px de canvas por px de DOM */
+    const pxPorMm=canvas.width/ANCHO;                /* px de canvas por mm impreso */
+    const altoPagPx=ALTO*pxPorMm;
+    const cortes=[0];
+    let y=0;
+    while(y+altoPagPx<canvas.height){
+      const tope=y+altoPagPx;
+      let corte=tope;
+      for(const rt of rowTops){
+        const rp=rt*escala;
+        if(rp>y+altoPagPx*0.4 && rp<=tope) corte=rp;  /* última fila que cabe entera */
+      }
+      if(corte<=y+10) corte=tope;                     /* fila más alta que la página: cortar igual */
+      cortes.push(corte); y=corte;
+    }
+    cortes.push(canvas.height);
+    for(let i=0;i<cortes.length-1;i++){
+      const hPx=cortes[i+1]-cortes[i];
+      if(hPx<2) continue;
+      const c2=document.createElement('canvas');
+      c2.width=canvas.width; c2.height=Math.ceil(hPx);
+      const ctx=c2.getContext('2d');
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,c2.width,c2.height);
+      ctx.drawImage(canvas,0,cortes[i],canvas.width,hPx,0,0,canvas.width,hPx);
+      if(i>0) pdfDoc.addPage();
+      pdfDoc.addImage(c2.toDataURL('image/jpeg',0.85),'JPEG',MARGEN,MARGEN,ANCHO,hPx/pxPorMm);
+    }
+    pdfDoc.setProperties({title:'Pauta OT '+(d.ot||o.ot)+' - '+(p.titulo||'')});
     pdfDoc.save('Pauta_OT'+(d.ot||o.ot)+'.pdf');
 
     flash('⬇ PDF descargado');
