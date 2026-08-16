@@ -323,7 +323,7 @@ function renderDia(){
           <div class="tag mono">${esc(o.tag)}</div>
           <div class="otd">${esc(o.desc)}</div>
           <div class="otmeta">OT ${o.ot} · ${esc(byId[o.pauta].titulo)}</div>
-          ${c&&c.tecnico?`<div class="tecmeta">👤 ${esc(c.tecnico)}</div>`:''}
+          ${c&&c.tecnico?`<div class="tecmeta">👤 ${esc([c.tecnico,c.tecnico2].filter(Boolean).join(' / '))}</div>`:''}
         </div>
         <div class="prog">
           <span class="ring ${cls}">${statusTxt(pr)}</span>
@@ -355,7 +355,7 @@ function renderDetalle(){
       <div class="tag mono">${esc(o.tag)}</div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)}</div>
       <div class="frow">
-        <div><b>Técnico(s)</b>${esc(c.tecnico||'— sin datos —')}</div>
+        <div><b>Técnico(s)</b>${esc([c.tecnico,c.tecnico2].filter(Boolean).join(' / ')||'— sin datos —')}</div>
         <div><b>Fecha</b>${esc(c.fecha||'—')}</div>
         <div><b>Hora inicio</b>${esc(c.hini||'—')}</div>
         <div><b>Hora término</b>${esc(c.hter||'—')}</div>

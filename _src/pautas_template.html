@@ -583,7 +583,15 @@ function cargarLibsPdf(){
   return pdfLibsReady;
 }
 function celda(root,sheet,ref){ return root.querySelector(`[id="${sheet}!${ref}"]`); }
-function marcarCelda(root,sheet,ref,texto){ const el=celda(root,sheet,ref); if(el) el.textContent=texto; }
+/* Los datos anotados por el técnico se escriben en negrita y más grandes que el
+   texto impreso del formato, para que destaquen igual que una anotación a mano. */
+function marcarCelda(root,sheet,ref,texto,px){
+  const el=celda(root,sheet,ref); if(!el) return;
+  el.textContent=texto;
+  el.style.fontWeight='700';
+  el.style.fontSize=(px||14)+'px';
+  el.style.color='#000';
+}
 
 async function descargarPdf(o,d){
   const btn=$('#bemail'); if(!btn||btn.disabled) return;
@@ -609,13 +617,13 @@ async function descargarPdf(o,d){
     if(cm.tecnicos && cm.tecnicos[1] && d.tecnico2) marcarCelda(cont,sh,cm.tecnicos[1], d.tecnico2);
     for(const a of cm.activities){
       const st=(d.acts||{})[a.n]||{};
-      if(a.valor) marcarCelda(cont,sh,a.valor, st.v||'');
+      if(a.valor && st.v) marcarCelda(cont,sh,a.valor, st.v, 15);
       if(a.estado){
-        if(st.e) marcarCelda(cont,sh,a.estado, st.e);
+        if(st.e) marcarCelda(cont,sh,a.estado, st.e, 15);
       }else{
         const marks={B:a.b,M:a.m,NA:a.na};
         const ref=marks[st.e];
-        if(ref) marcarCelda(cont,sh,ref,'X');
+        if(ref) marcarCelda(cont,sh,ref,'X',15);
       }
     }
 
