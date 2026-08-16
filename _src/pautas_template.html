@@ -379,9 +379,32 @@ function renderDia(){
 }
 
 let cur=null;
+const cloudChecked=new Set();
+function syncFromCloudIfNeeded(ot){
+  if(!cloudOk || cloudChecked.has(ot)) return;
+  cloudChecked.add(ot);
+  const local=load(ot);
+  const localHasData = !!(local.ot || Object.keys(local.acts||{}).some(k=>local.acts[k]&&local.acts[k].e));
+  if(localHasData) return; /* este dispositivo ya tiene su propio avance: nunca lo pisamos */
+  cloudDb.collection('pautas').doc(ot).get().then(snap=>{
+    if(!snap.exists) return;
+    const cloud=snap.data();
+    const cloudHasData = !!(cloud.ot || Object.keys(cloud.acts||{}).some(k=>cloud.acts[k]&&cloud.acts[k].e));
+    if(!cloudHasData) return;
+    /* Dispositivo nuevo sin datos propios (ej: PC de oficina): traemos lo que
+       se completó en el celular. */
+    localStorage.setItem(K(ot),JSON.stringify({
+      ot:cloud.ot||'', tecnico:cloud.tecnico||'', fecha:cloud.fecha||'', hini:cloud.hini||'', hter:cloud.hter||'',
+      obsg:cloud.obsg||'', acts:cloud.acts||{}
+    }));
+    if(view.name==='formulario' && view.ot===ot){ flash('☁ Datos traídos desde la nube'); render(); }
+  }).catch(()=>{});
+}
+
 function renderForm(){
   const ot=view.ot; cur=ot;
   const o=otObj(ot); const p=byId[o.pauta]; const d=load(ot);
+  syncFromCloudIfNeeded(ot);
   const plan=PLANES[view.week]; const dia=plan.days[view.di];
   d.acts=d.acts||{};
   let lastG=null; let actsHtml='';
@@ -417,7 +440,6 @@ function renderForm(){
       </div>
       <div class="frow">
         <div><label>Técnico(s)</label><input id="ftec" value="${esc(d.tecnico||'')}" placeholder="Nombre"></div>
-        <div><label>Correo del técnico</label><input id="fmail" type="email" value="${esc(d.mail||'')}" placeholder="nombre@correo.com"></div>
         <div><label>Fecha</label><input id="ffecha" value="${esc(d.fecha||new Date().toLocaleDateString('es-CL'))}"></div>
         <div><label>Hora inicio</label><input id="fini" value="${esc(d.hini||'')}" placeholder="HH:MM"></div>
         <div><label>Hora término</label><input id="fter" value="${esc(d.hter||'')}" placeholder="HH:MM"></div>
@@ -432,17 +454,18 @@ function renderForm(){
       <button class="btn primary" id="bimprimir">📄 Informe / Imprimir</button>
     </div>
     <div class="btnbar">
-      <button class="btn primary" id="bemail" disabled>📧 Enviar PDF por correo</button>
+      <button class="btn primary" id="bemail" disabled>⬇ Descargar PDF (formato Máximo)</button>
     </div>
-    <div class="lockmsg" id="femaillock">🔒 Para enviar el PDF completa los campos obligatorios: <b>N° de OT</b>, el <b>correo del técnico</b>, el <b>estado (B/M/N/A)</b> de todas las actividades y el <b>valor medido</b> de cada MEDIR.</div>
+    <div class="lockmsg" id="femaillock">🔒 Para descargar el PDF completa los campos obligatorios: <b>N° de OT</b>, el <b>estado (B/M/N/A)</b> de todas las actividades y el <b>valor medido</b> de cada MEDIR.</div>
+    <p class="fsub">💡 Esta pauta también se puede abrir y descargar más tarde desde un computador de oficina — se sincroniza sola apenas haya internet.</p>
     <div class="fabspacer"></div>`;
   const persist=()=>{
-    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.mail=$('#fmail').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
     save(ot,d); renderFotos(o,d);
   };
-  ['#fot','#ftec','#fmail','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
+  ['#fot','#ftec','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
   const bemail=$('#bemail');
-  if(bemail) bemail.onclick=()=>enviarPdfCorreo(o,d);
+  if(bemail) bemail.onclick=()=>descargarPdf(o,d);
   document.querySelectorAll('.act').forEach(el=>{
     const n=el.dataset.n;
     const st=()=> d.acts[n]=d.acts[n]||{};
@@ -464,7 +487,7 @@ function renderForm(){
   /* Guardado explícito: recoge TODO lo que haya en pantalla (incluso campos sin confirmar aún) y lo escribe en el dispositivo. No requiere internet: usa localStorage/IndexedDB del propio teléfono. */
   const fab=$('#fabsave'); const fabtxt=fab.querySelector('.fabtxt');
   function saveAll(){
-    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.mail=$('#fmail').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
     document.querySelectorAll('.act').forEach(el=>{
       const n=el.dataset.n; const st=d.acts[n]=d.acts[n]||{};
       const v=el.querySelector('.val'); if(v) st.v=v.value;
@@ -480,7 +503,7 @@ function renderForm(){
 
 async function renderFotos(o,d){
   const bemail=$('#bemail'), lockmsg=$('#femaillock');
-  if(bemail){ const okmail=reqComplete(o,d) && (d.mail||'').includes('@'); bemail.disabled=!okmail; if(lockmsg) lockmsg.style.display=okmail?'none':''; }
+  if(bemail){ const ok2=reqComplete(o,d); bemail.disabled=!ok2; if(lockmsg) lockmsg.style.display=ok2?'none':''; }
   const box=$('#fotos'); if(!box) return;
   const ok=reqComplete(o,d);
   if(!ok){
@@ -537,17 +560,14 @@ async function renderInforme(ot){
   </div>`;
 }
 
-/* ---------- PDF fiel al Excel + envío por correo (requiere internet) ---------- */
-const EMAILJS_SERVICE = 'service_qw7p6uj';
-const EMAILJS_TEMPLATE = 'hnyjpdc';
-const EMAILJS_PUBLIC = 'Sg2eiZUqWZiBMMxtz';
-let libsReady=null;
-function cargarLibs(){
-  if(libsReady) return libsReady;
-  libsReady=new Promise((resolve,reject)=>{
+/* ---------- PDF fiel al Excel: se genera y descarga en el propio dispositivo,
+   sin subir nada a ningún servidor. Funciona en el celular apenas se completa
+   la pauta, o más tarde en un PC de oficina (los datos llegan solos por la nube). */
+let pdfLibsReady=null;
+function cargarLibsPdf(){
+  if(pdfLibsReady) return pdfLibsReady;
+  pdfLibsReady=new Promise((resolve,reject)=>{
     const scripts=[
-      'https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js',
-      'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
     ];
@@ -559,21 +579,19 @@ function cargarLibs(){
       document.head.appendChild(s);
     });
   });
-  return libsReady;
+  return pdfLibsReady;
 }
 function celda(root,sheet,ref){ return root.querySelector(`[id="${sheet}!${ref}"]`); }
 function marcarCelda(root,sheet,ref,texto){ const el=celda(root,sheet,ref); if(el) el.textContent=texto; }
 
-async function enviarPdfCorreo(o,d){
+async function descargarPdf(o,d){
   const btn=$('#bemail'); if(!btn||btn.disabled) return;
   const p=byId[o.pauta];
   if(!p.cellmap || !p.sheet){ alert('Esta pauta todavía no tiene la plantilla de PDF generada. Avisa al admin.'); return; }
   const original=btn.textContent;
   btn.disabled=true; btn.textContent='⏳ Preparando…';
   try{
-    await cargarLibs();
-    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    if(typeof emailjs!=='undefined' && emailjs.init) emailjs.init(EMAILJS_PUBLIC);
+    await cargarLibsPdf();
 
     const html=await (await fetch('pautas-html/'+p.id+'.html')).text();
     const cont=document.createElement('div');
@@ -605,27 +623,14 @@ async function enviarPdfCorreo(o,d){
     const {jsPDF}=window.jspdf;
     const pdfDoc=new jsPDF({unit:'px',format:[canvas.width,canvas.height],orientation:canvas.width>canvas.height?'l':'p'});
     pdfDoc.addImage(canvas.toDataURL('image/jpeg',0.85),'JPEG',0,0,canvas.width,canvas.height);
-    const blob=pdfDoc.output('blob');
+    pdfDoc.save('Pauta_OT'+(d.ot||o.ot)+'.pdf');
 
-    btn.textContent='⏳ Subiendo PDF…';
-    const storage=firebase.storage();
-    const path='pdfs/'+(d.ot||o.ot)+'_'+Date.now()+'.pdf';
-    const ref=storage.ref().child(path);
-    const conTimeout=(p,ms,msg)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error(msg)),ms))]);
-    await conTimeout(ref.put(blob,{contentType:'application/pdf'}), 25000, 'La subida del PDF tardó demasiado (¿Storage está habilitado?)');
-    const url=await conTimeout(ref.getDownloadURL(), 15000, 'No se pudo obtener el link del PDF');
-
-    btn.textContent='⏳ Enviando correo…';
-    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-      to_email: d.mail, tecnico_nombre: d.tecnico||'', ot_numero: d.ot||o.ot, equipo: o.desc||p.titulo, pdf_url: url
-    });
-
-    flash('📧 PDF enviado a '+d.mail);
-    btn.textContent='✓ Enviado';
-    setTimeout(()=>{ btn.textContent=original; btn.disabled=false; },2500);
+    flash('⬇ PDF descargado');
+    btn.textContent='✓ Descargado';
+    setTimeout(()=>{ btn.textContent=original; btn.disabled=false; },2000);
   }catch(e){
     console.error(e);
-    alert('No se pudo enviar el PDF. Revisa tu conexión a internet e intenta de nuevo.\n\n'+(e&&e.message?e.message:''));
+    alert('No se pudo generar el PDF. Intenta de nuevo.\n\n'+(e&&e.message?e.message:''));
     btn.textContent=original; btn.disabled=false;
   }
 }
