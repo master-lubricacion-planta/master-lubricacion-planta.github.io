@@ -94,15 +94,24 @@ bordes de fila. NO usar html2pdf.js (falla silenciosamente devolviendo canvas de
 Correcciones de fidelidad que aplica el post-procesado (lecciones aprendidas, no
 re-descubrir): (1) emular `wrap_text` de Excel — celdas sin ajustar texto van con
 nowrap y se derraman como en Excel, las ajustadas usan pre-wrap respetando saltos
-manuales; (2) `table-layout:fixed` + ancho de tabla = suma exacta del colgroup (si no,
-el navegador la estira); (3) rellenos de tema con tinte resueltos a mano (gris #D9D9D9
-= tema 0 con tinte −0.15) porque xlsx2html los pierde; (4) Calibri global; (5) columnas
-OCULTAS de Excel: xlsx2html las omite del colgroup pero emite sus <td> → hay que
+manuales; (2) anchos de columna con la FÓRMULA REAL de Excel `px = chars*7 + 5`
+(MDW Calibri 11) — la de xlsx2html (~chars*9.6) deforma todas las distancias — y
+OJO: `ws.column_dimensions` define RANGOS (dim.min..dim.max), hay que expandirlos o
+se pierden la mayoría de los anchos; `table-layout:fixed` + ancho de tabla = suma
+exacta; (3) tamaños de letra en PUNTOS (`font-size: Npt`) — xlsx2html escribe el
+número de pt como px dejando el texto ~25% más chico; (4) rellenos de tema con tinte
+resueltos a mano (gris #D9D9D9 = tema 0 con tinte −0.15); (5) Calibri global;
+(6) columnas OCULTAS: xlsx2html las omite del colgroup pero emite sus <td> → hay que
 ocultarlos y recortar cols sobrantes, si no aparece una "columna fantasma";
-(6) las imágenes ancladas dentro de celdas fusionadas (sección FIGURAS) se descartan
+(7) las imágenes ancladas dentro de celdas fusionadas (sección FIGURAS) se descartan
 por xlsx2html → se inyectan a mano en la celda maestra aplicando el recorte srcRect
-de Excel (la imagen cruda puede ser una captura de pantalla completa); (7) la fila
-B/M/NA del encabezado puede estar 1 o 2 filas bajo la fila "N°".
+de Excel (la imagen cruda puede ser una captura de pantalla completa); (8) la fila
+B/M/NA del encabezado puede estar 1 o 2 filas bajo la fila "N°"; (9) el texto
+enriquecido dentro de celdas (negrita/cursiva de "Comentarios Condicionales") se
+recupera con `load_workbook(rich_text=True)` y se reinyecta como <b>/<i>.
+
+Regla de producto: las FOTOS adjuntas por el técnico NO van en ningún PDF ni informe
+impreso — quedan solo guardadas en la app (IndexedDB del teléfono).
 
 QA: `qa_cellmaps.py` valida que las 104 pautas tengan cellmap completo (OT, técnicos,
 valor y estado por actividad, HTML existente). Correrlo tras regenerar.
