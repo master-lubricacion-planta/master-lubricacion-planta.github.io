@@ -317,16 +317,12 @@ def fix_columns(ws, html, sheet_name):
         excel_px.append(int(round(chars * 7 + 5)))
     n_visible = len(excel_px)
 
-    col_tags = list(re.finditer(r'<col\s+style="width: [\d.]+px">\n?', html))
-    if len(col_tags) > n_visible:
-        html = html[:col_tags[n_visible].start()] + html[col_tags[-1].end():]
-        col_tags = col_tags[:n_visible]
-    # reescribir cada <col> con el ancho real, de atras hacia adelante para no
-    # invalidar los offsets
-    for idx in range(len(col_tags) - 1, -1, -1):
-        m = col_tags[idx]
-        nuevo = f'<col  style="width: {excel_px[idx]}px">\n'
-        html = html[:m.start()] + nuevo + html[m.end():]
+    # Reconstruir el colgroup COMPLETO de forma determinista: xlsx2html a veces
+    # emite <col> de mas (columnas con ancho definido fuera del area usada) y a
+    # veces de menos (columnas sin dimension explicita al final del area usada).
+    nuevo_colgroup = '<colgroup>\n' + ''.join(
+        f'<col  style="width: {w}px">\n' for w in excel_px) + '</colgroup>'
+    html = re.sub(r'<colgroup>.*?</colgroup>', nuevo_colgroup, html, count=1, flags=re.S)
 
     # Con table-layout:fixed y ancho auto el navegador estira la tabla mas alla de la
     # suma de columnas; fijamos el ancho exacto para que cada columna mida lo del Excel.
