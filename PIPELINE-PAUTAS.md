@@ -108,13 +108,38 @@ por xlsx2html → se inyectan a mano en la celda maestra aplicando el recorte sr
 de Excel (la imagen cruda puede ser una captura de pantalla completa); (8) la fila
 B/M/NA del encabezado puede estar 1 o 2 filas bajo la fila "N°"; (9) el texto
 enriquecido dentro de celdas (negrita/cursiva de "Comentarios Condicionales") se
-recupera con `load_workbook(rich_text=True)` y se reinyecta como <b>/<i>.
+recupera con `load_workbook(rich_text=True)` y se reinyecta como <b>/<i>; (10) xlsx2html
+además renderiza SU PROPIA copia de la imagen (posicionada en absoluto, sin recorte) dentro
+del mismo td → `inject_figures` la elimina o la figura sale duplicada y desborda la tabla
+(pasaba en PLN-875/878/881/883/1063/970). El logo del encabezado (200×53, fila<5) sí es
+legítimo y también viene en absoluto — no tocarlo.
+
+Paginación del PDF (runtime, `descargarPdf`): el corte de página toma el ÚLTIMO borde de
+fila que quepa (avance mínimo 40px DOM); si una fila sola es más alta que la página
+(figuras gigantes) se corta duro igual que la impresora de Máximo. ANTES de medir
+`rowTops`/`scrollHeight` hay que esperar la carga de las imágenes y `document.fonts.ready` +
+`setTimeout` — y NO usar `img.decode()` ni `requestAnimationFrame`, que en pestañas en
+segundo plano quedan pendientes PARA SIEMPRE (colgaba el botón en "Preparando…").
+
+La imagen del equipo del FORMULARIO (`pautas-img/<PLN>.jpg`, la genera `extract_pauta.py`)
+también aplica el recorte srcRect — sin él salía la captura de pantalla completa del
+planificador. Se sirve con `?v=<versión SW>` como cache-busting (el SW usa
+`ignoreSearch:true` al hacer match offline, así que no rompe).
+
+Ojo desarrollo local: el antivirus del PC retiene ~19s y resetea la PRIMERA descarga de
+cada archivo nuevo/modificado servido por HTTP en localhost (después va instantáneo). No
+es bug de la app; en producción (HTTPS GitHub Pages) no ocurre. Si el deploy de Pages
+falla con 429 "Too Many Requests" es transitorio de GitHub: `gh run rerun <id>`.
 
 Regla de producto: las FOTOS adjuntas por el técnico NO van en ningún PDF ni informe
 impreso — quedan solo guardadas en la app (IndexedDB del teléfono).
 
 QA: `qa_cellmaps.py` valida que las 104 pautas tengan cellmap completo (OT, técnicos,
-valor y estado por actividad, HTML existente). Correrlo tras regenerar.
+valor y estado por actividad, HTML existente). `qa_htmls.py` valida estáticamente los
+HTML generados (layout fijo, pt, Calibri, colgroup = ancho de tabla, celdas del cellmap
+presentes, cantidad de figuras). `build.py` valida además que toda pauta referenciada por
+el plan exista y tenga HTML — falla fuerte en vez de publicar roto. Correr los tres tras
+regenerar.
 
 ## Estado actual (semana 33 — 2026-08-15)
 
