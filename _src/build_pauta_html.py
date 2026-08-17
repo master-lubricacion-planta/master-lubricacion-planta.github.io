@@ -236,6 +236,44 @@ def apply_whitespace(ws, html, sheet_name):
     return pattern.sub(repl, html)
 
 
+def _esc_html(s):
+    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+def inject_rich_text(ws_rich, html, sheet_name):
+    """Restaura el formato de texto enriquecido DENTRO de las celdas, que la
+    conversion pierde: en las pautas reales 'Comentarios Condicionales: ' va en
+    negrita y el texto del comentario en cursiva."""
+    from openpyxl.cell.rich_text import CellRichText
+    for row in ws_rich.iter_rows():
+        for cell in row:
+            v = cell.value
+            if not isinstance(v, CellRichText):
+                continue
+            parts = []
+            for block in v:
+                if isinstance(block, str):
+                    parts.append(_esc_html(block))
+                else:
+                    t = _esc_html(block.text)
+                    f = block.font
+                    if f is not None and getattr(f, 'i', False):
+                        t = '<i>' + t + '</i>'
+                    if f is not None and getattr(f, 'b', False):
+                        t = '<b>' + t + '</b>'
+                    parts.append(t)
+            inner = ''.join(parts)
+            marker = f'id="{sheet_name}!{cell.coordinate}"'
+            idx = html.find(marker)
+            if idx == -1:
+                continue
+            open_end = html.find('>', idx)
+            close = html.find('</td>', open_end)
+            if open_end == -1 or close == -1:
+                continue
+            html = html[:open_end + 1] + inner + html[close:]
+    return html
+
+
 def fix_columns(ws, html, sheet_name):
     """Dos defectos de xlsx2html con las columnas:
     1. Las columnas OCULTAS de Excel (p.ej. la Y en las pautas) se omiten del
@@ -372,6 +410,11 @@ def main():
             html = out.read()
             html = apply_whitespace(ws, html, ws.title)
             html = fix_columns(ws, html, ws.title)
+            try:
+                wb_rich = openpyxl.load_workbook(xlsx_path, data_only=True, rich_text=True)
+                html = inject_rich_text(wb_rich.worksheets[0], html, ws.title)
+            except Exception:
+                pass  # sin texto enriquecido no es fatal: queda en texto plano
             html = inject_figures(ws, html, ws.title)
             with open(os.path.join(OUT_HTML_DIR, pln_id + '.html'), 'w', encoding='utf-8') as f:
                 f.write(html)
