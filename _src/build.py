@@ -96,12 +96,39 @@ open(os.path.join(pwa,'index.html'),'w',encoding='utf-8').write(head+app+tail)
 pautas=json.load(open(base+r'\pautas.json',encoding='utf-8'))
 plan33=json.load(open(base+r'\plan_w33.json',encoding='utf-8'))
 planes={'33':plan33}
+
+# --- Validacion anti-regresion: toda pauta referenciada por el plan DEBE existir en
+# pautas.json y tener su HTML generado. (Una referencia rota crasheaba la vista del
+# dia completa: paso con PLN-815.) El build FALLA fuerte en vez de publicar roto.
+ids_pautas={p['id'] for p in pautas}
+rotos=[]
+for w,plan in planes.items():
+    for d in plan['days']:
+        for o in d['ots']:
+            if o.get('pauta') and o['pauta'] not in ids_pautas:
+                rotos.append(f"semana {w} {d['nombre']} OT {o['ot']} -> {o['pauta']}")
+if rotos:
+    raise SystemExit('PLAN ROTO: OTs que apuntan a pautas inexistentes:\n  '+'\n  '.join(rotos))
+sin_html=[pid for pid in ids_pautas if not os.path.exists(os.path.join(pwa,'pautas-html',pid+'.html'))]
+usadas={o['pauta'] for plan in planes.values() for d in plan['days'] for o in d['ots'] if o.get('pauta')}
+sin_html_usadas=sorted(set(sin_html)&usadas)
+if sin_html_usadas:
+    raise SystemExit('PAUTAS USADAS SIN HTML (correr build_pauta_html.py): '+', '.join(sin_html_usadas))
+sin_cellmap_usadas=sorted(p['id'] for p in pautas if p['id'] in usadas and not p.get('cellmap'))
+if sin_cellmap_usadas:
+    print('AVISO: pautas usadas sin cellmap (el boton PDF avisara al tecnico):', ', '.join(sin_cellmap_usadas))
 imgplns=sorted(f[:-4] for f in os.listdir(os.path.join(pwa,'pautas-img')) if f.endswith('.jpg'))
 overrides={}
 ovf=base+r'\overrides.json'
 if os.path.exists(ovf): overrides=json.load(open(ovf,encoding='utf-8'))
+# version del build (misma que tomara sw.js tras el bump de abajo): sirve de
+# cache-busting para las imagenes de equipo (?v=N) sin romper el match offline
+# del SW (usa ignoreSearch:true)
+_sw=open(os.path.join(pwa,'sw.js'),encoding='utf-8').read()
+BUILDV=str(int(re.search(r'lubricacion-v(\d+)',_sw).group(1))+1)
 ptpl=open(base+r'\pautas_template.html',encoding='utf-8').read()
-pout=(ptpl.replace('__PAUTAS__',json.dumps(pautas,ensure_ascii=False).replace('</','<\\/'))
+pout=(ptpl.replace('__IMGV__',BUILDV)
+          .replace('__PAUTAS__',json.dumps(pautas,ensure_ascii=False).replace('</','<\\/'))
           .replace('__PLANES__',json.dumps(planes,ensure_ascii=False).replace('</','<\\/'))
           .replace('__IMGPLNS__',json.dumps(imgplns))
           .replace('__OVERRIDES__',json.dumps(overrides,ensure_ascii=False).replace('</','<\\/'))

@@ -401,7 +401,15 @@ def inject_figures(ws, html, sheet_name):
         uri = 'data:image/' + fmt + ';base64,' + b64.b64encode(data).decode()
         img_tag = (f'<img src="{uri}" style="{h_style}max-width:96%;display:block;'
                    f'margin:6pt auto 6pt 30pt;object-fit:contain">')
-        html = html[:end_tag + 1] + img_tag + html[end_tag + 1:]
+        # En algunas pautas xlsx2html SI logra renderizar su propia copia de la figura
+        # (posicionada absoluta, descuadrada y sin recorte srcRect) dentro del mismo td:
+        # eliminarla para no duplicar la imagen ni desbordar la tabla.
+        close = html.find('</td>', end_tag)
+        if close == -1:
+            continue
+        inner = html[end_tag + 1:close]
+        inner = re.sub(r'<img[^>]*position:\s*absolute[^>]*/?>', '', inner)
+        html = html[:end_tag + 1] + img_tag + inner + html[close:]
     return html
 
 
