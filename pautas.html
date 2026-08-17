@@ -496,7 +496,7 @@ function renderForm(){
       <div class="tag mono">${esc(o.tag)}</div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       <div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=47" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=51" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
@@ -676,6 +676,15 @@ async function descargarPdf(o,d){
        de Excel con celdas sin ajustar): el PDF debe medir exactamente la tabla */
     const tablaAncho=cont.querySelector('table');
     if(tablaAncho){ cont.style.width=tablaAncho.offsetWidth+'px'; cont.style.overflow='hidden'; }
+    /* Esperar a que las imágenes (figuras data-URI) y fuentes terminen de cargar:
+       si se mide la altura de las filas antes, los cortes de página quedan
+       desplazados y una página puede rebanar la figura por la mitad.
+       (No usar img.decode() ni requestAnimationFrame: en pestañas en segundo
+       plano quedan pendientes para siempre.) */
+    await Promise.all([...cont.querySelectorAll('img')].map(im=> im.complete ? Promise.resolve() : new Promise(res=>{ im.onload=im.onerror=res; })));
+    if(document.fonts && document.fonts.ready) await document.fonts.ready.catch(()=>{});
+    await new Promise(res=>setTimeout(res,60));
+    void cont.offsetHeight; /* forzar reflow con los tamaños reales de las imágenes */
 
     const sh=p.sheet, cm=p.cellmap;
     if(cm.ot) marcarCelda(cont,sh,cm.ot,'OT: '+(d.ot||o.ot));
@@ -716,12 +725,12 @@ async function descargarPdf(o,d){
     let y=0;
     while(y+altoPagPx<canvas.height){
       const tope=y+altoPagPx;
-      let corte=tope;
+      let corte=-1;
       for(const rt of rowTops){
         const rp=rt*escala;
-        if(rp>y+altoPagPx*0.4 && rp<=tope) corte=rp;  /* última fila que cabe entera */
+        if(rp>y+40*escala && rp<=tope) corte=rp;      /* última fila que cabe entera */
       }
-      if(corte<=y+10) corte=tope;                     /* fila más alta que la página: cortar igual */
+      if(corte<0) corte=tope;                         /* fila más alta que la página: cortar igual */
       cortes.push(corte); y=corte;
     }
     cortes.push(canvas.height);
