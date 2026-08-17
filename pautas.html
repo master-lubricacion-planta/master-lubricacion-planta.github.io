@@ -606,8 +606,9 @@ async function renderInforme(ot){
     const L=limFor(o,a);
     rows+=`<tr><td>${a.n}</td><td>${esc(a.d)}${L.custom?' ⭐':''}</td><td>${esc(st.v||'')}</td><td style="text-align:center;font-weight:700">${esc(st.e||'')}</td><td>${esc(st.o||'')}</td></tr>`;
   }
+  /* Las fotos NO van en informes ni PDFs: quedan solo guardadas en la app
+     (dispositivo + nube), como respaldo interno de la inspección. */
   const fotos=[];
-  for(let i=0;i<3;i++){ const b=await fotoGet(ot+'_'+i); if(b) fotos.push(URL.createObjectURL(b)); }
   $('#informe').innerHTML=`<div class="rep repwrap">
     <div class="rh">
       <div><h2>Pauta de Inspección — ${esc(p.titulo)}</h2>
@@ -653,7 +654,7 @@ function marcarCelda(root,sheet,ref,texto,px){
   const el=celda(root,sheet,ref); if(!el) return;
   el.textContent=texto;
   el.style.fontWeight='700';
-  el.style.fontSize=(px||14)+'px';
+  el.style.fontSize=(px||17)+'px';
   el.style.color='#000';
 }
 
@@ -681,13 +682,13 @@ async function descargarPdf(o,d){
     if(cm.tecnicos && cm.tecnicos[1] && d.tecnico2) marcarCelda(cont,sh,cm.tecnicos[1], d.tecnico2);
     for(const a of cm.activities){
       const st=(d.acts||{})[a.n]||{};
-      if(a.valor && st.v) marcarCelda(cont,sh,a.valor, st.v, 15);
+      if(a.valor && st.v) marcarCelda(cont,sh,a.valor, st.v, 18);
       if(a.estado){
-        if(st.e) marcarCelda(cont,sh,a.estado, st.e, 15);
+        if(st.e) marcarCelda(cont,sh,a.estado, st.e, 18);
       }else{
         const marks={B:a.b,M:a.m,NA:a.na};
         const ref=marks[st.e];
-        if(ref) marcarCelda(cont,sh,ref,'X',15);
+        if(ref) marcarCelda(cont,sh,ref,'X',18);
       }
     }
 

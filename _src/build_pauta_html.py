@@ -215,6 +215,10 @@ def apply_whitespace(ws, html, sheet_name):
                         '<table  style="border-collapse: collapse;table-layout: fixed;'
                         "font-family: Calibri, 'Segoe UI', Arial, sans-serif\"", 1)
 
+    # Excel mide la letra en PUNTOS; xlsx2html escribe el mismo numero en px
+    # (10pt -> "10px"), dejando todo el texto ~25% mas chico que el original.
+    html = re.sub(r'font-size: ([\d.]+)px', r'font-size: \1pt', html)
+
     # puede haber otros atributos (rowspan, colspan) entre id y style
     pattern = re.compile(r'(id="' + re.escape(sheet_name) + r'!(?P<coord>[A-Z]+\d+)"[^>]*? style="[^"]*)"')
 
@@ -283,24 +287,50 @@ def fix_columns(ws, html, sheet_name):
        (p.ej. AQ), agrandando la pagina con espacio muerto a la derecha. Se
        recorta el colgroup a las columnas visibles reales."""
     from openpyxl.utils import get_column_letter
-    hidden = set()
-    for letter, dim in ws.column_dimensions.items():
-        if dim.hidden or (dim.width is not None and dim.width == 0):
-            hidden.add(letter)
+    # Las definiciones de columna de Excel cubren RANGOS (min..max): expandirlas a un
+    # mapa por indice, incluida la condicion de oculta.
+    DEFAULT_CHARS = 8.43
+    chars_por_col = {}
+    hidden_idx = set()
+    for dim in ws.column_dimensions.values():
+        if dim.min is None:
+            continue
+        for i in range(dim.min, dim.max + 1):
+            if dim.width is not None:
+                chars_por_col[i] = dim.width
+            if dim.hidden or (dim.width is not None and dim.width == 0):
+                hidden_idx.add(i)
+    hidden = {get_column_letter(i) for i in hidden_idx}
 
     for letter in hidden:
         pat = re.compile(r'(id="' + re.escape(sheet_name) + '!' + letter + r'\d+"[^>]*? style="[^"]*)"')
         html = pat.sub(lambda m: m.group(1) + ';display:none"', html)
 
-    n_visible = sum(1 for i in range(1, ws.max_column + 1) if get_column_letter(i) not in hidden)
+    # Anchos REALES de Excel: px = chars*7 + 5 (MDW de Calibri 11 = 7). xlsx2html usa
+    # otra formula (~chars*9.6) que agranda proporcionalmente las columnas anchas y
+    # desplazaba todas las distancias (se notaba sobre todo en Documentos/EPP).
+    excel_px = []
+    for i in range(1, ws.max_column + 1):
+        if i in hidden_idx:
+            continue
+        chars = chars_por_col.get(i, DEFAULT_CHARS)
+        excel_px.append(int(round(chars * 7 + 5)))
+    n_visible = len(excel_px)
+
     col_tags = list(re.finditer(r'<col\s+style="width: [\d.]+px">\n?', html))
     if len(col_tags) > n_visible:
         html = html[:col_tags[n_visible].start()] + html[col_tags[-1].end():]
+        col_tags = col_tags[:n_visible]
+    # reescribir cada <col> con el ancho real, de atras hacia adelante para no
+    # invalidar los offsets
+    for idx in range(len(col_tags) - 1, -1, -1):
+        m = col_tags[idx]
+        nuevo = f'<col  style="width: {excel_px[idx]}px">\n'
+        html = html[:m.start()] + nuevo + html[m.end():]
 
     # Con table-layout:fixed y ancho auto el navegador estira la tabla mas alla de la
     # suma de columnas; fijamos el ancho exacto para que cada columna mida lo del Excel.
-    widths = [float(w) for w in re.findall(r'<col\s+style="width: ([\d.]+)px">', html)]
-    total = int(round(sum(widths))) + 4  # + bordes exteriores
+    total = sum(excel_px) + 4  # + bordes exteriores
     html = re.sub(r'<table(\s+)style="([^"]*)"',
                   lambda m: '<table' + m.group(1) + 'style="' + m.group(2) + ';width:' + str(total) + 'px"',
                   html, count=1)
