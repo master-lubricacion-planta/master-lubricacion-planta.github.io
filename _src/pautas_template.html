@@ -548,7 +548,12 @@ function renderForm(){
       save(ot,d); renderFotos(o,d);
     });
   });
-  $('#blimpiar').onclick=async()=>{ if(confirm('¿Borrar todos los datos y fotos ingresados de esta pauta?')){ localStorage.removeItem(K(ot)); for(let i=0;i<3;i++) await fotoDel(ot+'_'+i); render(); } };
+  $('#blimpiar').onclick=async()=>{ if(confirm('¿Borrar todos los datos y fotos ingresados de esta pauta?')){
+    localStorage.removeItem(K(ot)); for(let i=0;i<3;i++) await fotoDel(ot+'_'+i);
+    /* borrar también la copia en la nube: si queda, al reabrir la pauta el sync
+       la traería de vuelta y los datos "borrados" resucitarían */
+    try{ if(cloudOk) cloudDb.collection('pautas').doc(ot).delete().catch(()=>{}); }catch(e){}
+    render(); } };
   $('#bimprimir').onclick=async()=>{ await renderInforme(ot); window.print(); };
   renderFotos(o,d);
 
