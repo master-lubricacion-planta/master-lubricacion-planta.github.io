@@ -126,7 +126,7 @@ también aplica el recorte srcRect — sin él salía la captura de pantalla com
 planificador. Se sirve con `?v=<versión SW>` como cache-busting (el SW usa
 `ignoreSearch:true` al hacer match offline, así que no rompe).
 
-Ojo desarrollo local: el antivirus del PC retiene ~19s y resetea la PRIMERA descarga de
+Ojo desarrollo local: usar `_src/serve_dev.py` (gzip) como servidor — el antivirus retiene y TRUNCA en ~510KB las respuestas grandes sin comprimir de
 cada archivo nuevo/modificado servido por HTTP en localhost (después va instantáneo). No
 es bug de la app; en producción (HTTPS GitHub Pages) no ocurre. Si el deploy de Pages
 falla con 429 "Too Many Requests" es transitorio de GitHub: `gh run rerun <id>`.
