@@ -275,10 +275,11 @@ const PAUTAS = __PAUTAS__;
 const PLANES = __PLANES__; /* {33:{week,turno,days:[{nombre,fecha,ots:[...]}]}} */
 const IMGPLNS = __IMGPLNS__;
 const OVERRIDES = __OVERRIDES__;
-const SEMANA_ACTUAL = 33;
 const byId = Object.fromEntries(PAUTAS.map(p=>[p.id,p]));
-/* fechas: jueves de la semana 33 = 13.08.2026 */
+/* fechas: jueves de la semana 33 = 13.08.2026; la semana laboral va de jueves a miércoles,
+   así que la semana actual se calcula sola a partir de esa ancla (no dejar fija). */
 const ANCHOR = new Date(2026,7,13);
+const SEMANA_ACTUAL = Math.min(52, Math.max(1, 33 + Math.floor((Date.now()-ANCHOR.getTime())/(7*24*3600*1000))));
 const $=s=>document.querySelector(s);
 const esc=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const fmt=d=>String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');
@@ -385,7 +386,7 @@ function renderSemanas(){
   }
   $('#listado').innerHTML=`
     <div class="dayhdr">Plan semanal ${new Date().getFullYear()===2026?'2026':''}</div>
-    <p class="daysub">Jornada 7×7 · semanas impares <b>Turno A</b>, pares <b>Turno B</b>. Estás en la <b>Semana ${SEMANA_ACTUAL} · Turno A</b>.</p>
+    <p class="daysub">Jornada 7×7 · semanas impares <b>Turno A</b>, pares <b>Turno B</b>. Estás en la <b>Semana ${SEMANA_ACTUAL} · Turno ${SEMANA_ACTUAL%2===1?'A':'B'}</b>.</p>
     <div class="wgrid">${cards}</div>`;
   document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'dias',week:+b.dataset.w}; render(); });
 }
