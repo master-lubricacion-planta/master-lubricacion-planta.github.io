@@ -166,3 +166,13 @@ Cada semana nueva: pedir el Excel del programa al usuario, extraer con el patró
 lote de arriba — pero como la biblioteca de pautas ya tiene 103 documentos, muchas OT de semanas
 futuras (mismo TAG, misma pauta recurrente) deberían resolverse sin tener que descargar nada
 nuevo, solo verificando en Máximo qué PLN está adjunto.
+
+## Nube (Firestore) — reglas de seguridad
+
+Proyecto `lubricacion-teck-qb` (plan Spark). Las reglas permiten read/write SOLO en las
+colecciones `pautas` (doc = N° OT) y `ruta` (doc = fecha YYYY-MM-DD de la ronda nocturna),
+SIN fecha de expiración. Historia: las reglas de "modo de prueba" expiraron el 17-08-2026 y
+las escrituras estuvieron rotas 5 días en silencio (los catch vacíos del sync se lo tragaban;
+el gráfico de escrituras de la consola lo delata cayendo a 0). Si hay que volver a cambiarlas:
+console.firebase.google.com/project/lubricacion-teck-qb/firestore → pestaña Reglas → pegar y
+Publicar (a mano — el editor de reglas bloquea la automatización).
