@@ -26,10 +26,13 @@ for d in plan['days']:
         r = res.get(o['ot'])
         if not r or o['pauta']:
             continue
-        if r['tipo'] != 'LUB':
-            no_lub.append((o['ot'], r['tipo'])); continue
+        # Regla semana 35 (decision de Nicolas): el programa CON_LUB ya es de la
+        # cuadrilla de lubricacion — toda OT con pauta xlsx adjunta se incluye,
+        # aunque su Tipo en Maximo sea INSP o PM (antes solo Tipo=LUB).
         if not r['plns']:
-            sin_adj.append(o['ot']); continue
+            sin_adj.append((o['ot'], r['tipo'])); continue
+        if r['tipo'] != 'LUB':
+            no_lub.append((o['ot'], r['tipo']))  # informativo, igual se mapea
         if len(r['plns']) > 1:
             multi.append((o['ot'], r['plns']))
         pln = r['plns'][0]

@@ -12,14 +12,14 @@
      "tag": "0210-CRB-001",
      "desc": "PI, 1 S, CHANCADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-577"
     },
     {
      "ot": "843684",
      "tag": "0210-CRG-002",
      "desc": "PI, 1 S, PRIMARIO, CHANCADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-579"
     },
     {
      "ot": "839437",
@@ -33,14 +33,14 @@
      "tag": "0220-CVB-001",
      "desc": "PI, 1 S, CORREA TRANSPORTADOR, N°1 LUB AUTO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-617"
     },
     {
      "ot": "843688",
      "tag": "0220-CVB-002",
      "desc": "PI, 1 S, CORREA TRANSPORTADOR, N°2 LUB AUTO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-615"
     },
     {
      "ot": "844283",
@@ -131,56 +131,56 @@
      "tag": "0310-PPD-253",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "846069",
      "tag": "0310-PPD-311",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "846070",
      "tag": "0310-PPD-312",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "846071",
      "tag": "0310-PPD-313",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "846072",
      "tag": "0310-PPD-314",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "846073",
      "tag": "0310-PPD-315",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "846074",
      "tag": "0310-PPD-316",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "846075",
      "tag": "0310-PPD-317",
      "desc": "PI S-Bba colector secundario",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-669"
     },
     {
      "ot": "848032",
@@ -389,7 +389,7 @@
      "tag": "0340-TKF-141",
      "desc": "PI, 1 S, TANQUE, ESPESANTE CONCENTRADO A GRANEL",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-847"
     },
     {
      "ot": "839857",
@@ -403,14 +403,14 @@
      "tag": "0370-PPC-185",
      "desc": "PI, 1 S, BOMBAS, LAVADO TELA FILTRO PRENSA, PLANTA MOLIBDENO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-884"
     },
     {
      "ot": "840684",
      "tag": "0370-PPC-186",
      "desc": "PI, 1 S, BOMBAS, LAVADO TELA FILTRO PRENSA, PLANTA MOLIBDENO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-884"
     },
     {
      "ot": "841033",
@@ -598,7 +598,7 @@
      "tag": "0621-PPC-601",
      "desc": "MP LUB PIP - Inspección lubricador automático lado motor y lado bomba 0621-PPC-601",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0600-IOC4-PLN-094"
     },
     {
      "ot": "916409",
@@ -716,7 +716,7 @@
      "tag": "0330-PPC-101",
      "desc": "PI, 1 S, LUB BBA MONIT AGUA PROCESO FLOTACION, 0330-PPC-101",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-820"
     },
     {
      "ot": "855396",
@@ -870,7 +870,7 @@
      "tag": "0340-PPC-150",
      "desc": "PI, 1 S, LUB BBA MONITOREO AREA ESPESAMIENTO, 0340-PPC-150",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-841"
     }
    ]
   },
@@ -904,7 +904,7 @@
      "tag": "0390-PPC-247",
      "desc": "PI, 1 S, BOMBAS, UF, ESPESANTE CONCENTRADO MOLY, PLANTA MOLIBDENO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-885"
     },
     {
      "ot": "852566",
@@ -1065,7 +1065,7 @@
      "tag": "0621-PPP-602",
      "desc": "MP LUB PIP SXX_24 - Inspección/lubricación Bombas GEHO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0600-IOC4-PLN-099"
     },
     {
      "ot": "839577",
@@ -1149,49 +1149,49 @@
      "tag": "1473-PPV-641",
      "desc": "1473-PPV-641 BOMBA, VERTICAL, DWS",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-1067"
     },
     {
      "ot": "849215",
      "tag": "1473-PPV-642",
      "desc": "1473-PPV-642 BOMBA, VERTICAL, DWS",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-1067"
     },
     {
      "ot": "849216",
      "tag": "1473-PPV-643",
      "desc": "1473-PPV-643 BOMBA, VERTICAL, DWS",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-1067"
     },
     {
      "ot": "849217",
      "tag": "1473-PPV-644",
      "desc": "1473-PPV-644 BOMBA, VERTICAL, DWS",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-1067"
     },
     {
      "ot": "849218",
      "tag": "1473-PPV-651",
      "desc": "1473-PPV-651 BOMBA, VERTICAL, RWS",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-1067"
     },
     {
      "ot": "849219",
      "tag": "1473-PPV-652",
      "desc": "1473-PPV-652 BOMBA, VERTICAL, RWS",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-1067"
     },
     {
      "ot": "849220",
      "tag": "1473-PPV-653",
      "desc": "1473-PPV-653 BOMBA, RWS, VERTICAL MULTIETAPA",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-1067"
     }
    ]
   },
@@ -1295,42 +1295,42 @@
      "tag": "0310-PPD-241",
      "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-664"
     },
     {
      "ot": "845866",
      "tag": "0310-PPD-242",
      "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-664"
     },
     {
      "ot": "845867",
      "tag": "0310-PPD-243",
      "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-664"
     },
     {
      "ot": "845868",
      "tag": "0310-PPD-244",
      "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-664"
     },
     {
      "ot": "845869",
      "tag": "0310-PPD-245",
      "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-664"
     },
     {
      "ot": "845870",
      "tag": "0310-PPD-246",
      "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
      "esp": "LUB",
-     "pauta": null
+     "pauta": "QB2-0300-IOC4-PLN-664"
     },
     {
      "ot": "855702",
