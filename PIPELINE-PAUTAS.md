@@ -30,8 +30,11 @@ lubricación) — Máximo es la única fuente de verdad fiable. Usar SIEMPRE el 
    - Click en el link "Attachments" (ícono de clip, arriba del panel derecho) → popup
      "View Attachments" → columna "Document" trae el nombre real `QB2-...-PLN-<n>.xlsx`.
      `get_page_text` lee el popup sin necesidad de screenshot (más rápido).
-   - Los doclinks NO están expuestos por OSLC/API (probado: 500/400/vacío, y `fetch()` con cookies
-     de sesión es bloqueado por política del navegador) — hay que leer la UI.
+   - **MÉTODO RÁPIDO (semana 35, probado): la API REST SÍ expone los doclinks** — el endpoint
+     `mxapiwodetail` (NO `mxwo`, ese viene vacío) con `oslc.select=wonum,worktype,doclinks{...}`
+     leído vía `fetch()` same-origin desde una pestaña abierta en teck.maximo.com devuelve tipo y
+     adjuntos de decenas de OT en segundos (solo lectura). Cada adjunto viene duplicado
+     (JOBPLAN/WORKORDER) — deduplicar nombres. Usar esto primero; la UI queda de respaldo.
 
 3. **Descargar el PLN correcto desde SharePoint SIN bloqueo de Chrome**: navegar la pestaña a
    `https://teckresources.sharepoint.com/sites/QB2OP/_layouts/15/download.aspx?SourceUrl=<ruta URL-encoded>`
@@ -76,7 +79,11 @@ lubricación) — Máximo es la única fuente de verdad fiable. Usar SIEMPRE el 
    && git push` en `lubricacion-pwa`.
 8. Verificar en https://master-lubricacion-planta.github.io/pautas.html (esperar ~1 min el deploy).
 
-Casos especiales encontrados: algún PLN vive en otra biblioteca/disciplina (`QB2-1400-IOC4-PLN-…`,
+Casos especiales encontrados: los `QB2-xxxx-MTN2-PLN-…` viven en
+`/sites/QB2OP/Gerencia Mantenimiento/3. MP-Documentos Controlados Operacionales - Técnicos/`
+(Gerencia MANTENIMIENTO y biblioteca MP-, no la CF- de Gerencia Operaciones Integradas); la ruta
+exacta se obtiene con la API de búsqueda `/sites/QB2OP/_api/search/query?querytext='<PLN>'
+&selectproperties='Path'`. Otros: algún PLN vive en otra biblioteca/disciplina (`QB2-1400-IOC4-PLN-…`,
 `QB2-0300-MTN2-PLN-…` en vez de `QB2-0300-IOC4-PLN-…`) — si el download.aspx da error, buscar el
 Path exacto por SharePoint search antes de reintentar. Algunas OT LUB genuinas no tienen ningún
 xlsx adjunto (solo foto, o adjunto en otra biblioteca no ubicada) — quedan sin pauta digital,

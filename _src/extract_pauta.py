@@ -20,6 +20,9 @@ def extract(path, pln_id):
     acts = []
     group = ''
     for r in range(21, ws.max_row+1):
+        rd = ws.row_dimensions.get(r)
+        if rd is not None and rd.hidden:
+            continue  # fila oculta: la pauta impresa no la muestra
         c1 = g(r,1); c10 = g(r,10); c26 = g(r,26)
         if c1 and str(c1).startswith('Repuestos'):
             break

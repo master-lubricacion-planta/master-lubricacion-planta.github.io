@@ -112,6 +112,12 @@ def build_cellmap(ws):
         r = header_row + 2
         max_r = ws.max_row
         while r <= max_r:
+            _rd = ws.row_dimensions.get(r)
+            if _rd is not None and _rd.hidden:
+                # fila oculta en el Excel: la pauta impresa NO la muestra (y xlsx2html
+                # tampoco la emite) — no debe entrar al cellmap ni al formulario
+                r += 1
+                continue
             v1 = g(r, 1)
             if isinstance(v1, str) and v1.strip().startswith('Repuestos'):
                 break

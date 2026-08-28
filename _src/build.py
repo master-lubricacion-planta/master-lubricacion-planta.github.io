@@ -94,8 +94,10 @@ tail='\n<script>\nif(\'serviceWorker\' in navigator){\n  window.addEventListener
 open(os.path.join(pwa,'index.html'),'w',encoding='utf-8').write(head+app+tail)
 
 pautas=json.load(open(base+r'\pautas.json',encoding='utf-8'))
-plan33=json.load(open(base+r'\plan_w33.json',encoding='utf-8'))
-planes={'33':plan33}
+planes={}
+for _w in ('33','35'):
+    _f=base+'\\plan_w'+_w+'.json'
+    if os.path.exists(_f): planes[_w]=json.load(open(_f,encoding='utf-8'))
 
 # --- Validacion anti-regresion: toda pauta referenciada por el plan DEBE existir en
 # pautas.json y tener su HTML generado. (Una referencia rota crasheaba la vista del
