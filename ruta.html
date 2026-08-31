@@ -89,6 +89,8 @@ main{padding:14px;max-width:820px;margin:0 auto}
 .dcard .dn{font-weight:800;font-size:15px;min-width:96px}
 .dcard .df{color:var(--ink-3);font-size:13px}
 .dcard .dc{margin-left:auto}
+.dcard.now{border:2px solid var(--orange)}
+.hoytag{font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--orange);background:var(--orange-soft);border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:2px}
 .ring{font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap}
 .ring.p0{background:var(--na-bg);color:var(--na)}
 .ring.part{background:var(--orange-soft);color:var(--orange-ink)}
@@ -294,7 +296,8 @@ function progreso(f){
   return n;
 }
 
-let view={name:'semanas'};
+/* entrar directo a los días de la semana actual (con ‹ Volver está la grilla) */
+let view={name:'dias',week:SEMANA_ACTUAL};
 function goBack(){
   if(view.name==='registro') view={name:'dias',week:view.week};
   else if(view.name==='dias') view={name:'semanas'};
@@ -335,13 +338,15 @@ function renderSemanas(){
 function renderDias(){
   const w=view.week, t=(w%2===1)?'A':'B', r=rangoSemana(w);
   let body='';
+  const hoyIso=iso(new Date());
   for(let di=0;di<7;di++){
     const fecha=fechaDia(w,di), f=iso(fecha);
     const n=progreso(f);
     const cls=n===0?'p0':(n>=NITEMS?'done':'part');
     const txt=n===0?'Sin registro':(n>=NITEMS?'Completa ✓':n+' / '+NITEMS);
-    body+=`<button class="dcard" data-f="${f}">
-      <span class="dn">${NOMBRES_DIA[di]}</span><span class="df">${fmt(fecha)}</span>
+    const esHoy=f===hoyIso;
+    body+=`<button class="dcard ${esHoy?'now':''}" data-f="${f}">
+      <span class="dn">${NOMBRES_DIA[di]}${esHoy?'<span class="hoytag">HOY</span>':''}</span><span class="df">${fmt(fecha)}</span>
       <span class="dc"><span class="ring ${cls}">${txt}</span></span>
     </button>`;
   }
@@ -358,7 +363,9 @@ function renderRegistro(){
   const f=view.f, d=load(f);
   d.vals=d.vals||{};
   const fecha=new Date(f+'T12:00:00');
-  const di=Math.round((fecha-fechaDia(view.week,0))/(24*3600*1000));
+  /* dia de la semana por comparación de fechas exactas (con aritmética de ms
+     el mediodía daba 4.5 días y Math.round lo corría al día siguiente) */
+  let di=0; for(let k=0;k<7;k++){ if(iso(fechaDia(view.week,k))===f){ di=k; break; } }
   let secs='';
   RUTA.forEach((s,si)=>{
     let filas='';
