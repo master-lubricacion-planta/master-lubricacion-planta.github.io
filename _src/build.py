@@ -146,6 +146,12 @@ open(os.path.join(pwa,'panorama.html'),'w',encoding='utf-8').write(nout)
 rtpl=open(base+r'\ruta_template.html',encoding='utf-8').read()
 open(os.path.join(pwa,'ruta.html'),'w',encoding='utf-8').write(rtpl.replace('__TECKLOGO__',tecklogo))
 
+# Tendencias (dashboard de análisis de aceite, contenido generado en cowork)
+ttpl=open(base+r'\tendencias_template.html',encoding='utf-8').read()
+tbody=open(base+r'\tendencias_body.html',encoding='utf-8').read()
+open(os.path.join(pwa,'tendencias.html'),'w',encoding='utf-8').write(
+    ttpl.replace('__TENDENCIAS_BODY__',tbody).replace('__TECKLOGO__',tecklogo))
+
 sw=open(os.path.join(pwa,'sw.js'),encoding='utf-8').read()
 m=re.search(r'lubricacion-v(\d+)',sw)
 sw=sw.replace(m.group(0),'lubricacion-v'+str(int(m.group(1))+1))
@@ -155,5 +161,7 @@ if './panorama.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./panorama.html', './manifest.json'")
 if './ruta.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./ruta.html', './manifest.json'")
+if './tendencias.html' not in sw:
+    sw=sw.replace("'./manifest.json'","'./tendencias.html', './manifest.json'")
 open(os.path.join(pwa,'sw.js'),'w',encoding='utf-8').write(sw)
 print('build OK | pautas.html', os.path.getsize(os.path.join(pwa,'pautas.html'))//1024,'KB')

@@ -64,7 +64,7 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(100deg,var(--
 .brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .tecklogo{height:24px;width:auto;display:block}
 .adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
-.tabs{display:flex;align-items:center;gap:10px;max-width:820px;margin:10px auto 0}
+.tabs{display:flex;align-items:center;gap:10px;max-width:820px;margin:10px auto 0;flex-wrap:wrap}
 .tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 2px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
 .tabs a svg{width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin-right:4px}
 .tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
@@ -200,6 +200,8 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
     <a class="on" href="pautas.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8.5 12h7v1.6h-7zm0 3.6h7v1.6h-7z"/></svg>Pautas Plan Semanal</a>
     <span class="slash">/</span>
     <a href="ruta.html"><svg viewBox="0 0 24 24"><path d="M10 4a2 2 0 0 1 4 0v9.3a4.7 4.7 0 1 1-4 0zm2 14.8a2.3 2.3 0 0 0 1-4.4V5h-2v9.4a2.3 2.3 0 0 0 1 4.4z"/></svg>Ruta Crítica</a>
+    <span class="slash">/</span>
+    <a href="tendencias.html"><svg viewBox="0 0 24 24"><path d="M3 3h2v16h16v2H3zm4.6 11.9-1.2-1.6 5-6.6 3.9 3.9 4.3-5.9 1.6 1.2-5.7 7.8-4-4z"/></svg>Tendencias</a>
     <button id="back">‹ Volver</button>
   </nav>
 </header>
@@ -507,7 +509,7 @@ function renderForm(){
       <div class="tag mono">${esc(o.tag)}</div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       <div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=63" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=64" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
