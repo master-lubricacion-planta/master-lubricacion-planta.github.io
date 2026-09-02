@@ -270,7 +270,7 @@ function statsArea(m){
   return res;
 }
 
-let view={name:'mes',mes:MES_ACTUAL};
+let view={name:'meses'};
 function goBack(){
   if(view.name==='resumen') view={name:'mes',mes:view.mes};
   else if(view.name==='mes') view={name:'meses'};
@@ -293,16 +293,28 @@ function renderMeses(){
   for(let m=1;m<=12;m++){
     const st=statsMes(m);
     const pct=Math.round(100*st.r/ITEMS.length);
+    const det=st.r? st.r+' / '+ITEMS.length+' tomadas' : 'Sin registros';
+    const extra=st.r? (st.nt? st.nt+' NT · '+st.sin+' sin registro' : st.sin+' sin registro') : '';
     cards+=`<button class="wcard ${m===MES_ACTUAL?'now':''}" data-m="${m}">
       <div class="wn">${MESES[m-1]}</div>
-      <div class="wd">2026</div>
-      <div class="wpct">${st.r? st.r+' / '+ITEMS.length+' · '+pct+'%':'—'}</div>
-      <div class="mbar"><i style="width:${pct}%"></i></div>
+      <div class="wd">${det}</div>
+      <div class="wpct" style="color:${st.r?(pct>=90?'var(--ok)':(pct>=70?'var(--orange-ink)':'var(--bad)')):'var(--ink-3)'}">${st.r?pct+'% cumplimiento':'—'}</div>
+      <div class="mbar"><i style="width:${pct}%;background:${pct>=90?'var(--ok)':(pct>=70?'var(--orange)':'var(--bad)')}"></i></div>
+      ${extra?`<div class="wd" style="margin-top:4px">${extra}</div>`:''}
     </button>`;
   }
+  /* resumen del año: solo meses con registros */
+  let acR=0, acMeses=0;
+  for(let m2=1;m2<=12;m2++){ const s2=statsMes(m2); if(s2.r){ acR+=s2.r; acMeses++; } }
+  const promedio=acMeses?Math.round(100*acR/(acMeses*ITEMS.length)):0;
   $('#listado').innerHTML=`
     <div class="dayhdr">Toma de muestras · Programa 2026</div>
-    <p class="daysub"><b>${ITEMS.length} muestras de aceite mensuales</b> del programa de la Concentradora. Marca R (tomada) o NT (no tomada), con día, relleno/cambio, n° de reporte ALS y estado del análisis — igual que la planilla. Estás en <b>${MESES[MES_ACTUAL-1]}</b>.</p>
+    <p class="daysub"><b>${ITEMS.length} muestras de aceite mensuales</b> del programa de la Concentradora. Elige el mes para ver sus registros y completar la toma — estás en <b>${MESES[MES_ACTUAL-1]}</b>.</p>
+    <div class="kpis">
+      <div class="kpi ok"><div class="v">${promedio}%</div><div class="l">Cumplimiento año (${acMeses} meses)</div></div>
+      <div class="kpi"><div class="v">${acR.toLocaleString('es-CL')}</div><div class="l">Muestras tomadas 2026</div></div>
+      <div class="kpi"><div class="v">${(acMeses*ITEMS.length).toLocaleString('es-CL')}</div><div class="l">Programadas (${acMeses} meses)</div></div>
+    </div>
     <div class="wgrid">${cards}</div>`;
   document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'mes',mes:+b.dataset.m}; render(); });
 }
