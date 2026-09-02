@@ -155,6 +155,15 @@ open(os.path.join(pwa,'plan52.html'),'w',encoding='utf-8').write(
           .replace('__P52PREV__',p52p.replace('</','<\\/'))
           .replace('__TECKLOGO__',tecklogo))
 
+# Toma de muestras (programa mensual, 317 puntos)
+mui=open(base+r'\mu_items.json',encoding='utf-8').read()
+mup=open(base+r'\mu_prev.json',encoding='utf-8').read()
+mtpl=open(base+r'\muestras_template.html',encoding='utf-8').read()
+open(os.path.join(pwa,'muestras.html'),'w',encoding='utf-8').write(
+    mtpl.replace('__MUITEMS__',mui.replace('</','<\/'))
+        .replace('__MUPREV__',mup.replace('</','<\/'))
+        .replace('__TECKLOGO__',tecklogo))
+
 # Tendencias (dashboard de análisis de aceite, contenido generado en cowork)
 ttpl=open(base+r'\tendencias_template.html',encoding='utf-8').read()
 tbody=open(base+r'\tendencias_body.html',encoding='utf-8').read()
@@ -174,5 +183,7 @@ if './tendencias.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./tendencias.html', './manifest.json'")
 if './plan52.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./plan52.html', './manifest.json'")
+if './muestras.html' not in sw:
+    sw=sw.replace("'./manifest.json'","'./muestras.html', './manifest.json'")
 open(os.path.join(pwa,'sw.js'),'w',encoding='utf-8').write(sw)
 print('build OK | pautas.html', os.path.getsize(os.path.join(pwa,'pautas.html'))//1024,'KB')
