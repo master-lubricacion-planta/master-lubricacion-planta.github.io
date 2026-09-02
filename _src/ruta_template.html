@@ -597,7 +597,8 @@ function renderTendencias(){
     const t0=new Date(serie[0][0]+'T12:00:00').getTime(), t1=new Date(serie[serie.length-1][0]+'T12:00:00').getTime();
     const vs=serie.map(x=>x[1]);
     let mn=Math.min(...vs), mx=Math.max(...vs);
-    const pad=(mx-mn)*0.12||1; mn-=pad; mx+=pad;
+    const pad=(mx-Math.min(mn,0))*0.1||1; mx+=pad;
+    mn = mn<0 ? mn-pad : 0; /* el eje parte SIEMPRE en 0° (se extiende solo si hay lecturas bajo cero) */
     const X=tm=>L+((tm-t0)/((t1-t0)||1))*(W-L-R);
     const Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
     const MABR=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
