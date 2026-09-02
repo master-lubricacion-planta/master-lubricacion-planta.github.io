@@ -182,6 +182,12 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rep .fotosrep{display:flex;gap:8px;margin-top:10px}
 .rep .fotosrep img{width:32%;border:1px solid #999}
 .rep .otbox{border:2px solid #b45309;background:#fdebd7;padding:4px 10px;border-radius:6px;font-weight:800}
+
+/* barra de navegación visible (pedido: el Volver del encabezado era muy camuflado) */
+.navvolver{display:flex;gap:8px;margin:2px 0 14px;flex-wrap:wrap}
+.bvolver{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+.bvolver.cal{background:var(--accent-soft)}
+.bvolver svg{width:15px;height:15px;fill:currentColor}
 </style>
 </head>
 <body>
@@ -375,7 +381,21 @@ function render(){
   else if(view.name==='dias') renderDias();
   else if(view.name==='dia') renderDia();
   else if(view.name==='formulario') renderForm();
+  barraVolver();
   window.scrollTo(0,0);
+}
+function barraVolver(){
+  if(view.name==='semanas') return;
+  const cont=[...document.querySelectorAll('#listado,#form,#resumen,#planilla')].find(e=>e&&e.innerHTML.trim());
+  if(!cont) return;
+  const nivel1=(view.name==='dias');
+  const div=document.createElement('div');
+  div.className='navvolver noprint';
+  div.innerHTML=(nivel1?'':'<button class="bvolver" id="bvolver">‹ Volver</button>')+
+    '<button class="bvolver cal" id="bcal"><svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h4v18H3V4h4zm12 8H5v10h14zM5 8h14V6H5z"/></svg>Volver al calendario</button>';
+  cont.prepend(div);
+  const bv=div.querySelector('#bvolver'); if(bv) bv.onclick=goBack;
+  div.querySelector('#bcal').onclick=()=>{ view={name:'semanas'}; render(); };
 }
 function goBack(){
   if(view.name==='formulario') view={name:'dia',week:view.week,di:view.di};
