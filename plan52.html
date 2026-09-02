@@ -289,7 +289,7 @@ function renderSemanas(){
       <div class="wn">Semana ${w}</div>
       <div class="wd">Jue ${fmt(r.ini)} – Mié ${fmt(r.fin)}</div>
       <span class="wt ${t}">TURNO ${t}</span>
-      <div class="wpct">${st.ej?pct+'% ejecutado':'—'}</div>
+      <div class="wpct">${st.ej?Math.round(100*st.r/ITEMS.length)+'% cumpl. · '+pct+'% reg.':'—'}</div>
     </button>`;
   }
   $('#listado').innerHTML=`
@@ -339,10 +339,11 @@ function renderSemana(){
     <p class="daysub">Inspección general de lubricación · <b>R</b>ealizado / <b>C</b>ancelado / <b>RE</b>programado + día, OT y observación. Lo que venía de la planilla aparece marcado <span class="prevmark">(planilla)</span>.</p>
     <div class="offlinetag">📴 Funciona sin internet — se guarda en este dispositivo y se sincroniza solo</div>
     <div class="kpis">
-      <div class="kpi ok"><div class="v">${st.r}</div><div class="l">Realizadas</div></div>
+      <div class="kpi ok"><div class="v">${st.r}</div><div class="l">Realizadas (R)</div></div>
       <div class="kpi re"><div class="v">${st.re}</div><div class="l">Reprogramadas</div></div>
       <div class="kpi bad"><div class="v">${st.c}</div><div class="l">Canceladas</div></div>
-      <div class="kpi"><div class="v">${st.ej} / ${ITEMS.length}</div><div class="l">Ejecutadas · ${pct}%</div></div>
+      <div class="kpi ok"><div class="v">${Math.round(100*st.r/ITEMS.length)}%</div><div class="l">Cumplimiento (R/${ITEMS.length})</div></div>
+      <div class="kpi"><div class="v">${st.ej} / ${ITEMS.length}</div><div class="l">Con registro · ${pct}%</div></div>
     </div>
     <div class="filtros">
       <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
@@ -378,7 +379,7 @@ function renderSemana(){
   function refrescarKpis(){
     const s=statsSemana(w);
     const ks=document.querySelectorAll('.kpi .v');
-    if(ks.length>=4){ ks[0].textContent=s.r; ks[1].textContent=s.re; ks[2].textContent=s.c; ks[3].textContent=s.ej+' / '+ITEMS.length; }
+    if(ks.length>=5){ ks[0].textContent=s.r; ks[1].textContent=s.re; ks[2].textContent=s.c; ks[3].textContent=Math.round(100*s.r/ITEMS.length)+'%'; ks[4].textContent=s.ej+' / '+ITEMS.length; }
   }
 
   const fab=$('#fabsave'); fab.classList.add('show');
@@ -410,7 +411,7 @@ function renderResumen(){
   const st=statsSemana(w);
   $('#resumen').innerHTML=`
     <div class="dayhdr">📋 Resumen Semana ${w} · Jue ${fmt(r.ini)} – Mié ${fmt(r.fin)}</div>
-    <p class="daysub">${st.r} realizadas · ${st.re} reprogramadas · ${st.c} canceladas · ${st.ej}/${ITEMS.length} ejecutadas (${Math.round(100*st.ej/ITEMS.length)}%) — vista para revisar, imprimir o traspasar a la planilla Excel.</p>
+    <p class="daysub">${st.r} realizadas (cumplimiento ${Math.round(100*st.r/ITEMS.length)}%) · ${st.re} reprogramadas · ${st.c} canceladas · ${st.ej}/${ITEMS.length} con registro — vista para revisar, imprimir o traspasar a la planilla Excel.</p>
     <div class="btnbar noprint"><button class="btn primary" id="pimp">🖨 Imprimir / PDF</button></div>
     <div class="plwrap"><table class="pl">
       <tr><th>TAG</th><th>Equipo</th><th>Est.</th><th>Día</th><th>OT</th><th>Observación</th></tr>
