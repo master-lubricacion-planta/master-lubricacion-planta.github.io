@@ -146,6 +146,15 @@ open(os.path.join(pwa,'panorama.html'),'w',encoding='utf-8').write(nout)
 rtpl=open(base+r'\ruta_template.html',encoding='utf-8').read()
 open(os.path.join(pwa,'ruta.html'),'w',encoding='utf-8').write(rtpl.replace('__TECKLOGO__',tecklogo))
 
+# Plan 52 semanas (seguimiento interno de inspecciones de lubricación)
+p52i=open(base+r'\p52_items.json',encoding='utf-8').read()
+p52p=open(base+r'\p52_prev.json',encoding='utf-8').read()
+ptpl52=open(base+r'\plan52_template.html',encoding='utf-8').read()
+open(os.path.join(pwa,'plan52.html'),'w',encoding='utf-8').write(
+    ptpl52.replace('__P52ITEMS__',p52i.replace('</','<\\/'))
+          .replace('__P52PREV__',p52p.replace('</','<\\/'))
+          .replace('__TECKLOGO__',tecklogo))
+
 # Tendencias (dashboard de análisis de aceite, contenido generado en cowork)
 ttpl=open(base+r'\tendencias_template.html',encoding='utf-8').read()
 tbody=open(base+r'\tendencias_body.html',encoding='utf-8').read()
@@ -163,5 +172,7 @@ if './ruta.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./ruta.html', './manifest.json'")
 if './tendencias.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./tendencias.html', './manifest.json'")
+if './plan52.html' not in sw:
+    sw=sw.replace("'./manifest.json'","'./plan52.html', './manifest.json'")
 open(os.path.join(pwa,'sw.js'),'w',encoding='utf-8').write(sw)
 print('build OK | pautas.html', os.path.getsize(os.path.join(pwa,'pautas.html'))//1024,'KB')

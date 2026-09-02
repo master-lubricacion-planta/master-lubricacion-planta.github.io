@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1c47">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Plan 52 Semanas — Lubricación</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+    --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+    --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+    --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+    --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+    --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+    --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+  --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+  --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+  --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+  --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+  --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+  --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+button{font:inherit;color:inherit}
+
+header{position:sticky;top:0;z-index:10;background:linear-gradient(100deg,var(--navy),var(--navy-2));padding:12px 14px 0;border-bottom:3px solid var(--orange)}
+.brand{display:flex;align-items:center;gap:10px;max-width:920px;margin:0 auto}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.logo svg{width:22px;height:22px;fill:#fff}
+.brand h1{font-size:17px;font-weight:800;margin:0;color:var(--on-navy)}
+.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+.brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tecklogo{height:24px;width:auto;display:block}
+.adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
+.tabs{display:flex;align-items:center;gap:10px;max-width:920px;margin:10px auto 0;flex-wrap:wrap}
+.tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 2px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
+.tabs a svg{width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin-right:4px}
+.tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
+.tabs .slash{color:var(--on-navy-2);font-weight:300;font-size:17px}
+#back{margin-left:auto;margin-bottom:6px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:var(--on-navy);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;display:none}
+
+main{padding:14px;max-width:920px;margin:0 auto}
+.dayhdr{font-size:19px;font-weight:800;margin:4px 2px 2px}
+.daysub{font-size:13px;color:var(--ink-2);margin:0 2px 14px}
+.hint{color:var(--ink-2);text-align:center;padding:40px 20px;font-size:15px}
+.offlinetag{font-size:11.5px;font-weight:700;color:var(--ok);background:var(--ok-bg);display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;margin-bottom:10px}
+
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.wcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
+.wcard .wn{font-weight:800;font-size:15px}
+.wcard .wd{font-size:11px;color:var(--ink-3);margin-top:2px}
+.wcard .wt{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;margin-top:6px;letter-spacing:.04em}
+.wcard .wt.A{background:var(--tA-bg);color:var(--tA)}
+.wcard .wt.B{background:var(--tB-bg);color:var(--tB)}
+.wcard.now{border:2px solid var(--orange)}
+.wcard.now .wn::after{content:' · ACTUAL';color:var(--orange);font-size:10px;letter-spacing:.05em}
+.wpct{font-size:11px;font-weight:800;margin-top:4px;color:var(--ink-2)}
+
+.kpis{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;box-shadow:var(--shadow)}
+.kpi .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.kpi.ok .v{color:var(--ok)} .kpi.bad .v{color:var(--bad)} .kpi.re .v{color:var(--orange-ink)}
+
+.filtros{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.fchip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink-2)}
+.fchip.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
+
+details.sec{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);margin-bottom:9px;overflow:hidden}
+details.sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 14px;font-weight:800;font-size:14.5px;flex-wrap:wrap}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary .flecha{transition:transform .15s;color:var(--ink-3);font-size:12px}
+details.sec[open]>summary .flecha{transform:rotate(90deg)}
+details.sec>summary .badge{margin-left:auto}
+.ring{font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.ring.p0{background:var(--na-bg);color:var(--na)}
+.ring.part{background:var(--orange-soft);color:var(--orange-ink)}
+.ring.done{background:var(--ok-bg);color:var(--ok)}
+
+.item{padding:11px 14px;border-top:1px solid var(--line)}
+.item .il{font-size:14px;font-weight:700}
+.item .il .tag{font-family:ui-monospace,Consolas,monospace}
+.item .il .eqn{color:var(--ink-2);font-weight:600}
+.item .prevmark{font-size:11px;color:var(--ink-3);margin-left:6px}
+.controles{display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.echip{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:800;cursor:pointer}
+.echip.R.on{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.echip.C.on{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.echip.RE.on{background:var(--orange-soft);color:var(--orange-ink);border-color:var(--orange)}
+.controles select{padding:8px 6px;font-size:13px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.controles input.iot{width:96px;padding:8px 9px;font-size:14px;font-weight:700;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.controles input.iobs{flex:1;min-width:140px;padding:8px 9px;font-size:13.5px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+
+.btnbar{display:flex;gap:8px;margin:14px 0 30px}
+.btn{flex:1;padding:13px;border-radius:11px;border:0;font-weight:800;font-size:15px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#0a1128}
+.btn.ghost{background:var(--surface);border:1.5px solid var(--line);color:var(--ink-2)}
+.savemsg{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
+.savemsg.show{opacity:.95}
+.fab-save{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:40;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:15px 30px;font-weight:800;font-size:15.5px;box-shadow:0 8px 24px rgba(11,28,71,.4);cursor:pointer;align-items:center;gap:9px}
+.fab-save.show{display:flex}
+:root[data-theme="dark"] .fab-save{color:#0a1128}
+.fab-save.saved{background:var(--ok)}
+.fabspacer{height:78px}
+footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
+
+/* resumen semanal imprimible */
+.plwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);padding:6px}
+table.pl{border-collapse:collapse;width:100%;font-size:11.5px;min-width:640px}
+.pl th,.pl td{border:1px solid var(--line);padding:4px 6px;text-align:left;white-space:nowrap}
+.pl th{background:var(--accent-soft);color:var(--accent-ink);font-size:11px}
+.pl td.obs{white-space:normal;max-width:260px}
+.pl tr.sech td{background:var(--navy);color:#fff;font-weight:800;font-size:11px}
+.pl .est-R{color:var(--ok);font-weight:800}
+.pl .est-C{color:var(--bad);font-weight:800}
+.pl .est-RE{color:var(--orange-ink);font-weight:800}
+@media print{
+  header,footer,.noprint,#listado,#form{display:none!important}
+  body{background:#fff;color:#000}
+  main{max-width:100%;padding:0}
+  .plwrap{border:0;box-shadow:none;overflow:visible}
+  table.pl{font-size:9px;min-width:0}
+  .pl th,.pl td{border-color:#999;padding:2px 4px}
+  .pl tr.sech td{background:#e8ecf5!important;color:#000!important;-webkit-print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header class="noprint">
+  <div class="brand">
+    <a class="logo" href="index.html" aria-label="Ir al buscador"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></a>
+    <span><h1>Maestro de Lubricación</h1><span class="sub">Concentradora</span></span>
+    <span class="brandright">
+      <img class="tecklogo" src="__TECKLOGO__" alt="Teck">
+      <span class="adminline">Admin: Nicolás Saravia</span>
+    </span>
+  </div>
+  <nav class="tabs">
+    <a href="index.html"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2z"/></svg>Maestro</a>
+    <span class="slash">/</span>
+    <a href="pautas.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8.5 12h7v1.6h-7zm0 3.6h7v1.6h-7z"/></svg>Pautas</a>
+    <span class="slash">/</span>
+    <a href="ruta.html"><svg viewBox="0 0 24 24"><path d="M10 4a2 2 0 0 1 4 0v9.3a4.7 4.7 0 1 1-4 0zm2 14.8a2.3 2.3 0 0 0 1-4.4V5h-2v9.4a2.3 2.3 0 0 0 1 4.4z"/></svg>Ruta Crítica</a>
+    <span class="slash">/</span>
+    <a class="on" href="plan52.html"><svg viewBox="0 0 24 24"><path d="M9 2h6v3h4v17H5V5h4zm0 5H7v13h10V7h-2v2H9zm2-3v2h2V4zm-2.3 9.8 1.6 1.6 3.9-3.9 1.4 1.4-5.3 5.3-3-3z"/></svg>Plan 52</a>
+    <span class="slash">/</span>
+    <a href="tendencias.html"><svg viewBox="0 0 24 24"><path d="M3 3h2v16h16v2H3zm4.6 11.9-1.2-1.6 5-6.6 3.9 3.9 4.3-5.9 1.6 1.2-5.7 7.8-4-4z"/></svg>Tendencias</a>
+    <button id="back">‹ Volver</button>
+  </nav>
+</header>
+<main>
+  <div id="listado"></div>
+  <div id="form"></div>
+  <div id="resumen"></div>
+</main>
+<footer class="noprint">Plan 52 semanas · seguimiento interno del área de lubricación · 📴 Funciona sin internet · Admin: Nicolás Saravia</footer>
+<div class="savemsg" id="savemsg">✓ Guardado</div>
+<button class="fab-save noprint" id="fabsave"><span class="ic">💾</span><span class="fabtxt">Guardar semana</span></button>
+<script>
+const ITEMS = __P52ITEMS__;   /* [{n, area, tag, eq}] — 340 inspecciones semanales */
+const PREV  = __P52PREV__;    /* historial ya digitado en la planilla Excel */
+const AREA_NAMES={"210":"Chancado primario","220":"Correas mineral grueso","240":"Recup. mineral grueso","310":"Molienda","320":"Chancado pebbles","330":"Flotación y remolienda","340":"Espesamiento concentrado","370":"Planta molibdeno","390":"Reactivos y floculante","410":"Espesamiento relaves","600":"GEHO y gabbionetas","920":"Agua de refrigeración","1400":"Manejo de relaves (WRS)"};
+const DIAS=['J','V','S','D','L','Ma','Mi'];
+const NOMBRES_DIA=['Jueves','Viernes','Sábado','Domingo','Lunes','Martes','Miércoles'];
+
+const $=s=>document.querySelector(s);
+const esc=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const fmt=d=>String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');
+/* mismas fechas que el resto de la app: jueves de la semana 33 = 13.08.2026 */
+const ANCHOR=new Date(2026,7,13);
+const SEMANA_ACTUAL=Math.min(52,Math.max(1,33+Math.floor((Date.now()-ANCHOR.getTime())/(7*24*3600*1000))));
+function rangoSemana(w){ const j=new Date(ANCHOR); j.setDate(j.getDate()+(w-33)*7); const m=new Date(j); m.setDate(m.getDate()+6); return {ini:j,fin:m}; }
+
+const K=w=>'p52_'+w;
+const load=w=>{ try{return JSON.parse(localStorage.getItem(K(w)))||{}}catch(e){return {}} };
+
+/* ---- Nube (mismo proyecto Firestore; las reglas permiten la colección 'pautas',
+   los docs del plan 52 usan el prefijo P52-W<n> para no chocar con las OT) ---- */
+const firebaseConfig = {
+  apiKey: "AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",
+  authDomain: "lubricacion-teck-qb.firebaseapp.com",
+  projectId: "lubricacion-teck-qb",
+  storageBucket: "lubricacion-teck-qb.firebasestorage.app",
+  messagingSenderId: "697204585611",
+  appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
+};
+let cloudDb=null, cloudOk=false;
+try{
+  firebase.initializeApp(firebaseConfig);
+  cloudDb=firebase.firestore();
+  try{ cloudDb.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
+  cloudOk=true;
+}catch(e){ cloudOk=false; }
+function syncCloud(w,vals){
+  if(!cloudOk) return;
+  try{
+    cloudDb.collection('pautas').doc('P52-W'+w).set({p52:true, week:w, vals:vals||{}, updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{});
+  }catch(e){}
+}
+const save=(w,vals)=>{ localStorage.setItem(K(w),JSON.stringify(vals)); syncCloud(w,vals); flash(); };
+let flashT; function flash(msg){ const m=$('#savemsg'); m.textContent=msg||'✓ Guardado'; m.classList.add('show'); clearTimeout(flashT); flashT=setTimeout(()=>m.classList.remove('show'),1100); }
+async function syncFromCloudIfNeeded(w){
+  if(!cloudOk) return;
+  if(Object.keys(load(w)).length) return; /* este dispositivo ya tiene avance propio */
+  try{
+    const snap=await cloudDb.collection('pautas').doc('P52-W'+w).get();
+    if(!snap.exists) return;
+    const c=snap.data();
+    if(c.vals && Object.keys(c.vals).length) localStorage.setItem(K(w),JSON.stringify(c.vals));
+  }catch(e){}
+}
+
+/* valor efectivo: lo editado en la app pisa lo que venía de la planilla Excel */
+function efectivo(w,n){
+  const loc=load(w)[n];
+  if(loc) return loc;
+  return (PREV[String(w)]||{})[String(n)]||null;
+}
+function ejecutada(v){ return !!(v && (v.e==='R' || v.ot || v.obs)); }
+function statsSemana(w){
+  let r=0,c=0,re=0,ej=0;
+  for(const it of ITEMS){ const v=efectivo(w,it.n);
+    if(!v) continue;
+    if(v.e==='R')r++; else if(v.e==='C')c++; else if(v.e==='RE')re++;
+    if(ejecutada(v))ej++;
+  }
+  return {r,c,re,ej};
+}
+
+let view={name:'semana',week:SEMANA_ACTUAL};
+function goBack(){
+  if(view.name==='resumen') view={name:'semana',week:view.week};
+  else if(view.name==='semana') view={name:'semanas'};
+  render();
+}
+$('#back').onclick=goBack;
+
+function render(){
+  $('#listado').innerHTML=''; $('#form').innerHTML=''; $('#resumen').innerHTML='';
+  $('#fabsave').classList.remove('show');
+  $('#back').style.display = view.name==='semanas' ? 'none':'inline-block';
+  if(view.name==='semanas') renderSemanas();
+  else if(view.name==='semana') renderSemana();
+  else renderResumen();
+  window.scrollTo(0,0);
+}
+
+function renderSemanas(){
+  let cards='';
+  for(let w=1;w<=52;w++){
+    const t=(w%2===1)?'A':'B';
+    const r=rangoSemana(w);
+    const st=statsSemana(w);
+    const pct=Math.round(100*st.ej/ITEMS.length);
+    cards+=`<button class="wcard ${w===SEMANA_ACTUAL?'now':''}" data-w="${w}">
+      <div class="wn">Semana ${w}</div>
+      <div class="wd">Jue ${fmt(r.ini)} – Mié ${fmt(r.fin)}</div>
+      <span class="wt ${t}">TURNO ${t}</span>
+      <div class="wpct">${st.ej?pct+'% ejecutado':'—'}</div>
+    </button>`;
+  }
+  $('#listado').innerHTML=`
+    <div class="dayhdr">Plan 52 semanas · Lubricación</div>
+    <p class="daysub">Seguimiento interno de las <b>${ITEMS.length} inspecciones generales de lubricación</b> del maestro (frecuencia semanal). Marca R / C / RE, día, OT y observación por equipo — igual que la planilla Excel. Estás en la <b>Semana ${SEMANA_ACTUAL}</b>.</p>
+    <div class="wgrid">${cards}</div>`;
+  document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'semana',week:+b.dataset.w}; render(); });
+}
+
+let filtro='todas';
+function renderSemana(){
+  const w=view.week, r=rangoSemana(w), st=statsSemana(w);
+  const areas={};
+  for(const it of ITEMS) (areas[it.area]=areas[it.area]||[]).push(it);
+  const vals=load(w);
+  let secs='';
+  for(const a of Object.keys(areas)){
+    let filas=''; let done=0; let visibles=0;
+    for(const it of areas[a]){
+      const v=efectivo(w,it.n)||{};
+      if(ejecutada(v)) done++;
+      if(filtro==='pend' && ejecutada(v)) continue;
+      if(filtro==='hechas' && !ejecutada(v)) continue;
+      visibles++;
+      const esPrev=!vals[it.n] && (PREV[String(w)]||{})[String(it.n)];
+      const opts=['<option value="">día</option>'].concat(DIAS.map((d,i)=>`<option value="${i}" ${v.d===i?'selected':''}>${d}</option>`)).join('');
+      filas+=`<div class="item" data-n="${it.n}">
+        <div class="il"><span class="tag">${esc(it.tag)}</span> <span class="eqn">· ${esc(it.eq)}</span>${esPrev?'<span class="prevmark">(planilla)</span>':''}</div>
+        <div class="controles">
+          ${['R','C','RE'].map(e=>`<button class="echip ${e} ${v.e===e?'on':''}" data-e="${e}">${e}</button>`).join('')}
+          <select class="idia" aria-label="Día">${opts}</select>
+          <input class="iot" inputmode="numeric" placeholder="OT" value="${esc(v.ot||'')}">
+          <input class="iobs" placeholder="Observación…" value="${esc(v.obs||'')}">
+        </div>
+      </div>`;
+    }
+    if(!visibles) continue;
+    const tot=areas[a].length;
+    secs+=`<details class="sec" ${filtro!=='todas'||Object.keys(areas)[0]===a?'open':''}>
+      <summary><span class="flecha">▶</span> ${esc(AREA_NAMES[a]||('Área '+a))} <span style="color:var(--ink-3);font-weight:600">· ${a}</span><span class="badge ring ${done===0?'p0':(done>=tot?'done':'part')}">${done}/${tot}</span></summary>
+      ${filas}
+    </details>`;
+  }
+  const pct=Math.round(100*st.ej/ITEMS.length);
+  $('#form').innerHTML=`
+    <div class="dayhdr">Semana ${w} · Jue ${fmt(r.ini)} – Mié ${fmt(r.fin)}</div>
+    <p class="daysub">Inspección general de lubricación · <b>R</b>ealizado / <b>C</b>ancelado / <b>RE</b>programado + día, OT y observación. Lo que venía de la planilla aparece marcado <span class="prevmark">(planilla)</span>.</p>
+    <div class="offlinetag">📴 Funciona sin internet — se guarda en este dispositivo y se sincroniza solo</div>
+    <div class="kpis">
+      <div class="kpi ok"><div class="v">${st.r}</div><div class="l">Realizadas</div></div>
+      <div class="kpi re"><div class="v">${st.re}</div><div class="l">Reprogramadas</div></div>
+      <div class="kpi bad"><div class="v">${st.c}</div><div class="l">Canceladas</div></div>
+      <div class="kpi"><div class="v">${st.ej} / ${ITEMS.length}</div><div class="l">Ejecutadas · ${pct}%</div></div>
+    </div>
+    <div class="filtros">
+      <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
+      <button class="fchip ${filtro==='pend'?'on':''}" data-f="pend">Pendientes</button>
+      <button class="fchip ${filtro==='hechas'?'on':''}" data-f="hechas">Con registro</button>
+      <button class="fchip" id="verres">📋 Resumen / imprimir</button>
+    </div>
+    ${secs||'<div class="hint">Nada que mostrar con este filtro.</div>'}
+    <div class="fabspacer"></div>`;
+
+  document.querySelectorAll('.fchip[data-f]').forEach(b=>b.onclick=()=>{ filtro=b.dataset.f; render(); });
+  $('#verres').onclick=()=>{ view={name:'resumen',week:w}; render(); };
+
+  function setVal(n,mut){
+    const cur=load(w);
+    const base=cur[n]||Object.assign({},efectivo(w,n)||{});
+    mut(base);
+    cur[n]=base;
+    save(w,cur);
+  }
+  document.querySelectorAll('.item').forEach(el=>{
+    const n=el.dataset.n;
+    el.querySelectorAll('.echip').forEach(ch=>ch.onclick=()=>{
+      const ya=ch.classList.contains('on');
+      setVal(n,b=>{ b.e=ya?'':ch.dataset.e; });
+      el.querySelectorAll('.echip').forEach(c2=>c2.classList.toggle('on', !ya && c2===ch));
+      refrescarKpis();
+    });
+    el.querySelector('.idia').addEventListener('change',e=>{ setVal(n,b=>{ b.d=e.target.value===''?null:+e.target.value; }); });
+    el.querySelector('.iot').addEventListener('change',e=>{ setVal(n,b=>{ b.ot=e.target.value.trim(); }); refrescarKpis(); });
+    el.querySelector('.iobs').addEventListener('change',e=>{ setVal(n,b=>{ b.obs=e.target.value.trim(); }); refrescarKpis(); });
+  });
+  function refrescarKpis(){
+    const s=statsSemana(w);
+    const ks=document.querySelectorAll('.kpi .v');
+    if(ks.length>=4){ ks[0].textContent=s.r; ks[1].textContent=s.re; ks[2].textContent=s.c; ks[3].textContent=s.ej+' / '+ITEMS.length; }
+  }
+
+  const fab=$('#fabsave'); fab.classList.add('show');
+  fab.onclick=()=>{ save(w,load(w)); fab.classList.add('saved'); fab.querySelector('.fabtxt').textContent='✓ Guardada'; setTimeout(()=>{fab.classList.remove('saved'); fab.querySelector('.fabtxt').textContent='Guardar semana';},1500); };
+
+  syncFromCloudIfNeeded(w).then(()=>{ if(view.name==='semana'&&view.week===w&&Object.keys(load(w)).length&&!Object.keys(vals).length) render(); });
+}
+
+function renderResumen(){
+  const w=view.week, r=rangoSemana(w);
+  const areas={};
+  for(const it of ITEMS) (areas[it.area]=areas[it.area]||[]).push(it);
+  let filas=''; let alguno=false;
+  for(const a of Object.keys(areas)){
+    const conreg=areas[a].map(it=>[it,efectivo(w,it.n)]).filter(x=>x[1]&&(x[1].e||x[1].ot||x[1].obs));
+    if(!conreg.length) continue;
+    alguno=true;
+    filas+=`<tr class="sech"><td colspan="6">${esc(AREA_NAMES[a]||('Área '+a))} · ${a}</td></tr>`;
+    for(const [it,v] of conreg){
+      filas+=`<tr>
+        <td class="mono">${esc(it.tag)}</td><td>${esc(it.eq)}</td>
+        <td class="est-${esc(v.e||'')}">${esc(v.e||'—')}</td>
+        <td>${v.d!=null?DIAS[v.d]:''}</td>
+        <td class="mono">${esc(v.ot||'')}</td>
+        <td class="obs">${esc(v.obs||'')}</td>
+      </tr>`;
+    }
+  }
+  const st=statsSemana(w);
+  $('#resumen').innerHTML=`
+    <div class="dayhdr">📋 Resumen Semana ${w} · Jue ${fmt(r.ini)} – Mié ${fmt(r.fin)}</div>
+    <p class="daysub">${st.r} realizadas · ${st.re} reprogramadas · ${st.c} canceladas · ${st.ej}/${ITEMS.length} ejecutadas (${Math.round(100*st.ej/ITEMS.length)}%) — vista para revisar, imprimir o traspasar a la planilla Excel.</p>
+    <div class="btnbar noprint"><button class="btn primary" id="pimp">🖨 Imprimir / PDF</button></div>
+    <div class="plwrap"><table class="pl">
+      <tr><th>TAG</th><th>Equipo</th><th>Est.</th><th>Día</th><th>OT</th><th>Observación</th></tr>
+      ${filas||'<tr><td colspan="6" style="text-align:center;color:var(--ink-3)">Sin registros esta semana</td></tr>'}
+    </table></div>
+    <div style="height:30px"></div>`;
+  $('#pimp').onclick=()=>window.print();
+}
+
+render();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
+</script>
+</body>
+</html>
