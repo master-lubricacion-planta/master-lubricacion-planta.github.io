@@ -262,7 +262,7 @@ function statsSemana(w){
   return {r,c,re,ej};
 }
 
-let view={name:'semana',week:SEMANA_ACTUAL};
+let view={name:'semanas'};
 function goBack(){
   if(view.name==='resumen') view={name:'semana',week:view.week};
   else if(view.name==='semana') view={name:'semanas'};

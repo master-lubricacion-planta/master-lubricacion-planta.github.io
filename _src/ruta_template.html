@@ -302,8 +302,8 @@ function progreso(f){
   return n;
 }
 
-/* entrar directo a los días de la semana actual (con ‹ Volver está la grilla) */
-let view={name:'dias',week:SEMANA_ACTUAL};
+/* se entra por el selector de semanas (la actual viene destacada) */
+let view={name:'semanas'};
 function goBack(){
   if(view.name==='registro') view={name:'dias',week:view.week};
   else if(view.name==='dias') view={name:'semanas'};
