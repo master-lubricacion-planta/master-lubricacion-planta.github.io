@@ -593,7 +593,7 @@ function renderTendencias(){
     const serie=Object.keys(map[id]).sort().map(f2=>[f2,map[id][f2]]);
     const meta=META[id];
     if(serie.length<2) return '<div class="hint">Sin historial suficiente para graficar.</div>';
-    const W=860,H=280,L=46,R=14,T=16,B=34;
+    const W=860,H=280,L=74,R=14,T=16,B=34;
     const t0=new Date(serie[0][0]+'T12:00:00').getTime(), t1=new Date(serie[serie.length-1][0]+'T12:00:00').getTime();
     const vs=serie.map(x=>x[1]);
     let mn=Math.min(...vs), mx=Math.max(...vs);
@@ -606,7 +606,7 @@ function renderTendencias(){
     for(let i=0;i<=4;i++){
       const v=mn+(mx-mn)*i/4, y=Y(v);
       g+=`<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
-      g+=`<text x="${L-6}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">${v.toFixed(0)}</text>`;
+      g+=`<text x="${L-8}" y="${(y+5).toFixed(1)}" text-anchor="end" font-size="14" font-weight="800" fill="var(--ink-2)">${v.toFixed(0)} °C</text>`;
     }
     /* meses: linea vertical + etiqueta en cada cambio de mes */
     const d0=new Date(serie[0][0]+'T12:00:00');
