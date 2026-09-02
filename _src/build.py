@@ -144,7 +144,10 @@ nout=(ntpl.replace('__PAUTAS__',json.dumps(pautas,ensure_ascii=False).replace('<
 open(os.path.join(pwa,'panorama.html'),'w',encoding='utf-8').write(nout)
 
 rtpl=open(base+r'\ruta_template.html',encoding='utf-8').read()
-open(os.path.join(pwa,'ruta.html'),'w',encoding='utf-8').write(rtpl.replace('__TECKLOGO__',tecklogo))
+rprev=open(base+r'\rprev.json',encoding='utf-8').read()
+open(os.path.join(pwa,'ruta.html'),'w',encoding='utf-8').write(
+    rtpl.replace('__RPREV__',rprev.replace('</','<'+chr(92)+'/'))
+        .replace('__TECKLOGO__',tecklogo))
 
 # Plan 52 semanas (seguimiento interno de inspecciones de lubricación)
 p52i=open(base+r'\p52_items.json',encoding='utf-8').read()

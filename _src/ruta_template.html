@@ -154,6 +154,24 @@ table.pl{border-collapse:collapse;width:100%;font-size:11.5px;min-width:680px}
   .pl tr.sech td{background:#e8ecf5!important;color:#000!important;-webkit-print-color-adjust:exact}
 }
 
+/* kpis */
+.kpis{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;box-shadow:var(--shadow)}
+.kpi .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.kpi.bad .v{color:var(--bad)}
+
+/* tendencias */
+.tlist{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden}
+.titem{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.titem:last-child{border-bottom:0}
+.tinfo{flex:1;min-width:170px}
+.tl{font-size:13.5px;font-weight:700}
+.ts{font-size:11.5px;color:var(--ink-2)}
+.tvals{display:flex;align-items:center;gap:8px;margin-left:auto}
+.tv{font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.tv b{color:var(--ink);font-size:14px}
+
 /* barra de navegación visible (pedido: el Volver del encabezado era muy camuflado) */
 .navvolver{display:flex;gap:8px;margin:2px 0 14px;flex-wrap:wrap}
 .bvolver{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
@@ -245,6 +263,23 @@ const RUTA=[
    ['scramp','Amperaje','nominal 29 AMP','AMP']]}
 ];
 const NITEMS = RUTA.reduce((a,s)=>a+s.items.length,0);
+const RPREV = __RPREV__; /* historial de la planilla Excel: {fecha:{id: numero|'estado'}} */
+function prevDe(f,id){
+  const d=RPREV[f]; if(!d||d[id]===undefined) return null;
+  const x=d[id];
+  if(typeof x==='number') return {v:String(x).replace('.',',')};
+  const low=String(x).toLowerCase();
+  if(low.startsWith('deten')) return {e:'detenido'};
+  if(low.startsWith('stand')) return {e:'stand by'};
+  if(low.includes('acceso')) return {e:'sin acceso'};
+  if(low.includes('carga')) return {e:'sin carga'};
+  return null;
+}
+function efectivoR(f,id,vals){
+  const st=(vals||{})[id];
+  if(st&&(String(st.v||'').trim()||st.e)) return st;
+  return prevDe(f,id);
+}
 const ESTADOS = ['detenido','stand by','sin acceso','sin carga'];
 
 const $=s=>document.querySelector(s);
@@ -304,7 +339,7 @@ async function syncFromCloudIfNeeded(f){
 
 function progreso(f){
   const d=load(f); let n=0;
-  for(const s of RUTA) for(const it of s.items){ const st=(d.vals||{})[it[0]]; if(st&&(String(st.v||'').trim()||st.e)) n++; }
+  for(const s of RUTA) for(const it of s.items){ if(efectivoR(f,it[0],d.vals)) n++; }
   return n;
 }
 
@@ -314,7 +349,7 @@ function barraVolver(){
   if(view.name==='semanas') return;
   const cont=[...document.querySelectorAll('#listado,#form,#resumen,#planilla')].find(e=>e&&e.innerHTML.trim());
   if(!cont) return;
-  const nivel1=(view.name==='dias');
+  const nivel1=(view.name==='dias'||view.name==='tend');
   const div=document.createElement('div');
   div.className='navvolver noprint';
   div.innerHTML=(nivel1?'':'<button class="bvolver" id="bvolver">‹ Volver</button>')+
@@ -327,6 +362,7 @@ function goBack(){
   if(view.name==='registro') view={name:'dias',week:view.week};
   else if(view.name==='dias') view={name:'semanas'};
   else if(view.name==='planilla') view={name:'dias',week:view.week};
+  else if(view.name==='tend') view={name:'semanas'};
   render();
 }
 $('#back').onclick=goBack;
@@ -339,6 +375,7 @@ function render(){
   else if(view.name==='dias') renderDias();
   else if(view.name==='registro') renderRegistro();
   else if(view.name==='planilla') renderPlanilla();
+  else if(view.name==='tend') renderTendencias();
   barraVolver();
   window.scrollTo(0,0);
 }
@@ -357,8 +394,10 @@ function renderSemanas(){
   $('#listado').innerHTML=`
     <div class="dayhdr">Ruta crítica nocturna</div>
     <p class="daysub">Ronda de los nocheros por la planta: temperaturas y presiones de los <b>equipos críticos</b> (${NITEMS} puntos). Elige la semana — estás en la <b>Semana ${SEMANA_ACTUAL} · Turno ${SEMANA_ACTUAL%2===1?'A':'B'}</b>.</p>
+    <div class="btnbar" style="margin-top:0"><button class="btn primary" id="vertend">📈 Tendencias de temperatura por equipo</button></div>
     <div class="wgrid">${cards}</div>`;
   document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'dias',week:+b.dataset.w}; render(); });
+  $('#vertend').onclick=()=>{ view={name:'tend'}; render(); };
 }
 
 function renderDias(){
@@ -380,9 +419,10 @@ function renderDias(){
     <div class="dayhdr">Semana ${w} · Turno ${t}</div>
     <p class="daysub">Jueves ${fmt(r.ini)} al Miércoles ${fmt(r.fin)} · un registro por noche.</p>
     ${body}
-    <div class="btnbar"><button class="btn ghost" id="verpl">📋 Ver planilla semanal (los 7 días)</button></div>`;
+    <div class="btnbar"><button class="btn ghost" id="verpl">📋 Ver planilla semanal (los 7 días)</button><button class="btn ghost" id="vertend2">📈 Tendencias</button></div>`;
   document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'registro',week:w,f:b.dataset.f}; render(); });
   $('#verpl').onclick=()=>{ view={name:'planilla',week:w}; render(); };
+  $('#vertend2').onclick=()=>{ view={name:'tend'}; render(); };
 }
 
 function renderRegistro(){
@@ -397,16 +437,19 @@ function renderRegistro(){
     let filas='';
     s.items.forEach(it=>{
       const [id,l,sub,u]=it;
-      const st=d.vals[id]||{};
+      const stLoc=d.vals[id]||{};
+      const stPrev=prevDe(f,id);
+      const esPrev=!(String(stLoc.v||'').trim()||stLoc.e) && !!stPrev;
+      const st=esPrev?stPrev:stLoc;
       const opts=['<option value="">—</option>'].concat(ESTADOS.map(e=>`<option value="${e}" ${st.e===e?'selected':''}>${e}</option>`)).join('');
       filas+=`<div class="itemrow">
-        <span class="il">${esc(l)}${sub?`<span class="isub">${esc(sub)}</span>`:''}</span>
+        <span class="il">${esc(l)}${sub?`<span class="isub">${esc(sub)}</span>`:''}${esPrev?'<span class="isub" style="color:var(--ink-3)">(planilla)</span>':''}</span>
         <input class="iv ${String(st.v||'').trim()?'filled':''}" data-id="${id}" inputmode="decimal" value="${esc(st.v||'')}" placeholder="—">
         <span class="iu">${esc(u)}</span>
         <select class="ie ${st.e?'set':''}" data-id="${id}" aria-label="Estado">${opts}</select>
       </div>`;
     });
-    const done=s.items.filter(it=>{const st=d.vals[it[0]];return st&&(String(st.v||'').trim()||st.e);}).length;
+    const done=s.items.filter(it=>!!efectivoR(f,it[0],d.vals)).length;
     secs+=`<details class="sec" ${si===0?'open':''}>
       <summary><span class="flecha">▶</span> ${esc(s.sec)} <span class="secarea">${esc(s.area)}</span><span class="badge ring ${done===0?'p0':(done>=s.items.length?'done':'part')}" data-sec="${si}">${done}/${s.items.length}</span></summary>
       ${filas}
@@ -439,7 +482,7 @@ function renderRegistro(){
   }
   function refrescarBadges(){
     RUTA.forEach((s,si)=>{
-      const done=s.items.filter(it=>{const st=d.vals[it[0]];return st&&(String(st.v||'').trim()||st.e);}).length;
+      const done=s.items.filter(it=>!!efectivoR(f,it[0],d.vals)).length;
       const b=document.querySelector(`.badge[data-sec="${si}"]`);
       if(b){ b.textContent=done+'/'+s.items.length; b.className='badge ring '+(done===0?'p0':(done>=s.items.length?'done':'part')); }
     });
@@ -475,8 +518,8 @@ async function renderPlanilla(){
     s.items.forEach(it=>{
       const [id,l,sub,u]=it;
       let celdas='';
-      datos.forEach(d=>{
-        const st=(d.vals||{})[id]||{};
+      datos.forEach((d,ix)=>{
+        const st=efectivoR(fechas[ix],id,d.vals)||{};
         if(String(st.v||'').trim()) celdas+=`<td><b>${esc(st.v)}</b> <span class="u">${esc(u)}</span></td>`;
         else if(st.e) celdas+=`<td class="est">${esc(st.e)}</td>`;
         else celdas+='<td></td>';
@@ -495,6 +538,73 @@ async function renderPlanilla(){
     </table></div>
     <div style="height:30px"></div>`;
   $('#plimp').onclick=()=>window.print();
+}
+
+function renderTendencias(){
+  /* series por punto: historial de la planilla + lo digitado en la app */
+  const map={};
+  for(const f in RPREV){ const d=RPREV[f]; for(const id in d){ if(typeof d[id]==='number'){ (map[id]=map[id]||{})[f]=d[id]; } } }
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i); if(!k||!k.startsWith('ruta_')) continue;
+    const f=k.slice(5); if(!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue;
+    let d; try{ d=JSON.parse(localStorage.getItem(k)); }catch(e){ continue; }
+    const vals=(d&&d.vals)||{};
+    for(const id in vals){
+      const v=parseFloat(String(vals[id].v||'').replace(',','.'));
+      if(!isNaN(v)) (map[id]=map[id]||{})[f]=v;
+    }
+  }
+  const META={};
+  RUTA.forEach(s=>s.items.forEach(it=>{ META[it[0]]={l:it[1],sub:it[2],u:it[3],sec:s.sec,area:s.area}; }));
+  const filas=[];
+  let subidas=0,bajadas=0,conDatos=0;
+  for(const id in map){
+    const meta=META[id]; if(!meta||meta.u!=='°C') continue;
+    const serie=Object.keys(map[id]).sort().map(f=>[f,map[id][f]]);
+    if(serie.length<2) continue;
+    conDatos++;
+    const fUlt=serie[serie.length-1][0], vUlt=serie[serie.length-1][1];
+    const vAnt=serie[serie.length-2][1];
+    const prevs=serie.slice(-9,-1).map(x=>x[1]);
+    const base=prevs.reduce((a,b)=>a+b,0)/prevs.length;
+    const pct=base>0.5? (vUlt-base)/base*100 : 0;
+    if(pct>=15) subidas++; else if(pct<=-15) bajadas++;
+    filas.push({id,meta,serie,fUlt,vUlt,vAnt,base,pct});
+  }
+  filas.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+  const top=filas.slice(0,60);
+  const fmtF=f=>f.slice(8,10)+'-'+f.slice(5,7);
+  const spark=serie=>{
+    const pts=serie.slice(-12).map(x=>x[1]);
+    const mn=Math.min(...pts), mx=Math.max(...pts), rg=(mx-mn)||1;
+    const xs=pts.map((v,i)=>[(i/((pts.length-1)||1))*96+2, 22-((v-mn)/rg)*18+1]);
+    return '<svg viewBox="0 0 100 26" style="width:100px;height:26px;flex:0 0 auto"><polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="'+xs.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'"/><circle cx="'+xs[xs.length-1][0].toFixed(1)+'" cy="'+xs[xs.length-1][1].toFixed(1)+'" r="2.2" fill="var(--orange)"/></svg>';
+  };
+  let lista='';
+  for(const x of top){
+    const dirUp=x.pct>0;
+    const chipStyle=Math.abs(x.pct)<8?'background:var(--na-bg);color:var(--na)':(dirUp?'background:var(--bad-bg);color:var(--bad)':'background:var(--tA-bg);color:var(--tA)');
+    lista+=`<div class="titem">
+      <div class="tinfo">
+        <div class="tl">${esc(x.meta.l)}${x.meta.sub?' · '+esc(x.meta.sub):''}</div>
+        <div class="ts">${esc(x.meta.sec)} <span style="color:var(--ink-3)">· últ. ${fmtF(x.fUlt)}</span></div>
+      </div>
+      ${spark(x.serie)}
+      <div class="tvals"><span class="tv">prom ${x.base.toFixed(1).replace('.',',')} → últ <b>${String(x.vUlt).replace('.',',')}</b> °C</span>
+      <span class="ring" style="${chipStyle}">${dirUp?'▲':'▼'} ${Math.abs(x.pct).toFixed(0)}%</span></div>
+    </div>`;
+  }
+  $('#form').innerHTML=`
+    <div class="dayhdr">\📈 Tendencias de temperatura · equipos críticos</div>
+    <p class="daysub">Último valor de cada punto (planilla + rondas de la app) comparado con el promedio de sus lecturas anteriores. <span style="color:var(--bad);font-weight:700">▲ rojo = subiendo</span> · <span style="color:var(--tA);font-weight:700">▼ azul = bajando</span> — ordenado por mayor desviación.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">${conDatos}</div><div class="l">Puntos con historial</div></div>
+      <div class="kpi bad"><div class="v">${subidas}</div><div class="l">Subiendo ≥15%</div></div>
+      <div class="kpi" style="border-color:var(--tA)"><div class="v" style="color:var(--tA)">${bajadas}</div><div class="l">Bajando ≥15%</div></div>
+    </div>
+    <div class="tlist">${lista||'<div class="hint">Aún no hay historial suficiente.</div>'}</div>
+    ${filas.length>60?`<p class="daysub" style="text-align:center;margin-top:10px">Mostrando los 60 puntos con mayor desviación de ${filas.length} con historial.</p>`:''}
+    <div style="height:30px"></div>`;
 }
 
 render();
