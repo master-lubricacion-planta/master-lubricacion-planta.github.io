@@ -154,6 +154,10 @@ table.pl{border-collapse:collapse;width:100%;font-size:11.5px;min-width:680px}
   .pl tr.sech td{background:#e8ecf5!important;color:#000!important;-webkit-print-color-adjust:exact}
 }
 
+/* panel */
+.dash{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.dash h3{font-size:14.5px}
+
 /* kpis */
 .kpis{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;box-shadow:var(--shadow)}
@@ -573,6 +577,65 @@ function renderTendencias(){
   }
   filas.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
   const top=filas.slice(0,60);
+  /* --- grafico grande del equipo seleccionado --- */
+  if(!window.__tendSel || !map[window.__tendSel]) window.__tendSel = filas.length? filas[0].id : null;
+  const selId=window.__tendSel;
+  function grafico(id){
+    const serie=Object.keys(map[id]).sort().map(f2=>[f2,map[id][f2]]);
+    const meta=META[id];
+    if(serie.length<2) return '<div class="hint">Sin historial suficiente para graficar.</div>';
+    const W=860,H=280,L=46,R=14,T=16,B=34;
+    const t0=new Date(serie[0][0]+'T12:00:00').getTime(), t1=new Date(serie[serie.length-1][0]+'T12:00:00').getTime();
+    const vs=serie.map(x=>x[1]);
+    let mn=Math.min(...vs), mx=Math.max(...vs);
+    const pad=(mx-mn)*0.12||1; mn-=pad; mx+=pad;
+    const X=tm=>L+((tm-t0)/((t1-t0)||1))*(W-L-R);
+    const Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+    const MABR=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    /* rejilla horizontal */
+    let g='';
+    for(let i=0;i<=4;i++){
+      const v=mn+(mx-mn)*i/4, y=Y(v);
+      g+=`<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+      g+=`<text x="${L-6}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">${v.toFixed(0)}</text>`;
+    }
+    /* meses: linea vertical + etiqueta en cada cambio de mes */
+    const d0=new Date(serie[0][0]+'T12:00:00');
+    let mcur=new Date(d0.getFullYear(), d0.getMonth(), 1);
+    while(mcur.getTime()<=t1){
+      const tm=Math.max(mcur.getTime(),t0), x=X(tm);
+      g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${H-B}" stroke="var(--line)" stroke-width="1" stroke-dasharray="2,3"/>`;
+      const sig=new Date(mcur.getFullYear(), mcur.getMonth()+1, 1);
+      const xm=(X(Math.max(mcur.getTime(),t0))+X(Math.min(sig.getTime(),t1)))/2;
+      g+=`<text x="${xm.toFixed(1)}" y="${H-B+16}" text-anchor="middle" font-size="10.5" fill="var(--ink-2)" font-weight="700">${MABR[mcur.getMonth()]}</text>`;
+      mcur=sig;
+    }
+    /* linea + puntos con tooltip */
+    const pts=serie.map(x=>[X(new Date(x[0]+'T12:00:00').getTime()),Y(x[1])]);
+    const linea=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    let dots='';
+    serie.forEach((x,i)=>{
+      const ult=i===serie.length-1;
+      dots+=`<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${ult?4:2.6}" fill="${ult?'var(--orange)':'var(--accent)'}"><title>${x[0].slice(8,10)}-${x[0].slice(5,7)}: ${String(x[1]).replace('.',',')} ${esc(meta.u)}</title></circle>`;
+    });
+    /* promedio historico */
+    const prom=vs.reduce((a,b)=>a+b,0)/vs.length, yp=Y(prom);
+    g+=`<line x1="${L}" y1="${yp.toFixed(1)}" x2="${W-R}" y2="${yp.toFixed(1)}" stroke="var(--orange)" stroke-width="1.2" stroke-dasharray="6,4" opacity=".7"/>`;
+    g+=`<text x="${W-R}" y="${(yp-5).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--orange-ink)">prom ${prom.toFixed(1).replace('.',',')}</text>`;
+    return `<div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:560px;display:block">
+      ${g}
+      <polyline fill="none" stroke="var(--accent)" stroke-width="2" points="${linea}"/>
+      ${dots}
+    </svg></div>
+    <p class="daysub" style="margin:6px 2px 0">${serie.length} lecturas · mín ${Math.min(...vs).toFixed(1).replace('.',',')} · máx ${Math.max(...vs).toFixed(1).replace('.',',')} · prom ${prom.toFixed(1).replace('.',',')} ${esc(meta.u)} · punto naranjo = última lectura</p>`;
+  }
+  /* selector agrupado por seccion (solo puntos con historial) */
+  const grupos={};
+  for(const fx of filas){ (grupos[fx.meta.sec]=grupos[fx.meta.sec]||[]).push(fx); }
+  let optsSel='';
+  for(const secN of Object.keys(grupos)){
+    optsSel+='<optgroup label="'+esc(secN)+'">'+grupos[secN].map(fx=>`<option value="${fx.id}" ${fx.id===selId?'selected':''}>${esc(fx.meta.l)}${fx.meta.sub?' · '+esc(fx.meta.sub):''}</option>`).join('')+'</optgroup>';
+  }
   const fmtF=f=>f.slice(8,10)+'-'+f.slice(5,7);
   const spark=serie=>{
     const pts=serie.slice(-12).map(x=>x[1]);
@@ -602,9 +665,21 @@ function renderTendencias(){
       <div class="kpi bad"><div class="v">${subidas}</div><div class="l">Subiendo ≥15%</div></div>
       <div class="kpi" style="border-color:var(--tA)"><div class="v" style="color:var(--tA)">${bajadas}</div><div class="l">Bajando ≥15%</div></div>
     </div>
+    <div class="dash">
+      <h3 style="margin:0 0 8px">Comportamiento del equipo en el tiempo</h3>
+      <select id="tsel" style="width:100%;max-width:520px;padding:9px 10px;font-size:14px;font-weight:700;border:1.5px solid var(--accent);border-radius:10px;background:var(--bg);color:var(--ink);margin-bottom:10px">${optsSel}</select>
+      <div id="tgraf">${selId?grafico(selId):''}</div>
+    </div>
+    <p class="daysub" style="margin:0 2px 8px">Toca cualquier equipo de la lista para verlo en el gráfico.</p>
     <div class="tlist">${lista||'<div class="hint">Aún no hay historial suficiente.</div>'}</div>
     ${filas.length>60?`<p class="daysub" style="text-align:center;margin-top:10px">Mostrando los 60 puntos con mayor desviación de ${filas.length} con historial.</p>`:''}
     <div style="height:30px"></div>`;
+  const sel=$('#tsel');
+  if(sel) sel.onchange=()=>{ window.__tendSel=sel.value; $('#tgraf').innerHTML=grafico(sel.value); };
+  document.querySelectorAll('.titem').forEach((el,ix)=>{
+    el.style.cursor='pointer';
+    el.onclick=()=>{ const id=top[ix].id; window.__tendSel=id; if(sel) sel.value=id; $('#tgraf').innerHTML=grafico(id); $('#tgraf').closest('.dash').scrollIntoView({behavior:'smooth',block:'start'}); };
+  });
 }
 
 render();
