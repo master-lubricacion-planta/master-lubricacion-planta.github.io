@@ -29,17 +29,39 @@ for r in range(8, 1174):
         })
         filas.append((int(n), r))
 
-def blo(k):
-    return 10 + (k - 1) * 9
+# --- Posiciones REALES de cada bloque semanal, ancladas a los encabezados de la
+# fila 6 ('W.k', 'Observaciones', 'OT'). OJO: los bloques NO son uniformes — la
+# W.7 mide 11 columnas y la W.20/W.21 miden 10 (columnas insertadas a mano), asi
+# que leer a paso fijo de 9 corre todo 4 columnas desde la W.22 (bug real:
+# las OT de la W34 aparecian como de la W35).
+wpos = {}
+for c in range(1, 700):
+    v = ws.cell(row=6, column=c).value
+    if v is None: continue
+    m = re.fullmatch(r'W\.?\s*(\d+)', str(v).strip())
+    if m: wpos[int(m.group(1))] = c
+assert len(wpos) == 52, f'esperaba 52 encabezados W.k, hay {len(wpos)}'
+bloques = {}
+for k in range(1, 53):
+    ini = wpos[k]
+    fin = (wpos[k + 1] - 1) if k < 52 else ini + 8
+    dias = list(range(ini, ini + 7))
+    obs_c = ot_c = None
+    for c in range(ini + 7, fin + 1):
+        h = str(ws.cell(row=6, column=c).value or '').strip().lower()
+        if h.startswith('observ'): obs_c = c
+        elif h == 'ot': ot_c = c
+    extras = [c for c in range(ini + 7, fin + 1) if c not in (obs_c, ot_c)]
+    bloques[k] = (dias, obs_c, ot_c, extras)
 
 EST = {'R': 'R', 'C': 'C', 'RE': 'RE'}
 prev = {}
 for n, r in filas:
     for k in range(1, 53):
-        b = blo(k)
+        dias, obs_c, ot_c, extras = bloques[k]
         e = None; d = None; ot = ''; obs = []
-        for i in range(7):
-            v = ws.cell(row=r, column=b + i).value
+        for i, col in enumerate(dias):
+            v = ws.cell(row=r, column=col).value
             if v is None: continue
             s = str(v).strip()
             if not s: continue
@@ -50,7 +72,8 @@ for n, r in filas:
                 ot = ot or s
             else:
                 obs.append(s)
-        for col, kind in ((b + 7, 'obs'), (b + 8, 'ot')):
+        for col in ([obs_c, ot_c] + extras):
+            if col is None: continue
             v = ws.cell(row=r, column=col).value
             if v is None: continue
             s = str(v).strip()
