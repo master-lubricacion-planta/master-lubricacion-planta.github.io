@@ -562,20 +562,29 @@ function renderTendencias(){
   RUTA.forEach(s=>s.items.forEach(it=>{ META[it[0]]={l:it[1],sub:it[2],u:it[3],sec:s.sec,area:s.area}; }));
   const filas=[];
   let subidas=0,bajadas=0,conDatos=0;
+  const corte4=new Date(Date.now()-28*24*3600*1000).toISOString().slice(0,10);
   for(const id in map){
     const meta=META[id]; if(!meta||meta.u!=='°C') continue;
     const serie=Object.keys(map[id]).sort().map(f=>[f,map[id][f]]);
     if(serie.length<2) continue;
+    const s4=serie.filter(x=>x[0]>=corte4);
+    if(!s4.length) continue; /* sin lecturas en las ultimas 4 semanas */
     conDatos++;
     const fUlt=serie[serie.length-1][0], vUlt=serie[serie.length-1][1];
-    const vAnt=serie[serie.length-2][1];
-    const prevs=serie.slice(-9,-1).map(x=>x[1]);
-    const base=prevs.reduce((a,b)=>a+b,0)/prevs.length;
-    const pct=base>0.5? (vUlt-base)/base*100 : 0;
+    const vs=serie.map(x=>x[1]);
+    const base=vs.reduce((a,b)=>a+b,0)/vs.length;               /* promedio enero a la fecha */
+    const prom4=s4.reduce((a,b)=>a+b[1],0)/s4.length;           /* promedio ultimas 4 semanas */
+    const grados=prom4-base;
+    const pct=Math.abs(base)>0.5? grados/Math.abs(base)*100 : 0;
     if(pct>=15) subidas++; else if(pct<=-15) bajadas++;
-    filas.push({id,meta,serie,fUlt,vUlt,vAnt,base,pct});
+    filas.push({id,meta,serie,s4,fUlt,vUlt,base,prom4,grados,pct});
   }
-  filas.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+  /* subidas primero (mayor a menor), luego bajadas (mayor caida primero) */
+  filas.sort((a,b)=>{
+    const au=a.pct>0, bu=b.pct>0;
+    if(au!==bu) return au?-1:1;
+    return Math.abs(b.pct)-Math.abs(a.pct);
+  });
   const top=filas.slice(0,60);
   /* --- grafico grande del equipo seleccionado --- */
   if(!window.__tendSel || !map[window.__tendSel]) window.__tendSel = filas.length? filas[0].id : null;
@@ -638,7 +647,8 @@ function renderTendencias(){
   }
   const fmtF=f=>f.slice(8,10)+'-'+f.slice(5,7);
   const spark=serie=>{
-    const pts=serie.slice(-12).map(x=>x[1]);
+    let pts=serie.filter(x=>x[0]>=corte4).map(x=>x[1]);
+    if(pts.length<2) pts=serie.slice(-8).map(x=>x[1]);
     const mn=Math.min(...pts), mx=Math.max(...pts), rg=(mx-mn)||1;
     const xs=pts.map((v,i)=>[(i/((pts.length-1)||1))*96+2, 22-((v-mn)/rg)*18+1]);
     return '<svg viewBox="0 0 100 26" style="width:100px;height:26px;flex:0 0 auto"><polyline fill="none" stroke="var(--accent)" stroke-width="1.6" points="'+xs.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'"/><circle cx="'+xs[xs.length-1][0].toFixed(1)+'" cy="'+xs[xs.length-1][1].toFixed(1)+'" r="2.2" fill="var(--orange)"/></svg>';
@@ -653,17 +663,17 @@ function renderTendencias(){
         <div class="ts">${esc(x.meta.sec)} <span style="color:var(--ink-3)">· últ. ${fmtF(x.fUlt)}</span></div>
       </div>
       ${spark(x.serie)}
-      <div class="tvals"><span class="tv">prom ${x.base.toFixed(1).replace('.',',')} → últ <b>${String(x.vUlt).replace('.',',')}</b> °C</span>
-      <span class="ring" style="${chipStyle}">${dirUp?'▲':'▼'} ${Math.abs(x.pct).toFixed(0)}%</span></div>
+      <div class="tvals"><span class="tv">prom año ${x.base.toFixed(1).replace('.',',')} → últ 4 sem <b>${x.prom4.toFixed(1).replace('.',',')}</b> °C</span>
+      <span class="ring" style="${chipStyle}">${dirUp?'▲':'▼'} ${Math.abs(x.pct).toFixed(0)}% · ${(x.grados>0?'+':'−')}${Math.abs(x.grados).toFixed(1).replace('.',',')} °C</span></div>
     </div>`;
   }
   $('#form').innerHTML=`
     <div class="dayhdr">\📈 Tendencias de temperatura · equipos críticos</div>
-    <p class="daysub">Último valor de cada punto (planilla + rondas de la app) comparado con el promedio de sus lecturas anteriores. <span style="color:var(--bad);font-weight:700">▲ rojo = subiendo</span> · <span style="color:var(--tA);font-weight:700">▼ azul = bajando</span> — ordenado por mayor desviación.</p>
+    <p class="daysub">Promedio de las <b>últimas 4 semanas</b> de cada punto comparado con su promedio desde enero a la fecha, en % y en grados. La mini-curva muestra las últimas 4 semanas. <span style="color:var(--bad);font-weight:700">▲ rojo = subió</span> · <span style="color:var(--tA);font-weight:700">▼ azul = bajó</span> — primero las que más subieron, luego las que más bajaron.</p>
     <div class="kpis">
       <div class="kpi"><div class="v">${conDatos}</div><div class="l">Puntos con historial</div></div>
-      <div class="kpi bad"><div class="v">${subidas}</div><div class="l">Subiendo ≥15%</div></div>
-      <div class="kpi" style="border-color:var(--tA)"><div class="v" style="color:var(--tA)">${bajadas}</div><div class="l">Bajando ≥15%</div></div>
+      <div class="kpi bad"><div class="v">${subidas}</div><div class="l">Subieron ≥15%</div></div>
+      <div class="kpi" style="border-color:var(--tA)"><div class="v" style="color:var(--tA)">${bajadas}</div><div class="l">Bajaron ≥15%</div></div>
     </div>
     <div class="dash">
       <h3 style="margin:0 0 8px">Comportamiento del equipo en el tiempo</h3>
