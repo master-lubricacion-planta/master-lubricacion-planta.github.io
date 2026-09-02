@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1c47">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Consumibles — Lubricantes</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+    --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+    --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+    --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+    --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+    --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+    --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
+    --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+  --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+  --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+  --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+  --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+  --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+  --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
+  --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+button{font:inherit;color:inherit}
+
+header{position:sticky;top:0;z-index:10;background:linear-gradient(100deg,var(--navy),var(--navy-2));padding:12px 14px 0;border-bottom:3px solid var(--orange)}
+.brand{display:flex;align-items:center;gap:10px;max-width:920px;margin:0 auto}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.logo svg{width:22px;height:22px;fill:#fff}
+.brand h1{font-size:17px;font-weight:800;margin:0;color:var(--on-navy)}
+.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+.brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tecklogo{height:24px;width:auto;display:block}
+.adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
+.tabs{display:flex;align-items:center;gap:10px;max-width:920px;margin:10px auto 0;flex-wrap:wrap}
+.tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 2px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
+.tabs a svg{width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin-right:4px}
+.tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
+.tabs .slash{color:var(--on-navy-2);font-weight:300;font-size:17px}
+#back{margin-left:auto;margin-bottom:6px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:var(--on-navy);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;display:none}
+
+main{padding:14px;max-width:920px;margin:0 auto}
+.dayhdr{font-size:19px;font-weight:800;margin:4px 2px 2px}
+.daysub{font-size:13px;color:var(--ink-2);margin:0 2px 14px}
+.hint{color:var(--ink-2);text-align:center;padding:40px 20px;font-size:15px}
+.offlinetag{font-size:11.5px;font-weight:700;color:var(--ok);background:var(--ok-bg);display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;margin-bottom:10px}
+
+.kpis{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;box-shadow:var(--shadow)}
+.kpi .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.kpi.ok .v{color:var(--ok)} .kpi.bad .v{color:var(--bad)} .kpi.oil .v{color:var(--oil)} .kpi.gr .v{color:var(--grease)}
+
+.vistas{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.vchip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;color:var(--ink-2)}
+.vchip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+:root[data-theme="dark"] .vchip.on{color:#0a1128}
+
+.grp{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink);margin:16px 2px 8px}
+.plist{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
+.prod{padding:11px 14px;border-bottom:1px solid var(--line)}
+.prod:last-child{border-bottom:0}
+.prow{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pn{font-size:14px;font-weight:800}
+.pv{font-size:11.5px;color:var(--ink-3);font-weight:600}
+.pubi{font-size:10.5px;font-weight:800;letter-spacing:.04em;background:var(--accent-soft);color:var(--accent-ink);border-radius:999px;padding:2px 9px}
+.ptot{margin-left:auto;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.ptot small{font-size:11px;color:var(--ink-3);font-weight:700}
+.pbar{position:relative;height:12px;border-radius:999px;background:var(--na-bg);margin-top:7px;overflow:visible}
+.pbar>i{display:block;height:100%;border-radius:999px}
+.pbar .minmark{position:absolute;top:-3px;bottom:-3px;width:2.5px;background:var(--ink-2);border-radius:2px;opacity:.75}
+.pdet{font-size:11.5px;color:var(--ink-2);margin-top:5px}
+.pdet b{color:var(--ink)}
+.balo{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px}
+.balo.bajo{background:var(--bad-bg);color:var(--bad)}
+.balo.justo{background:var(--orange-soft);color:var(--orange-ink)}
+.balo.ok{background:var(--ok-bg);color:var(--ok)}
+
+.mform{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.mform h3{margin:0 0 10px;font-size:15px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.frow label{font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.frow input,.frow select{width:100%;padding:9px 10px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.movchips{display:flex;gap:8px;margin-bottom:10px}
+.mchip{flex:1;border:1.5px solid var(--line);background:var(--bg);border-radius:11px;padding:11px;font-size:14.5px;font-weight:800;cursor:pointer;text-align:center}
+.mchip.sal.on{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.mchip.ent.on{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.btn{width:100%;padding:13px;border-radius:11px;border:0;font-weight:800;font-size:15px;cursor:pointer;background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn{color:#0a1128}
+
+.mov{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.mov:last-child{border-bottom:0}
+.mf{font-size:11.5px;color:var(--ink-3);font-weight:700;min-width:74px}
+.mtag{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px}
+.mtag.SALIDA{background:var(--bad-bg);color:var(--bad)}
+.mtag.ENTRADA{background:var(--ok-bg);color:var(--ok)}
+.minfo{flex:1;min-width:200px;font-size:13px}
+.minfo b{font-size:13.5px}
+.mcant{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mdel{border:0;background:none;color:var(--bad);font-weight:800;cursor:pointer;font-size:13px}
+.appmark{font-size:10px;color:var(--tA);font-weight:800}
+
+.dash{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.dash h3{margin:0 0 10px;font-size:14.5px}
+.abar{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.abar .an{width:200px;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abar .atrack{flex:1;height:14px;border-radius:999px;background:var(--na-bg);overflow:hidden}
+.abar .atrack>i{display:block;height:100%;border-radius:999px;background:var(--oil)}
+.abar .av{width:90px;text-align:right;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+
+/* barra de navegación visible */
+.navvolver{display:flex;gap:8px;margin:2px 0 14px;flex-wrap:wrap}
+.bvolver{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+.savemsg{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
+.savemsg.show{opacity:.95}
+footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<header class="noprint">
+  <div class="brand">
+    <a class="logo" href="index.html" aria-label="Ir al buscador"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></a>
+    <span><h1>Maestro de Lubricación</h1><span class="sub">Concentradora</span></span>
+    <span class="brandright">
+      <img class="tecklogo" src="__TECKLOGO__" alt="Teck">
+      <span class="adminline">Admin: Nicolás Saravia</span>
+    </span>
+  </div>
+  <nav class="tabs">
+    <a href="index.html"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2z"/></svg>Maestro</a>
+    <span class="slash">/</span>
+    <a href="pautas.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8.5 12h7v1.6h-7zm0 3.6h7v1.6h-7z"/></svg>Pautas</a>
+    <span class="slash">/</span>
+    <a href="ruta.html"><svg viewBox="0 0 24 24"><path d="M10 4a2 2 0 0 1 4 0v9.3a4.7 4.7 0 1 1-4 0zm2 14.8a2.3 2.3 0 0 0 1-4.4V5h-2v9.4a2.3 2.3 0 0 0 1 4.4z"/></svg>Ruta Crítica</a>
+    <span class="slash">/</span>
+    <a href="plan52.html"><svg viewBox="0 0 24 24"><path d="M9 2h6v3h4v17H5V5h4zm0 5H7v13h10V7h-2v2H9zm2-3v2h2V4zm-2.3 9.8 1.6 1.6 3.9-3.9 1.4 1.4-5.3 5.3-3-3z"/></svg>Plan 52</a>
+    <span class="slash">/</span>
+    <a href="muestras.html"><svg viewBox="0 0 24 24"><path d="M10 2h4v2h-1v4.6l5.4 9.4A2.5 2.5 0 0 1 16.2 22H7.8a2.5 2.5 0 0 1-2.2-4l5.4-9.4V4h-1zm3 7.2V4h-2v5.2l-2.3 4h6.6zM8 15l-1.7 3a.9.9 0 0 0 .8 1.4h9.8a.9.9 0 0 0 .8-1.4L16 15z"/></svg>Muestras</a>
+    <span class="slash">/</span>
+    <a class="on" href="consumo.html"><svg viewBox="0 0 24 24"><path d="M5 4h14v2h-1v13a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V6H5zm3 2v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6zm2-4h4v1.5h-4zM9.5 9h5v1.6h-5zm0 3.4h5V14h-5z"/></svg>Consumibles</a>
+    <span class="slash">/</span>
+    <a href="tendencias.html"><svg viewBox="0 0 24 24"><path d="M3 3h2v16h16v2H3zm4.6 11.9-1.2-1.6 5-6.6 3.9 3.9 4.3-5.9 1.6 1.2-5.7 7.8-4-4z"/></svg>Tendencias</a>
+    <button id="back">‹ Volver</button>
+  </nav>
+</header>
+<main>
+  <div id="cont"></div>
+</main>
+<footer>Consumibles · bodegas y lubricanteras · 📴 Funciona sin internet · Admin: Nicolás Saravia</footer>
+<div class="savemsg" id="savemsg">✓ Guardado</div>
+<script>
+const MAESTRO = __CMAESTRO__;  /* 35 lubricantes con stock minimo, ubicacion y envase */
+const STOCK0  = __CSTOCK__;    /* baseline de la planilla: {id:{tam,bin,tin,par,total}} */
+const HIST    = __CHIST__;     /* movimientos historicos de la planilla */
+const byId=Object.fromEntries(MAESTRO.map(m=>[m.id,m]));
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const $=s=>document.querySelector(s);
+const esc=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const nf=n=>Number(n).toLocaleString('es-CL',{maximumFractionDigits:1});
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",
+  authDomain: "lubricacion-teck-qb.firebaseapp.com",
+  projectId: "lubricacion-teck-qb",
+  storageBucket: "lubricacion-teck-qb.firebasestorage.app",
+  messagingSenderId: "697204585611",
+  appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
+};
+let cloudDb=null, cloudOk=false;
+try{
+  firebase.initializeApp(firebaseConfig);
+  cloudDb=firebase.firestore();
+  try{ cloudDb.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
+  cloudOk=true;
+}catch(e){ cloudOk=false; }
+
+/* movimientos registrados en la app: {mid:{f,mov,id,cant,area,eq,resp,obs}} */
+const loadMovs=()=>{ try{return JSON.parse(localStorage.getItem('cons_movs'))||{}}catch(e){return {}} };
+function saveMovs(m){ localStorage.setItem('cons_movs',JSON.stringify(m));
+  if(cloudOk){ try{ cloudDb.collection('pautas').doc('CONS-MOVS').set({cons:true, m:m, updatedAt:new Date().toISOString()}) /* sin merge: las eliminaciones deben persistir */.catch(()=>{}); }catch(e){} }
+  flash();
+}
+let flashT; function flash(msg){ const el=$('#savemsg'); el.textContent=msg||'✓ Guardado'; el.classList.add('show'); clearTimeout(flashT); flashT=setTimeout(()=>el.classList.remove('show'),1100); }
+async function syncMovs(){
+  if(!cloudOk) return;
+  try{
+    const snap=await cloudDb.collection('pautas').doc('CONS-MOVS').get();
+    if(!snap.exists) return;
+    const nube=(snap.data().m)||{};
+    const loc=loadMovs();
+    let nuevos=0;
+    for(const k in nube){ if(!loc[k]){ loc[k]=nube[k]; nuevos++; } }
+    if(nuevos){ localStorage.setItem('cons_movs',JSON.stringify(loc)); if(view==='stock'||view==='movs') render(); }
+  }catch(e){}
+}
+
+function stockActual(){
+  /* baseline de la planilla + entradas/salidas registradas en la app */
+  const st={};
+  for(const m of MAESTRO){ st[m.id]=(STOCK0[String(m.id)]||{total:0}).total; }
+  const movs=loadMovs();
+  for(const k in movs){ const mv=movs[k];
+    if(!byId[mv.id]) continue;
+    st[mv.id]+= (mv.mov==='ENTRADA'? 1:-1)*Number(mv.cant||0);
+  }
+  return st;
+}
+function todasSalidas(){
+  const res=HIST.filter(h=>h.mov==='SALIDA').map(h=>Object.assign({app:false},h));
+  const movs=loadMovs();
+  for(const k in movs){ const mv=movs[k]; if(mv.mov==='SALIDA') res.push(Object.assign({app:true,mid:k},mv)); }
+  return res;
+}
+
+let view='stock';
+function render(){
+  $('#back').style.display='none';
+  if(view==='stock') renderStock();
+  else if(view==='movs') renderMovs();
+  else renderTend();
+  document.querySelectorAll('.vchip').forEach(c=>c.onclick=()=>{ view=c.dataset.v; render(); });
+  window.scrollTo(0,0);
+}
+const chips=v=>`<div class="vistas">
+  <button class="vchip ${v==='stock'?'on':''}" data-v="stock">🛢 Stock en bodega</button>
+  <button class="vchip ${v==='movs'?'on':''}" data-v="movs">↕ Registrar movimiento</button>
+  <button class="vchip ${v==='tend'?'on':''}" data-v="tend">📈 Tendencias de consumo</button>
+</div>`;
+
+function renderStock(){
+  const st=stockActual();
+  let totL=0,totKg=0,bajo=0;
+  for(const m of MAESTRO){ const v=st[m.id]; if(m.uni==='L')totL+=v; else totKg+=v; if(v<m.min)bajo++; }
+  const grupos={'ACEITE':[],'GRASA':[]};
+  for(const m of MAESTRO) (grupos[m.tipo]=grupos[m.tipo]||[]).push(m);
+  let html='';
+  for(const tipo of Object.keys(grupos)){
+    const arr=grupos[tipo].slice().sort((a,b)=>(st[a.id]/(a.min||1))-(st[b.id]/(b.min||1)));
+    let items='';
+    for(const m of arr){
+      const v=st[m.id], s0=STOCK0[String(m.id)]||{};
+      const escala=Math.max(m.min*2, v)||1;
+      const pct=Math.max(0,Math.min(100, v/escala*100));
+      const minPct=Math.min(100, (m.min/escala)*100);
+      const estado=v<m.min?'bajo':(v<m.min*1.5?'justo':'ok');
+      const color=estado==='bajo'?'var(--bad)':(estado==='justo'?'var(--orange)':'var(--ok)');
+      const env=[];
+      if(s0.tam) env.push(nf(s0.tam)+' tambores');
+      if(s0.bin) env.push(nf(s0.bin)+' bins');
+      if(s0.tin) env.push(nf(s0.tin)+' tinetas');
+      if(s0.par) env.push('parcial '+nf(s0.par)+' '+m.uni);
+      items+=`<div class="prod">
+        <div class="prow">
+          <span class="pn">${esc(m.prod)}</span>
+          ${m.visc?`<span class="pv">${esc(m.visc)}</span>`:''}
+          <span class="pubi">${esc(m.ubi)}</span>
+          <span class="balo ${estado}">${estado==='bajo'?'BAJO MÍNIMO':(estado==='justo'?'JUSTO':'OK')}</span>
+          <span class="ptot">${nf(v)} <small>${esc(m.uni)}</small></span>
+        </div>
+        <div class="pbar"><i style="width:${pct}%;background:${color}"></i><span class="minmark" style="left:${minPct}%" title="Stock mínimo ${nf(m.min)}"></span></div>
+        <div class="pdet">${env.join(' · ')||'sin desglose de envases'} · mínimo <b>${nf(m.min)} ${esc(m.uni)}</b></div>
+      </div>`;
+    }
+    html+=`<div class="grp">${tipo==='ACEITE'?'🛢 Aceites (L)':'🧴 Grasas (kg)'}</div><div class="plist">${items}</div>`;
+  }
+  $('#cont').innerHTML=`
+    <div class="dayhdr">Consumibles · Lubricantes en bodega</div>
+    <p class="daysub">Stock actual = inventario de la planilla + entradas − salidas registradas aquí. La marca vertical en cada barra es el <b>stock mínimo</b>.</p>
+    <div class="offlinetag">📴 Funciona sin internet — se guarda en este dispositivo y se sincroniza solo</div>
+    <div class="kpis">
+      <div class="kpi oil"><div class="v">${nf(totL)} L</div><div class="l">Aceite total</div></div>
+      <div class="kpi gr"><div class="v">${nf(totKg)} kg</div><div class="l">Grasa total</div></div>
+      <div class="kpi ${bajo?'bad':'ok'}"><div class="v">${bajo}</div><div class="l">Bajo stock mínimo</div></div>
+      <div class="kpi"><div class="v">${MAESTRO.length}</div><div class="l">Productos</div></div>
+    </div>
+    ${chips('stock')}
+    ${html}`;
+}
+
+function renderMovs(){
+  const movs=loadMovs();
+  const lista=[];
+  for(const k in movs) lista.push(Object.assign({mid:k,app:true},movs[k]));
+  for(const h of HIST) lista.push(Object.assign({app:false},h));
+  lista.sort((a,b)=> (b.f||'').localeCompare(a.f||''));
+  const optsProd=MAESTRO.map(m=>`<option value="${m.id}">${esc(m.prod)} (${esc(m.uni)})</option>`).join('');
+  const hoy=new Date(); const hoyIso=hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-'+String(hoy.getDate()).padStart(2,'0');
+  let filas='';
+  for(const mv of lista.slice(0,80)){
+    const m=byId[mv.id]||{};
+    filas+=`<div class="mov">
+      <span class="mf">${esc((mv.f||'').slice(8,10))}-${esc((mv.f||'').slice(5,7))}-${esc((mv.f||'').slice(2,4))}</span>
+      <span class="mtag ${esc(mv.mov)}">${esc(mv.mov)}</span>
+      <span class="minfo"><b>${esc(m.prod||'?')}</b> · ${esc(mv.eq||mv.area||'')} ${mv.resp?'· '+esc(mv.resp):''}${mv.obs?'<br><span style="color:var(--ink-3)">'+esc(mv.obs)+'</span>':''} ${mv.app?'<span class="appmark">· app</span>':''}</span>
+      <span class="mcant" style="color:${mv.mov==='SALIDA'?'var(--bad)':'var(--ok)'}">${mv.mov==='SALIDA'?'−':'+'}${nf(mv.cant)} ${esc(m.uni||'')}</span>
+      ${mv.app?`<button class="mdel" data-mid="${esc(mv.mid)}">✕</button>`:''}
+    </div>`;
+  }
+  $('#cont').innerHTML=`
+    <div class="dayhdr">Movimientos de lubricantes</div>
+    <p class="daysub"><b>SALIDA</b> = aceite/grasa que se usa en terreno · <b>ENTRADA</b> = lo que llega a bodega. Cada registro ajusta el stock al instante.</p>
+    ${chips('movs')}
+    <div class="mform">
+      <h3>Registrar movimiento</h3>
+      <div class="movchips">
+        <button class="mchip sal on" id="msal">− SALIDA</button>
+        <button class="mchip ent" id="ment">+ ENTRADA</button>
+      </div>
+      <div class="frow">
+        <div><label>Producto</label><select id="mprod">${optsProd}</select></div>
+        <div><label>Cantidad</label><input id="mcant" inputmode="decimal" placeholder="Litros o kg"></div>
+        <div><label>Fecha</label><input id="mfecha" type="date" value="${hoyIso}"></div>
+        <div><label>Área</label><input id="marea" inputmode="numeric" placeholder="Ej: 390"></div>
+        <div><label>OT / Equipo</label><input id="meq" placeholder="Ej: 0390-AGA-251"></div>
+        <div><label>Responsable</label><input id="mresp" placeholder="Nombre"></div>
+      </div>
+      <div style="margin-bottom:10px"><label style="font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px">Observación</label><input id="mobs" style="width:100%;padding:9px 10px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)" placeholder="Ej: se deja nivel óptimo…"></div>
+      <button class="btn" id="mguardar">💾 Guardar movimiento</button>
+    </div>
+    <div class="grp">Historial (últimos 80)</div>
+    <div class="plist">${filas||'<div class="hint">Sin movimientos aún.</div>'}</div>`;
+  let tipoMov='SALIDA';
+  $('#msal').onclick=()=>{ tipoMov='SALIDA'; $('#msal').classList.add('on'); $('#ment').classList.remove('on'); };
+  $('#ment').onclick=()=>{ tipoMov='ENTRADA'; $('#ment').classList.add('on'); $('#msal').classList.remove('on'); };
+  $('#mguardar').onclick=()=>{
+    const cant=parseFloat(String($('#mcant').value).replace(',','.'));
+    if(!cant||cant<=0){ alert('Ingresa la cantidad (litros o kg).'); return; }
+    const movs2=loadMovs();
+    const mid=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    movs2[mid]={ f:$('#mfecha').value, mov:tipoMov, id:+$('#mprod').value, cant:cant,
+      area:$('#marea').value.trim(), eq:$('#meq').value.trim(), resp:$('#mresp').value.trim(), obs:$('#mobs').value.trim() };
+    saveMovs(movs2);
+    flash(tipoMov==='SALIDA'?'− Salida registrada':'+ Entrada registrada');
+    render();
+  };
+  document.querySelectorAll('.mdel').forEach(b=>b.onclick=()=>{
+    if(!confirm('¿Eliminar este movimiento registrado en la app?')) return;
+    const movs2=loadMovs(); delete movs2[b.dataset.mid]; saveMovs(movs2); render();
+  });
+}
+
+function renderTend(){
+  const sal=todasSalidas();
+  /* mes actual */
+  const hoy=new Date(); const mesIso=hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0');
+  let mesL=0, mesKg=0;
+  const porProd={}, porEq={}, porArea={}, porMes={};
+  for(const s of sal){
+    const m=byId[s.id]; if(!m) continue;
+    const key=m.uni==='L'?'L':'kg';
+    if((s.f||'').slice(0,7)===mesIso){ if(key==='L')mesL+=s.cant; else mesKg+=s.cant; }
+    (porProd[s.id]=porProd[s.id]||{L:0,kg:0})[key]+=s.cant;
+    if(s.eq) (porEq[s.eq]=porEq[s.eq]||{L:0,kg:0})[key]+=s.cant;
+    if(s.area) (porArea[s.area]=porArea[s.area]||{L:0,kg:0})[key]+=s.cant;
+    const mk=(s.f||'').slice(0,7);
+    if(mk) (porMes[mk]=porMes[mk]||{L:0,kg:0})[key]+=s.cant;
+  }
+  const barras=(obj,label,unidad)=>{
+    const arr=Object.entries(obj).map(([k,v])=>[k,v[unidad]]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    if(!arr.length) return '';
+    const mx=arr[0][1];
+    return `<div class="dash"><h3>${label}</h3>`+arr.map(([k,v])=>`<div class="abar">
+      <span class="an" title="${esc(label==='' ? k : k)}">${esc(byId[k]?byId[k].prod:k)}</span>
+      <span class="atrack"><i style="width:${Math.max(3,v/mx*100)}%"></i></span>
+      <span class="av">${nf(v)} ${unidad}</span>
+    </div>`).join('')+'</div>';
+  };
+  /* serie mensual */
+  const meses=Object.keys(porMes).sort();
+  let serieHtml='';
+  if(meses.length){
+    const mx=Math.max(...meses.map(k=>porMes[k].L));
+    serieHtml='<div class="dash"><h3>Aceite consumido por mes (L)</h3>'+meses.map(k=>{
+      const v=porMes[k].L; const nm=MESES[+k.slice(5,7)-1]||k;
+      return `<div class="abar"><span class="an">${esc(nm)} ${k.slice(0,4)}</span><span class="atrack"><i style="width:${mx?Math.max(3,v/mx*100):0}%"></i></span><span class="av">${nf(v)} L</span></div>`;
+    }).join('')+'</div>';
+  }
+  $('#cont').innerHTML=`
+    <div class="dayhdr">Tendencias de consumo</div>
+    <p class="daysub">Salidas de la planilla + las registradas en la app: qué lubricante se usa más, en qué equipos y áreas.</p>
+    <div class="kpis">
+      <div class="kpi oil"><div class="v">${nf(mesL)} L</div><div class="l">Aceite salido · ${MESES[hoy.getMonth()]}</div></div>
+      <div class="kpi gr"><div class="v">${nf(mesKg)} kg</div><div class="l">Grasa salida · ${MESES[hoy.getMonth()]}</div></div>
+      <div class="kpi"><div class="v">${sal.length}</div><div class="l">Salidas registradas</div></div>
+    </div>
+    ${chips('tend')}
+    ${serieHtml}
+    ${barras(porProd,'Top lubricantes más consumidos (aceite)','L')}
+    ${barras(porProd,'Top grasas más consumidas','kg')}
+    ${barras(porEq,'Top equipos que más consumen','L')}
+    ${barras(porArea,'Consumo por área (L)','L')}`;
+}
+
+render();
+syncMovs();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
+</script>
+</body>
+</html>

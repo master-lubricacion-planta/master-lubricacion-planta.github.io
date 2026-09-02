@@ -167,6 +167,16 @@ open(os.path.join(pwa,'muestras.html'),'w',encoding='utf-8').write(
         .replace('__MUPREV__',mup.replace('</','<\/'))
         .replace('__TECKLOGO__',tecklogo))
 
+# Consumibles (stock y movimientos de lubricantes)
+cma=open(base+chr(92)+'cons_maestro.json',encoding='utf-8').read()
+cst=open(base+chr(92)+'cons_stock.json',encoding='utf-8').read()
+chi=open(base+chr(92)+'cons_hist.json',encoding='utf-8').read()
+ctpl=open(base+chr(92)+'consumo_template.html',encoding='utf-8').read()
+open(os.path.join(pwa,'consumo.html'),'w',encoding='utf-8').write(
+    ctpl.replace('__CMAESTRO__',cma).replace('__CSTOCK__',cst)
+        .replace('__CHIST__',chi.replace('</','<'+chr(92)+'/'))
+        .replace('__TECKLOGO__',tecklogo))
+
 # Tendencias (dashboard de análisis de aceite, contenido generado en cowork)
 ttpl=open(base+r'\tendencias_template.html',encoding='utf-8').read()
 tbody=open(base+r'\tendencias_body.html',encoding='utf-8').read()
@@ -188,5 +198,7 @@ if './plan52.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./plan52.html', './manifest.json'")
 if './muestras.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./muestras.html', './manifest.json'")
+if './consumo.html' not in sw:
+    sw=sw.replace("'./manifest.json'","'./consumo.html', './manifest.json'")
 open(os.path.join(pwa,'sw.js'),'w',encoding='utf-8').write(sw)
 print('build OK | pautas.html', os.path.getsize(os.path.join(pwa,'pautas.html'))//1024,'KB')
