@@ -73,6 +73,8 @@ for r in range(4, ws.max_row + 1):
     if iid is None:
         sin_prod += 1
         continue
+    # correccion confirmada por Nicolas: las filas '08-11-2026' son del 11 de AGOSTO
+    if fi == '2026-11-08': fi = '2026-08-11'
     hist.append({
         'f': fi,
         'mov': str(ws.cell(row=r, column=2).value or '').strip().upper(),
