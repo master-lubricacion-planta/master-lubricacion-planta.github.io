@@ -1,0 +1,236 @@
+<!-- Candado de acceso (Firebase Authentication) + roles + modo visualizador.
+     build.py inyecta este bloque al inicio del <body> de TODAS las páginas y agrega
+     los SDK firebase-app / firebase-auth / firebase-firestore en el <head>.
+     · Cada persona entra con su correo y contraseña individual. El rol vive en
+       Firestore: usuarios/{uid} = {nombre, email, rol: admin|tecnico|supervisor|inactivo}.
+       Los administradores gestionan cuentas en usuarios.html.
+     · INGRESO define qué roles pueden ingresar datos. Hasta enero 2027 todos van en
+       modo visualizador (solo lectura); para habilitar a los técnicos: tecnico:true.
+     · Las reglas de Firestore (firestore.rules) exigen sesión para leer y rol para
+       escribir; esto es solo la capa visual. -->
+<style>
+#lubgate{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#0b1c47,#12295e)}
+html.lub-locked #lubgate{display:flex}
+html.lub-locked body>*:not(#lubgate){display:none!important}
+#lubgate .gcard{width:100%;max-width:360px;background:#fff;border-radius:18px;padding:26px 24px 22px;box-shadow:0 18px 50px rgba(0,0,0,.45);text-align:center;font:15px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:#101a33}
+#lubgate .glogo{width:52px;height:52px;border-radius:15px;background:#f5822b;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+#lubgate .glogo svg{width:32px;height:32px;fill:#fff}
+#lubgate h2{margin:0;font-size:19px;font-weight:800;color:#0b1c47}
+#lubgate .gsub{font-size:11px;font-weight:700;color:#8391ad;text-transform:uppercase;letter-spacing:.1em;margin:2px 0 18px}
+#lubgate label{display:block;text-align:left;font-size:10.5px;font-weight:800;color:#4a5776;text-transform:uppercase;letter-spacing:.06em;margin:10px 2px 4px}
+#lubgate input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1.5px solid #dde3ee;border-radius:10px;background:#f4f6fa;color:#101a33;font-family:inherit}
+#lubgate input:focus{outline:none;border-color:#0c2a66}
+#lubgate button{width:100%;margin-top:16px;padding:13px;border:0;border-radius:11px;background:#0c2a66;color:#fff;font-size:15.5px;font-weight:800;cursor:pointer;font-family:inherit}
+#lubgate button:disabled{opacity:.6;cursor:default}
+#lubgate button.gsec{background:#f4f6fa;color:#0c2a66;margin-top:8px;font-weight:700}
+#lubgate .gerr{display:none;margin-top:10px;background:#f9e0de;color:#b3261e;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gerr.show{display:block}
+#lubgate .gok{display:none;margin-top:10px;background:#dff1e7;color:#1d7a4f;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gok.show{display:block}
+#lubgate .glink{display:inline-block;margin-top:12px;font-size:12.5px;color:#0c2a66;font-weight:700;cursor:pointer;text-decoration:underline}
+#lubgate .gfoot{margin-top:14px;font-size:11px;color:#8391ad}
+#lubgate .gload{padding:18px 0 6px;color:#4a5776;font-size:14px;font-weight:600}
+#lubgate .gload::before{content:'';display:block;width:26px;height:26px;margin:0 auto 10px;border:3px solid #dde3ee;border-top-color:#f5822b;border-radius:50%;animation:lubspin .8s linear infinite}
+@keyframes lubspin{to{transform:rotate(360deg)}}
+#lubgate .gcard.shake{animation:lubshake .35s}
+@keyframes lubshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#lubgate [hidden]{display:none!important}
+/* barra de usuario (abajo a la izquierda) y chip visualizador (abajo a la derecha) */
+#lubuserbar{display:none;position:fixed;bottom:10px;left:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;gap:8px;align-items:center;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lubuserbar.show{display:flex}
+#lubuserbar a{color:#ffd9b8;text-decoration:none;cursor:pointer}
+#lubuserbar a:hover{text-decoration:underline}
+#lubuserbar .lubsep{opacity:.5}
+#lubviewerchip{display:none;position:fixed;bottom:10px;right:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;pointer-events:none}
+html.lub-viewer #lubviewerchip{display:block}
+@media print{#lubviewerchip,#lubuserbar,#lubnuevo{display:none!important}}
+#lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+#lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
+/* ---- modo visualizador: sin ingreso de datos ---- */
+html.lub-viewer #fabsave{display:none!important}
+html.lub-viewer .offlinetag{display:none!important}
+/* pautas */
+html.lub-viewer #blimpiar,html.lub-viewer .borrartop,html.lub-viewer #bemail,
+html.lub-viewer #femaillock,html.lub-viewer .fotos{display:none!important}
+html.lub-viewer .btnbar:has(#bemail){display:none!important}
+html.lub-viewer #form input,html.lub-viewer #form textarea,html.lub-viewer .chip{pointer-events:none;opacity:.75}
+/* ruta crítica (el select de tendencias #tsel sigue activo: no está en esta lista) */
+html.lub-viewer #rborrar{display:none!important}
+html.lub-viewer input.iv,html.lub-viewer select.ie,
+html.lub-viewer #rnoc,html.lub-viewer #rnoc2,html.lub-viewer #rhora,html.lub-viewer #robs{pointer-events:none;opacity:.75}
+/* plan 52 + muestras */
+html.lub-viewer .echip,html.lub-viewer .idia,html.lub-viewer .iot,html.lub-viewer .iobs,
+html.lub-viewer .irc,html.lub-viewer .irep,html.lub-viewer .iest{pointer-events:none;opacity:.75}
+/* consumibles: sin formulario de movimientos ni eliminar */
+html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
+</style>
+<div id="lubgate">
+  <div class="gcard">
+    <div class="glogo"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></div>
+    <h2>Maestro de Lubricación</h2>
+    <div class="gsub">Concentradora · acceso restringido</div>
+    <div class="gload" id="lubgload">Verificando acceso…</div>
+    <form id="lubgform" hidden>
+      <label for="lubgemail">Correo</label>
+      <input id="lubgemail" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" placeholder="nombre@empresa.com">
+      <label for="lubgpass">Contraseña</label>
+      <input id="lubgpass" type="password" autocomplete="current-password" placeholder="Contraseña">
+      <button type="submit" id="lubgbtn">Entrar</button>
+      <div class="gerr" id="lubgerr"></div>
+      <div class="gok" id="lubgok"></div>
+      <span class="glink" id="lubgreset">¿Olvidaste tu contraseña?</span>
+    </form>
+    <div id="lubgnoacc" hidden>
+      <div class="gerr show" id="lubgnoacctxt">Tu cuenta aún no tiene acceso asignado. Pídele al administrador que te habilite.</div>
+      <button type="button" class="gsec" id="lubgsalir2">Salir</button>
+    </div>
+    <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
+  </div>
+</div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
+<script>
+(function(){
+  var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
+  var INGRESO={admin:false,tecnico:false,supervisor:false}; /* enero 2027: admin y tecnico en true */
+  var ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor'};
+  var firebaseConfig={apiKey:"AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",authDomain:"lubricacion-teck-qb.firebaseapp.com",projectId:"lubricacion-teck-qb",storageBucket:"lubricacion-teck-qb.firebasestorage.app",messagingSenderId:"697204585611",appId:"1:697204585611:web:824c3cf28291bdf1ec108e"};
+  var root=document.documentElement;
+  root.classList.add('lub-locked');
+  window.LUB_VIEWER=true; root.classList.add('lub-viewer');
+  window.LUB_USER=null; window.LUB_ROL=null;
+  try{ localStorage.removeItem('lub_auth'); }catch(e){} /* candado antiguo de clave compartida */
+  var $=function(id){return document.getElementById(id)};
+  var gate=$('lubgate'), form=$('lubgform'), load=$('lubgload'), noacc=$('lubgnoacc'), err=$('lubgerr'), ok=$('lubgok'), btn=$('lubgbtn');
+
+  if(!window.firebase){ load.textContent='No se pudo cargar el sistema de acceso. Revisa la conexión y recarga.'; return; }
+  var app=firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);
+  var auth=firebase.auth(), db=firebase.firestore();
+  try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
+
+  /* ---- Datos de la app: viven en la nube (coleccion 'datos', en partes <1MB) y
+     NO en las paginas. Las paginas piden lo suyo con lubCuandoListo([...], fn):
+     se sirve primero desde el cache offline de Firestore y, si el servidor tiene
+     una version nueva, se deja en cache y se avisa con un boton "Actualizar".
+     En localhost (desarrollo) los datos salen de _src/publicar/datos.json. ---- */
+  var DEV=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  window.LUB={datos:{}};
+  var _esperas=[], _listo=false, _cargas={}, _paqueteDev=null;
+  window.lubCuandoListo=function(nombres,fn){ _esperas.push({n:nombres,fn:fn}); if(_listo) procesar(); };
+  function leer(ref){ return ref.get({source:'cache'}).then(function(s){ if(!s.exists) throw 0; return s; }).catch(function(){ return ref.get(); }); }
+  /* carga bajo demanda (ej. réplica HTML de una pauta: LUB.cargar('rep.'+id)) */
+  window.LUB.cargar=function(n){ return cargarConjunto(n).then(function(){ return LUB.datos[n]; }); };
+  function cargarConjunto(n){
+    if(_cargas[n]) return _cargas[n];
+    if(DEV && n.indexOf('rep.')===0){ /* desarrollo: la réplica sale del archivo local */
+      _cargas[n]=fetch('pautas-html/'+n.slice(4)+'.html').then(function(r){ if(!r.ok) throw new Error('no existe '+n); return r.text(); }).then(function(t){ LUB.datos[n]=t; });
+      return _cargas[n];
+    }
+    if(DEV){
+      _paqueteDev=_paqueteDev||fetch('_src/publicar/datos.json').then(function(r){ if(!r.ok) throw new Error('falta _src/publicar/datos.json (correr build.py)'); return r.json(); });
+      _cargas[n]=_paqueteDev.then(function(p){ if(!(n in p.datos)) throw new Error('conjunto '+n+' no existe en datos.json'); LUB.datos[n]=p.datos[n]; });
+      return _cargas[n];
+    }
+    _cargas[n]=leer(db.collection('datos').doc(n)).then(function(meta){
+      if(!meta.exists) throw new Error('El conjunto "'+n+'" aún no está publicado en la nube (publicar_datos.py)');
+      var m=meta.data(), ps=[];
+      for(var i=0;i<m.partes;i++) ps.push(leer(db.collection('datos').doc(n+'.p'+i)));
+      return Promise.all(ps).then(function(snaps){
+        LUB.datos[n]=JSON.parse(snaps.map(function(s){ return s.data().s; }).join(''));
+        revisarNuevo(n,m.v);
+      });
+    });
+    return _cargas[n];
+  }
+  function revisarNuevo(n,v){
+    db.collection('datos').doc(n).get({source:'server'}).then(function(s){
+      if(!s.exists||s.data().v===v) return;
+      var ps=[]; for(var i=0;i<s.data().partes;i++) ps.push(db.collection('datos').doc(n+'.p'+i).get({source:'server'}));
+      Promise.all(ps).then(avisarNuevo).catch(function(){});
+    }).catch(function(){});
+  }
+  function avisarNuevo(){
+    if($('lubnuevo')) return;
+    var d=document.createElement('div'); d.id='lubnuevo'; d.innerHTML='🔄 Hay datos nuevos<a>Actualizar</a>';
+    d.querySelector('a').onclick=function(){ location.reload(); };
+    document.body.appendChild(d);
+  }
+  function procesar(){
+    var faltan=[];
+    _esperas.forEach(function(e){ e.n.forEach(function(n){ if(!(n in LUB.datos)&&faltan.indexOf(n)<0) faltan.push(n); }); });
+    if(faltan.length){
+      Promise.all(faltan.map(cargarConjunto)).then(procesar,function(err){
+        console.error(err);
+        root.classList.add('lub-locked'); mostrar('load');
+        load.textContent=navigator.onLine?('No se pudieron cargar los datos: '+(err&&err.message?err.message:err)):'Sin conexión y sin datos guardados en este dispositivo. Conéctate a internet y recarga.';
+      });
+      return;
+    }
+    var lista=_esperas; _esperas=[];
+    lista.forEach(function(e){ try{ e.fn(); }catch(err){ console.error(err); } });
+    if(document.body.contains(gate)){ root.classList.remove('lub-locked'); gate.remove(); }
+  }
+
+  function mostrar(cual){ load.hidden=cual!=='load'; form.hidden=cual!=='form'; noacc.hidden=cual!=='noacc'; }
+  function fallo(msg){ err.textContent=msg; err.classList.add('show'); ok.classList.remove('show'); var c=gate.querySelector('.gcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  function aplicarRol(rol){
+    window.LUB_ROL=rol;
+    var puede=!!INGRESO[rol];
+    window.LUB_VIEWER=!puede;
+    root.classList.toggle('lub-viewer',!puede);
+  }
+  function desbloquear(u,perfil){
+    window.LUB_USER={uid:u.uid,email:u.email,nombre:perfil.nombre||u.email,rol:perfil.rol};
+    aplicarRol(perfil.rol);
+    if(/usuarios\.html$/.test(location.pathname) && perfil.rol!=='admin'){ location.replace('index.html'); return; }
+    $('lubuname').textContent=perfil.nombre||u.email;
+    $('lubrolt').textContent=ROL_TXT[perfil.rol]||perfil.rol;
+    $('lubusuarios').hidden=perfil.rol!=='admin';
+    $('lubuserbar').classList.add('show');
+    /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
+    mostrar('load'); load.textContent='Cargando datos…';
+    _listo=true; procesar();
+  }
+  function salir(){ auth.signOut().then(function(){ location.reload(); }); }
+  $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
+
+  var MSG={'auth/invalid-credential':'Correo o contraseña incorrectos','auth/wrong-password':'Correo o contraseña incorrectos','auth/user-not-found':'Correo o contraseña incorrectos','auth/invalid-email':'El correo no es válido','auth/too-many-requests':'Demasiados intentos. Espera unos minutos e inténtalo de nuevo','auth/network-request-failed':'Sin conexión a internet. Para entrar por primera vez en este dispositivo necesitas señal','auth/user-disabled':'Esta cuenta está deshabilitada','auth/configuration-not-found':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/operation-not-allowed':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/missing-password':'Escribe tu contraseña'};
+
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var email=$('lubgemail').value.trim().toLowerCase(), pass=$('lubgpass').value;
+    if(!email||!pass){ fallo('Escribe tu correo y contraseña'); return; }
+    btn.disabled=true; err.classList.remove('show');
+    auth.signInWithEmailAndPassword(email,pass).catch(function(e){ fallo(MSG[e.code]||('No se pudo entrar ('+e.code+')')); }).then(function(){ btn.disabled=false; });
+  });
+  $('lubgreset').onclick=function(){
+    var email=$('lubgemail').value.trim().toLowerCase();
+    if(!email){ fallo('Escribe tu correo arriba y vuelve a tocar aquí'); return; }
+    auth.sendPasswordResetEmail(email).then(function(){ err.classList.remove('show'); ok.textContent='Te enviamos un correo a '+email+' para crear una contraseña nueva (revisa spam).'; ok.classList.add('show'); }).catch(function(e){ fallo(MSG[e.code]||('No se pudo enviar el correo ('+e.code+')')); });
+  };
+
+  if(DEV){ /* desarrollo local: sin login, datos desde el archivo local, rol admin */
+    desbloquear({uid:'dev',email:'dev@localhost'},{nombre:'Modo desarrollo (localhost)',rol:'admin'});
+    return;
+  }
+  auth.onAuthStateChanged(function(u){
+    if(!u){ mostrar('form'); return; }
+    mostrar('load');
+    var ref=db.collection('usuarios').doc(u.uid);
+    ref.get().then(function(snap){ return snap.exists?snap.data():null; }, function(){ return null; }).then(function(perfil){
+      var esAdminFijo=ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())>=0;
+      if(!perfil && esAdminFijo){
+        perfil={nombre:u.displayName||'Nicolás Saravia',email:u.email,rol:'admin',creado:new Date().toISOString()};
+        ref.set(perfil,{merge:true}).catch(function(){});
+      }
+      if(!perfil || !ROL_TXT[perfil.rol]){
+        if(!perfil) $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') aún no tiene acceso asignado. Pídele al administrador que te habilite.';
+        else $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') está desactivada.';
+        mostrar('noacc'); return;
+      }
+      if(esAdminFijo) perfil.rol='admin';
+      desbloquear(u,perfil);
+    });
+  });
+})();
+</script>

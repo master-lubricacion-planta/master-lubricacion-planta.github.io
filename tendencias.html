@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1c47">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Tendencias — Análisis de Aceite</title>
+<style>
+/* Encabezado de la app (variables propias, no chocan con las del dashboard) */
+:root{--navy:#0b1c47;--navy-2:#12295e;--on-navy:#ffffff;--on-navy-2:#9db1d9;--orange:#f5822b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--navy:#060d24;--navy-2:#0d1a40;--on-navy:#ffffff;--on-navy-2:#8fa5d4}}
+:root[data-theme="dark"]{--navy:#060d24;--navy-2:#0d1a40;--on-navy:#ffffff;--on-navy-2:#8fa5d4}
+header.appnav{position:sticky;top:0;z-index:10;background:linear-gradient(100deg,var(--navy),var(--navy-2));padding:12px 14px 0;border-bottom:3px solid var(--orange)}
+.appnav .brand{display:flex;align-items:center;gap:10px;max-width:1180px;margin:0 auto}
+.appnav .logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.appnav .logo svg{width:22px;height:22px;fill:#fff}
+.appnav h1{font-size:17px;font-weight:800;margin:0;color:var(--on-navy);font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif}
+.appnav .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+.appnav .brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.appnav .tecklogo{height:24px;width:auto;display:block}
+.appnav .adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
+.appnav .tabs{display:flex;align-items:center;gap:10px;max-width:1180px;margin:10px auto 0;flex-wrap:wrap;font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif}
+.appnav .tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 2px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
+.appnav .tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
+.appnav .tabs .slash{color:var(--on-navy-2);font-weight:300;font-size:17px}
+.appnav .tabs a svg{width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin-right:4px}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<!-- Candado de acceso (Firebase Authentication) + roles + modo visualizador.
+     build.py inyecta este bloque al inicio del <body> de TODAS las páginas y agrega
+     los SDK firebase-app / firebase-auth / firebase-firestore en el <head>.
+     · Cada persona entra con su correo y contraseña individual. El rol vive en
+       Firestore: usuarios/{uid} = {nombre, email, rol: admin|tecnico|supervisor|inactivo}.
+       Los administradores gestionan cuentas en usuarios.html.
+     · INGRESO define qué roles pueden ingresar datos. Hasta enero 2027 todos van en
+       modo visualizador (solo lectura); para habilitar a los técnicos: tecnico:true.
+     · Las reglas de Firestore (firestore.rules) exigen sesión para leer y rol para
+       escribir; esto es solo la capa visual. -->
+<style>
+#lubgate{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#0b1c47,#12295e)}
+html.lub-locked #lubgate{display:flex}
+html.lub-locked body>*:not(#lubgate){display:none!important}
+#lubgate .gcard{width:100%;max-width:360px;background:#fff;border-radius:18px;padding:26px 24px 22px;box-shadow:0 18px 50px rgba(0,0,0,.45);text-align:center;font:15px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:#101a33}
+#lubgate .glogo{width:52px;height:52px;border-radius:15px;background:#f5822b;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+#lubgate .glogo svg{width:32px;height:32px;fill:#fff}
+#lubgate h2{margin:0;font-size:19px;font-weight:800;color:#0b1c47}
+#lubgate .gsub{font-size:11px;font-weight:700;color:#8391ad;text-transform:uppercase;letter-spacing:.1em;margin:2px 0 18px}
+#lubgate label{display:block;text-align:left;font-size:10.5px;font-weight:800;color:#4a5776;text-transform:uppercase;letter-spacing:.06em;margin:10px 2px 4px}
+#lubgate input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1.5px solid #dde3ee;border-radius:10px;background:#f4f6fa;color:#101a33;font-family:inherit}
+#lubgate input:focus{outline:none;border-color:#0c2a66}
+#lubgate button{width:100%;margin-top:16px;padding:13px;border:0;border-radius:11px;background:#0c2a66;color:#fff;font-size:15.5px;font-weight:800;cursor:pointer;font-family:inherit}
+#lubgate button:disabled{opacity:.6;cursor:default}
+#lubgate button.gsec{background:#f4f6fa;color:#0c2a66;margin-top:8px;font-weight:700}
+#lubgate .gerr{display:none;margin-top:10px;background:#f9e0de;color:#b3261e;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gerr.show{display:block}
+#lubgate .gok{display:none;margin-top:10px;background:#dff1e7;color:#1d7a4f;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gok.show{display:block}
+#lubgate .glink{display:inline-block;margin-top:12px;font-size:12.5px;color:#0c2a66;font-weight:700;cursor:pointer;text-decoration:underline}
+#lubgate .gfoot{margin-top:14px;font-size:11px;color:#8391ad}
+#lubgate .gload{padding:18px 0 6px;color:#4a5776;font-size:14px;font-weight:600}
+#lubgate .gload::before{content:'';display:block;width:26px;height:26px;margin:0 auto 10px;border:3px solid #dde3ee;border-top-color:#f5822b;border-radius:50%;animation:lubspin .8s linear infinite}
+@keyframes lubspin{to{transform:rotate(360deg)}}
+#lubgate .gcard.shake{animation:lubshake .35s}
+@keyframes lubshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#lubgate [hidden]{display:none!important}
+/* barra de usuario (abajo a la izquierda) y chip visualizador (abajo a la derecha) */
+#lubuserbar{display:none;position:fixed;bottom:10px;left:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;gap:8px;align-items:center;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lubuserbar.show{display:flex}
+#lubuserbar a{color:#ffd9b8;text-decoration:none;cursor:pointer}
+#lubuserbar a:hover{text-decoration:underline}
+#lubuserbar .lubsep{opacity:.5}
+#lubviewerchip{display:none;position:fixed;bottom:10px;right:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;pointer-events:none}
+html.lub-viewer #lubviewerchip{display:block}
+@media print{#lubviewerchip,#lubuserbar,#lubnuevo{display:none!important}}
+#lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+#lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
+/* ---- modo visualizador: sin ingreso de datos ---- */
+html.lub-viewer #fabsave{display:none!important}
+html.lub-viewer .offlinetag{display:none!important}
+/* pautas */
+html.lub-viewer #blimpiar,html.lub-viewer .borrartop,html.lub-viewer #bemail,
+html.lub-viewer #femaillock,html.lub-viewer .fotos{display:none!important}
+html.lub-viewer .btnbar:has(#bemail){display:none!important}
+html.lub-viewer #form input,html.lub-viewer #form textarea,html.lub-viewer .chip{pointer-events:none;opacity:.75}
+/* ruta crítica (el select de tendencias #tsel sigue activo: no está en esta lista) */
+html.lub-viewer #rborrar{display:none!important}
+html.lub-viewer input.iv,html.lub-viewer select.ie,
+html.lub-viewer #rnoc,html.lub-viewer #rnoc2,html.lub-viewer #rhora,html.lub-viewer #robs{pointer-events:none;opacity:.75}
+/* plan 52 + muestras */
+html.lub-viewer .echip,html.lub-viewer .idia,html.lub-viewer .iot,html.lub-viewer .iobs,
+html.lub-viewer .irc,html.lub-viewer .irep,html.lub-viewer .iest{pointer-events:none;opacity:.75}
+/* consumibles: sin formulario de movimientos ni eliminar */
+html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
+</style>
+<div id="lubgate">
+  <div class="gcard">
+    <div class="glogo"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></div>
+    <h2>Maestro de Lubricación</h2>
+    <div class="gsub">Concentradora · acceso restringido</div>
+    <div class="gload" id="lubgload">Verificando acceso…</div>
+    <form id="lubgform" hidden>
+      <label for="lubgemail">Correo</label>
+      <input id="lubgemail" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" placeholder="nombre@empresa.com">
+      <label for="lubgpass">Contraseña</label>
+      <input id="lubgpass" type="password" autocomplete="current-password" placeholder="Contraseña">
+      <button type="submit" id="lubgbtn">Entrar</button>
+      <div class="gerr" id="lubgerr"></div>
+      <div class="gok" id="lubgok"></div>
+      <span class="glink" id="lubgreset">¿Olvidaste tu contraseña?</span>
+    </form>
+    <div id="lubgnoacc" hidden>
+      <div class="gerr show" id="lubgnoacctxt">Tu cuenta aún no tiene acceso asignado. Pídele al administrador que te habilite.</div>
+      <button type="button" class="gsec" id="lubgsalir2">Salir</button>
+    </div>
+    <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
+  </div>
+</div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
+<script>
+(function(){
+  var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
+  var INGRESO={admin:false,tecnico:false,supervisor:false}; /* enero 2027: admin y tecnico en true */
+  var ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor'};
+  var firebaseConfig={apiKey:"AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",authDomain:"lubricacion-teck-qb.firebaseapp.com",projectId:"lubricacion-teck-qb",storageBucket:"lubricacion-teck-qb.firebasestorage.app",messagingSenderId:"697204585611",appId:"1:697204585611:web:824c3cf28291bdf1ec108e"};
+  var root=document.documentElement;
+  root.classList.add('lub-locked');
+  window.LUB_VIEWER=true; root.classList.add('lub-viewer');
+  window.LUB_USER=null; window.LUB_ROL=null;
+  try{ localStorage.removeItem('lub_auth'); }catch(e){} /* candado antiguo de clave compartida */
+  var $=function(id){return document.getElementById(id)};
+  var gate=$('lubgate'), form=$('lubgform'), load=$('lubgload'), noacc=$('lubgnoacc'), err=$('lubgerr'), ok=$('lubgok'), btn=$('lubgbtn');
+
+  if(!window.firebase){ load.textContent='No se pudo cargar el sistema de acceso. Revisa la conexión y recarga.'; return; }
+  var app=firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);
+  var auth=firebase.auth(), db=firebase.firestore();
+  try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
+
+  /* ---- Datos de la app: viven en la nube (coleccion 'datos', en partes <1MB) y
+     NO en las paginas. Las paginas piden lo suyo con lubCuandoListo([...], fn):
+     se sirve primero desde el cache offline de Firestore y, si el servidor tiene
+     una version nueva, se deja en cache y se avisa con un boton "Actualizar".
+     En localhost (desarrollo) los datos salen de _src/publicar/datos.json. ---- */
+  var DEV=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  window.LUB={datos:{}};
+  var _esperas=[], _listo=false, _cargas={}, _paqueteDev=null;
+  window.lubCuandoListo=function(nombres,fn){ _esperas.push({n:nombres,fn:fn}); if(_listo) procesar(); };
+  function leer(ref){ return ref.get({source:'cache'}).then(function(s){ if(!s.exists) throw 0; return s; }).catch(function(){ return ref.get(); }); }
+  /* carga bajo demanda (ej. réplica HTML de una pauta: LUB.cargar('rep.'+id)) */
+  window.LUB.cargar=function(n){ return cargarConjunto(n).then(function(){ return LUB.datos[n]; }); };
+  function cargarConjunto(n){
+    if(_cargas[n]) return _cargas[n];
+    if(DEV && n.indexOf('rep.')===0){ /* desarrollo: la réplica sale del archivo local */
+      _cargas[n]=fetch('pautas-html/'+n.slice(4)+'.html').then(function(r){ if(!r.ok) throw new Error('no existe '+n); return r.text(); }).then(function(t){ LUB.datos[n]=t; });
+      return _cargas[n];
+    }
+    if(DEV){
+      _paqueteDev=_paqueteDev||fetch('_src/publicar/datos.json').then(function(r){ if(!r.ok) throw new Error('falta _src/publicar/datos.json (correr build.py)'); return r.json(); });
+      _cargas[n]=_paqueteDev.then(function(p){ if(!(n in p.datos)) throw new Error('conjunto '+n+' no existe en datos.json'); LUB.datos[n]=p.datos[n]; });
+      return _cargas[n];
+    }
+    _cargas[n]=leer(db.collection('datos').doc(n)).then(function(meta){
+      if(!meta.exists) throw new Error('El conjunto "'+n+'" aún no está publicado en la nube (publicar_datos.py)');
+      var m=meta.data(), ps=[];
+      for(var i=0;i<m.partes;i++) ps.push(leer(db.collection('datos').doc(n+'.p'+i)));
+      return Promise.all(ps).then(function(snaps){
+        LUB.datos[n]=JSON.parse(snaps.map(function(s){ return s.data().s; }).join(''));
+        revisarNuevo(n,m.v);
+      });
+    });
+    return _cargas[n];
+  }
+  function revisarNuevo(n,v){
+    db.collection('datos').doc(n).get({source:'server'}).then(function(s){
+      if(!s.exists||s.data().v===v) return;
+      var ps=[]; for(var i=0;i<s.data().partes;i++) ps.push(db.collection('datos').doc(n+'.p'+i).get({source:'server'}));
+      Promise.all(ps).then(avisarNuevo).catch(function(){});
+    }).catch(function(){});
+  }
+  function avisarNuevo(){
+    if($('lubnuevo')) return;
+    var d=document.createElement('div'); d.id='lubnuevo'; d.innerHTML='🔄 Hay datos nuevos<a>Actualizar</a>';
+    d.querySelector('a').onclick=function(){ location.reload(); };
+    document.body.appendChild(d);
+  }
+  function procesar(){
+    var faltan=[];
+    _esperas.forEach(function(e){ e.n.forEach(function(n){ if(!(n in LUB.datos)&&faltan.indexOf(n)<0) faltan.push(n); }); });
+    if(faltan.length){
+      Promise.all(faltan.map(cargarConjunto)).then(procesar,function(err){
+        console.error(err);
+        root.classList.add('lub-locked'); mostrar('load');
+        load.textContent=navigator.onLine?('No se pudieron cargar los datos: '+(err&&err.message?err.message:err)):'Sin conexión y sin datos guardados en este dispositivo. Conéctate a internet y recarga.';
+      });
+      return;
+    }
+    var lista=_esperas; _esperas=[];
+    lista.forEach(function(e){ try{ e.fn(); }catch(err){ console.error(err); } });
+    if(document.body.contains(gate)){ root.classList.remove('lub-locked'); gate.remove(); }
+  }
+
+  function mostrar(cual){ load.hidden=cual!=='load'; form.hidden=cual!=='form'; noacc.hidden=cual!=='noacc'; }
+  function fallo(msg){ err.textContent=msg; err.classList.add('show'); ok.classList.remove('show'); var c=gate.querySelector('.gcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  function aplicarRol(rol){
+    window.LUB_ROL=rol;
+    var puede=!!INGRESO[rol];
+    window.LUB_VIEWER=!puede;
+    root.classList.toggle('lub-viewer',!puede);
+  }
+  function desbloquear(u,perfil){
+    window.LUB_USER={uid:u.uid,email:u.email,nombre:perfil.nombre||u.email,rol:perfil.rol};
+    aplicarRol(perfil.rol);
+    if(/usuarios\.html$/.test(location.pathname) && perfil.rol!=='admin'){ location.replace('index.html'); return; }
+    $('lubuname').textContent=perfil.nombre||u.email;
+    $('lubrolt').textContent=ROL_TXT[perfil.rol]||perfil.rol;
+    $('lubusuarios').hidden=perfil.rol!=='admin';
+    $('lubuserbar').classList.add('show');
+    /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
+    mostrar('load'); load.textContent='Cargando datos…';
+    _listo=true; procesar();
+  }
+  function salir(){ auth.signOut().then(function(){ location.reload(); }); }
+  $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
+
+  var MSG={'auth/invalid-credential':'Correo o contraseña incorrectos','auth/wrong-password':'Correo o contraseña incorrectos','auth/user-not-found':'Correo o contraseña incorrectos','auth/invalid-email':'El correo no es válido','auth/too-many-requests':'Demasiados intentos. Espera unos minutos e inténtalo de nuevo','auth/network-request-failed':'Sin conexión a internet. Para entrar por primera vez en este dispositivo necesitas señal','auth/user-disabled':'Esta cuenta está deshabilitada','auth/configuration-not-found':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/operation-not-allowed':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/missing-password':'Escribe tu contraseña'};
+
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var email=$('lubgemail').value.trim().toLowerCase(), pass=$('lubgpass').value;
+    if(!email||!pass){ fallo('Escribe tu correo y contraseña'); return; }
+    btn.disabled=true; err.classList.remove('show');
+    auth.signInWithEmailAndPassword(email,pass).catch(function(e){ fallo(MSG[e.code]||('No se pudo entrar ('+e.code+')')); }).then(function(){ btn.disabled=false; });
+  });
+  $('lubgreset').onclick=function(){
+    var email=$('lubgemail').value.trim().toLowerCase();
+    if(!email){ fallo('Escribe tu correo arriba y vuelve a tocar aquí'); return; }
+    auth.sendPasswordResetEmail(email).then(function(){ err.classList.remove('show'); ok.textContent='Te enviamos un correo a '+email+' para crear una contraseña nueva (revisa spam).'; ok.classList.add('show'); }).catch(function(e){ fallo(MSG[e.code]||('No se pudo enviar el correo ('+e.code+')')); });
+  };
+
+  if(DEV){ /* desarrollo local: sin login, datos desde el archivo local, rol admin */
+    desbloquear({uid:'dev',email:'dev@localhost'},{nombre:'Modo desarrollo (localhost)',rol:'admin'});
+    return;
+  }
+  auth.onAuthStateChanged(function(u){
+    if(!u){ mostrar('form'); return; }
+    mostrar('load');
+    var ref=db.collection('usuarios').doc(u.uid);
+    ref.get().then(function(snap){ return snap.exists?snap.data():null; }, function(){ return null; }).then(function(perfil){
+      var esAdminFijo=ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())>=0;
+      if(!perfil && esAdminFijo){
+        perfil={nombre:u.displayName||'Nicolás Saravia',email:u.email,rol:'admin',creado:new Date().toISOString()};
+        ref.set(perfil,{merge:true}).catch(function(){});
+      }
+      if(!perfil || !ROL_TXT[perfil.rol]){
+        if(!perfil) $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') aún no tiene acceso asignado. Pídele al administrador que te habilite.';
+        else $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') está desactivada.';
+        mostrar('noacc'); return;
+      }
+      if(esAdminFijo) perfil.rol='admin';
+      desbloquear(u,perfil);
+    });
+  });
+})();
+</script>
+
+<header class="appnav">
+  <div class="brand">
+    <a class="logo" href="index.html" aria-label="Ir al buscador"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></a>
+    <span><h1>Maestro de Lubricación</h1><span class="sub">Concentradora</span></span>
+    <span class="brandright">
+      <img class="tecklogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAAwCAYAAABUmTXqAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMC1jMDAwIDc5LmRhYmFjYmIsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6OGVhMTgzYzgtOTg1Zi00MmEwLThiNTQtY2FkNjdkZjA4OTM2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM1MzNBODk3MEVDMjExRUM4RjY0RUMzM0ExRUZBNjRDIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM1MzNBODk2MEVDMjExRUM4RjY0RUMzM0ExRUZBNjRDIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyMi41IChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OGVhMTgzYzgtOTg1Zi00MmEwLThiNTQtY2FkNjdkZjA4OTM2IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjhlYTE4M2M4LTk4NWYtNDJhMC04YjU0LWNhZDY3ZGYwODkzNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PhEM5IEAAAPjSURBVHja7Jx7iE1BHMfPtR7Lisj70Wo9/hERWZTnP+T9D8kjjyRSSvIowj8iUhtSQv4iROsfhRKbLCWSEBLJKzavrLwd3+nOzZg9e+/Z63Xi86lvc2fuzD2nmd/3zpk5595UGIYBAERTjy4AwCAAGAQAgwBgEAAMAoBBADAIAAYBwCAAgEEAMAjAT1OfLshNKpVK5HmFYVhgTs8p+qJzDWO0Y1AxyC8NxF5KuubZvFJB++w3ndopaZiT7ytdYcQwyJ9mnrQ4j3YfpbZ0H2sQiOaYZo9XdAMGgWj20QVcYv0PbJL2emXLpGlOfr+02atzna7DIP88ukx6pOSRt3Cv8qpVqd6ViAV+FyVTpN5SE+mpVCEdVf33WTYGUnYBPloyn1EoPZYuSOVq+ybG5oLZ5RojFTjFV6W7jCoG+avY4FwvLY3o5wUmSFVnhgL9fETbfkp2BeldKZ+F0nBpbo7jG4Ntt8fKcE0awuiwBkkCu6UVWb6ESqTjCuQSL7BHKTlbizkyvIhhjh0R5hjJpgEzSBJmj6lKZjtFt6V10n1phLRWaiA1k8qkCbZdZyUHpcZOWxPQh6QHUntpVDaD5DBHFaODQZLAaue1WXMMVnA+t/lKBfEXpRtsfpzyHfS+WV+skZo7bS9JY/XeU88ArWpbLmEOLrGSPnt0U9LTKdrlmCPDQS+oh6pdQ6VTnXJjoumuOeyGQZgl2LdgDmaQpNPfy89U8I/3ygq8fI8gvcvV1CmrUGDfquOxRzivb2IODJJEWnv5YqtstAhqPpJy8yfPo2WQ3hoGLrESxcc82nySPkeYpq5cdl63kQ5r9mrEkGCQJPHAyy9K5Wa56t3z2g1WcNd1fMwDlTec/AC7aAcMkhjOebPBLHvTsLZFfZFdfN/2zFXsLbjj8FaabNMMc3WMBQwLBkkECvTXwY+7VOZbvFxB2t0xRUtponRE2W1OXf/bfpvqbJR6Sx2lUmmVVJbl+GYGme8Vb1WbQYxOHphfl6HsqqXfysIfKXPe6yS9DGtSLb3zyg447RpJF8PcnLb1z3jlfZzP2uG990Rqx5jXTcwgv2cWeahkUlDzjndRxM5SodPug5KJQfoGYTYaxziNJd7ntLOL9gaMUHzY5s2fO0H6qVw375qkQsFo7m+stOsCd6vX3AQ027gnpD1eu8dqN1Av5wTpBxJLg++/Ozc7ZOZp3p027z89XO2aTZ9jjmueCXPXQOZeyUmGL+aXHT/gjzUj/IpL2ZQNVNPhX+P8uYLTLjPTx26X67IaMAgAu1gAGAQAgwBgEAAMAoBBADAIAAYBAAwCgEEAMAgABgFIAN8EGAA/IG3JuFt/tAAAAABJRU5ErkJggg==" alt="Teck">
+      <span class="adminline">Admin: Nicolás Saravia</span>
+    </span>
+  </div>
+  <nav class="tabs">
+    <a  href="index.html"><svg  viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2z"/></svg>Maestro</a>
+    <span class="slash">/</span>
+    <a  href="pautas.html"><svg  viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8.5 12h7v1.6h-7zm0 3.6h7v1.6h-7z"/></svg>Pautas</a>
+    <span class="slash">/</span>
+    <a  href="ruta.html"><svg  viewBox="0 0 24 24"><path d="M10 4a2 2 0 0 1 4 0v9.3a4.7 4.7 0 1 1-4 0zm2 14.8a2.3 2.3 0 0 0 1-4.4V5h-2v9.4a2.3 2.3 0 0 0 1 4.4z"/></svg>Ruta Crítica</a>
+    <span class="slash">/</span>
+    <a  href="plan52.html"><svg  viewBox="0 0 24 24"><path d="M9 2h6v3h4v17H5V5h4zm0 5H7v13h10V7h-2v2H9zm2-3v2h2V4zm-2.3 9.8 1.6 1.6 3.9-3.9 1.4 1.4-5.3 5.3-3-3z"/></svg>Plan 52</a>
+    <span class="slash">/</span>
+    <a  href="muestras.html"><svg  viewBox="0 0 24 24"><path d="M10 2h4v2h-1v4.6l5.4 9.4A2.5 2.5 0 0 1 16.2 22H7.8a2.5 2.5 0 0 1-2.2-4l5.4-9.4V4h-1zm3 7.2V4h-2v5.2l-2.3 4h6.6zM8 15l-1.7 3a.9.9 0 0 0 .8 1.4h9.8a.9.9 0 0 0 .8-1.4L16 15z"/></svg>Muestras</a>
+    <span class="slash">/</span>
+    <a href="consumo.html"><svg  viewBox="0 0 24 24"><path d="M5 4h14v2h-1v13a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V6H5zm3 2v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6zm2-4h4v1.5h-4zM9.5 9h5v1.6h-5zm0 3.4h5V14h-5z"/></svg>Consumibles</a>
+    <span class="slash">/</span>
+    <a class="on" href="tendencias.html"><svg  viewBox="0 0 24 24"><path d="M3 3h2v16h16v2H3zm4.6 11.9-1.2-1.6 5-6.6 3.9 3.9 4.3-5.9 1.6 1.2-5.7 7.8-4-4z"/></svg>Tendencias</a>
+  </nav>
+</header>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f4f4f1; --surface:#ffffff; --ink:#1b1d1f; --muted:#6b6f73; --line:#dcdcd6;
+  --accent:#0e6e8c; --accent-ink:#0b5a73; --accent-soft:#e3eef2;
+  --normal:#2456a0; --normal-bg:#e7edf7;
+  --precaucion:#b08c1a; --precaucion-bg:#f7f0d8;
+  --anormal:#c07610; --anormal-bg:#f8ecdc;
+  --severo:#c22f2f; --severo-bg:#f9e4e4;
+  --chart-grid:#e8e8e3; --chart-line:#9aa0a5;
+  --shadow:0 1px 3px rgba(20,22,24,.07),0 4px 14px rgba(20,22,24,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181a; --surface:#1f2225; --ink:#eceef0; --muted:#9aa0a5; --line:#34383c;
+    --accent:#3ea3c4; --accent-ink:#5ab5d3; --accent-soft:#20323a;
+    --normal:#6f9fe0; --normal-bg:#243146;
+    --precaucion:#d4b34a; --precaucion-bg:#3a3420;
+    --anormal:#e09a45; --anormal-bg:#3d2f1d;
+    --severo:#e06060; --severo-bg:#432325;
+    --chart-grid:#2a2d30; --chart-line:#5c6166;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181a; --surface:#1f2225; --ink:#eceef0; --muted:#9aa0a5; --line:#34383c;
+  --accent:#3ea3c4; --accent-ink:#5ab5d3; --accent-soft:#20323a;
+  --normal:#6f9fe0; --normal-bg:#243146;
+  --precaucion:#d4b34a; --precaucion-bg:#3a3420;
+  --anormal:#e09a45; --anormal-bg:#3d2f1d;
+  --severo:#e06060; --severo-bg:#432325;
+  --chart-grid:#2a2d30; --chart-line:#5c6166;
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 22px 60px}
+header.top{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:26px}
+.eyebrow{font:600 11px/1 "Archivo",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);margin:0 0 8px}
+h1{font:800 clamp(26px,4vw,38px)/1.05 "Archivo",sans-serif;font-stretch:80%;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:8px 0 0;max-width:62ch}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px;min-width:92px;box-shadow:var(--shadow)}
+.kpi b{display:block;font:600 22px/1.1 "Archivo",sans-serif;font-variant-numeric:tabular-nums}
+.kpi span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h2{font:700 20px/1.2 "Archivo",sans-serif;font-stretch:85%;margin:0 0 4px}
+.secthead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:34px 0 14px}
+.secthead p{margin:0;color:var(--muted);font-size:13.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+/* campañas */
+.camp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:12px;padding:18px}
+.camp{display:flex;flex-direction:column;gap:6px}
+.camp .bar{display:flex;flex-direction:column-reverse;height:120px;border-radius:6px;overflow:hidden;background:var(--chart-grid)}
+.camp .bar div{width:100%}
+.camp .m{font:600 12px/1 "Archivo",sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.camp .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.camp .pct{font:500 12px/1 "IBM Plex Mono",monospace;color:var(--ink)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:0 18px 16px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+/* ranking */
+.rank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px}
+.rk{position:relative;text-align:left;cursor:pointer;padding:13px 14px 11px;border:1px solid var(--line);border-left:4px solid var(--severo);border-radius:10px;background:var(--surface);box-shadow:var(--shadow);font:inherit;color:inherit;transition:border-color .15s}
+.rk:hover,.rk:focus-visible{border-color:var(--accent);outline:none}
+.rk.sel-a{border-left-color:var(--anormal)}
+.rk .tag{font:500 13.5px/1.2 "IBM Plex Mono",monospace;color:var(--accent-ink)}
+.rk .cmp{font-size:12px;color:var(--muted);margin:2px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk .why{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:500 11px/1 "IBM Plex Mono",monospace;padding:4px 7px;border-radius:20px}
+.p-S{background:var(--severo-bg);color:var(--severo)}
+.p-A{background:var(--anormal-bg);color:var(--anormal)}
+.p-P{background:var(--precaucion-bg);color:var(--precaucion)}
+.p-N{background:var(--normal-bg);color:var(--normal)}
+.p-i{background:var(--accent-soft);color:var(--accent-ink)}
+.rk svg{position:absolute;right:12px;top:12px;opacity:.9}
+/* explorer */
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.controls input,.controls select{font:14px "IBM Plex Sans",sans-serif;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+.controls input{flex:1 1 260px}
+.controls input:focus,.controls select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.hits{display:flex;flex-direction:column;gap:2px;max-height:300px;overflow:auto;margin:-6px 0 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.hits button{display:flex;gap:10px;align-items:baseline;font:inherit;color:inherit;background:none;border:0;border-bottom:1px solid var(--line);padding:8px 12px;cursor:pointer;text-align:left}
+.hits button:last-child{border-bottom:0}
+.hits button:hover,.hits button:focus-visible{background:var(--accent-soft);outline:none}
+.hits .tag{font:500 13px "IBM Plex Mono",monospace;color:var(--accent-ink);white-space:nowrap}
+.hits .cmp{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hits .dot{margin-left:auto;display:flex;gap:3px}
+.dot i{width:8px;height:8px;border-radius:50%;display:inline-block}
+/* detail */
+.det-head{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:space-between;padding:18px 18px 4px}
+.det-head h3{margin:0;font:700 22px/1.15 "Archivo",sans-serif;font-stretch:85%}
+.det-head .tagline{font:500 13px "IBM Plex Mono",monospace;color:var(--accent-ink)}
+.det-head .meta{color:var(--muted);font-size:13px;margin-top:3px}
+.timeline{display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px 6px}
+.tl{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.tl b{width:34px;height:14px;border-radius:4px;display:block}
+.charts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;padding:16px 18px 6px}
+.ch{border:1px solid var(--line);border-radius:8px;padding:10px 12px 6px;background:var(--bg)}
+.ch h4{margin:0 0 4px;font:800 16px/1.2 "Archivo",sans-serif;font-stretch:88%;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);display:flex;gap:8px;justify-content:space-between;align-items:baseline}
+.ch h4 b{font:600 14px "IBM Plex Mono",monospace;color:var(--ink)}
+.ch svg{width:100%;height:auto;display:block}
+.ch .u{font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)}
+/* table */
+.tblwrap{overflow-x:auto;padding:8px 18px 18px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th{font:600 11px/1.3 "Archivo",sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:right;padding:7px 9px;border-bottom:2px solid var(--line);white-space:nowrap}
+th:first-child,th:nth-child(2),th:nth-child(3){text-align:left}
+td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12.5px;white-space:nowrap}
+td:first-child,td:nth-child(2),td:nth-child(3){text-align:left}
+tr:last-child td{border-bottom:0}
+.est{font:500 11px/1 "IBM Plex Mono",monospace;padding:3px 7px;border-radius:20px}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+footer{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+@media (max-width:640px){.charts{grid-template-columns:1fr 1fr}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div>
+    <p class="eyebrow">Concentradora Quebrada Blanca · Análisis de aceite ALS</p>
+    <h1>Tendencias 2026 por equipo</h1>
+    <p class="sub">Ocho campañas de muestreo (enero–septiembre). Busca un TAG o elige un equipo del ranking para ver la evolución de desgaste, contaminación y condición del aceite.</p>
+  </div>
+  <div class="kpis" id="kpis"></div>
+</header>
+
+<section>
+  <div class="secthead"><h2>Evolución por campaña</h2><p>Muestras de toda la planta por estado del informe ALS · % = muestras con hallazgo (Precaución + Anormal + Severo)</p></div>
+  <div class="card">
+    <div class="camp-grid" id="campgrid"></div>
+    <div class="legend">
+      <span><i style="background:var(--normal)"></i>Normal</span>
+      <span><i style="background:var(--precaucion)"></i>Precaución</span>
+      <span><i style="background:var(--anormal)"></i>Anormal</span>
+      <span><i style="background:var(--severo)"></i>Severo</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="secthead"><h2>Equipos a vigilar</h2><p>Puntos con más hallazgos en el año y peor condición reciente · toca uno para abrir su tendencia</p></div>
+  <div class="rank-grid" id="rank"></div>
+</section>
+
+<section>
+  <div class="secthead"><h2>Explorador de tendencias</h2><p id="expnote"></p></div>
+  <div class="controls">
+    <input id="q" type="search" placeholder="Buscar TAG o componente… (ej: TMS-141, bomba, reductor)" autocomplete="off">
+    <select id="area"></select>
+  </div>
+  <div class="hits" id="hits" hidden></div>
+  <div class="card" id="detail"><div class="empty">Elige un equipo para ver sus gráficos.</div></div>
+</section>
+
+<footer>Fuente: informes de laboratorio ALS — portal S360 · 1.976 muestras de planta concentradora, enero–septiembre 2026 (mayo sin campaña) · Valores «&lt;» se grafican como 0 y «&gt;» en su límite · Generado 31-08-2026 · Compañero del tablero «Muestreo Julio Concentradora QB»</footer>
+</div>
+
+<script>
+lubCuandoListo(["tendencias"], function(){
+
+const DATA=LUB.datos.tendencias;
+const AREA_NAMES={"210":"Chancado primario","220":"Correas mineral grueso","240":"Recup. mineral grueso","310":"Molienda","320":"Chancado pebbles","330":"Flotación y remolienda","340":"Espesamiento concentrado","370":"Planta molibdeno","390":"Reactivos y floculante","410":"Espesamiento relaves","600":"GEHO y gabbionetas","920":"Agua de refrigeración","1400":"Manejo de relaves (WRS)"};
+const EST={S:["Severo","--severo","--severo-bg"],A:["Anormal","--anormal","--anormal-bg"],P:["Precaución","--precaucion","--precaucion-bg"],"-":["Normal","--normal","--normal-bg"]};
+const PARAMS=[["Si","ppm",4],["Fe","ppm",0],["Visc. 40 °C","cSt",8],["Visc. 100 °C","cSt",9],["Agua","%",11],["PQI","",7],["Cu","ppm",1],["Cr","ppm",2],["Pb","ppm",3],["Al","ppm",5],["Ni","ppm",6],["TAN","mgKOH/g",10]];
+const MONTHS=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const fmt=(v,i)=>{
+  if(v==null)return "–";
+  if(i===11)return v===0?"<0,05":(v>=1.2?">1":String(v).replace('.',','));
+  if(i<=7)return String(Math.round(v));
+  return v.toFixed(i===10?3:2).replace('.',',');
+};
+
+/* ---------- KPIs ---------- */
+let nS=0,nA=0,nP=0,nTot=0;
+DATA.forEach(d=>d[3].forEach(s=>{nTot++;if(s[1]==='S')nS++;else if(s[1]==='A')nA++;else if(s[1]==='P')nP++;}));
+document.getElementById('kpis').innerHTML=
+  `<div class="kpi"><b>${nTot.toLocaleString('es-CL')}</b><span>muestras</span></div>
+   <div class="kpi"><b>${DATA.length}</b><span>puntos</span></div>
+   <div class="kpi"><b>8</b><span>campañas</span></div>
+   <div class="kpi"><b style="color:var(--severo)">${nS}</b><span>severas</span></div>
+   <div class="kpi"><b style="color:var(--anormal)">${nA}</b><span>anormales</span></div>`;
+
+/* ---------- Campañas ---------- */
+const camp={};
+DATA.forEach(d=>d[3].forEach(s=>{
+  const k=s[0].slice(0,7);
+  (camp[k]=camp[k]||{N:0,P:0,A:0,S:0});
+  camp[k][s[1]==='-'?'N':s[1]]++;
+}));
+const cg=document.getElementById('campgrid');
+Object.keys(camp).sort().forEach(k=>{
+  const c=camp[k],tot=c.N+c.P+c.A+c.S,hz=c.P+c.A+c.S;
+  const seg=(n,varn,name)=>n?`<div style="height:${(n/tot*100).toFixed(1)}%;background:var(${varn})" title="${name}: ${n}"></div>`:'';
+  const el=document.createElement('div');el.className='camp';
+  el.innerHTML=`<div class="bar" role="img" aria-label="${k}: ${tot} muestras, ${hz} con hallazgo">${seg(c.N,'--normal','Normal')}${seg(c.P,'--precaucion','Precaución')}${seg(c.A,'--anormal','Anormal')}${seg(c.S,'--severo','Severo')}</div>
+  <div class="m">${MONTHS[+k.slice(5,7)-1]} 2026</div>
+  <div class="n">${tot} muestras${k==='2026-09'?' · en curso':''}</div>
+  <div class="pct">${(hz/tot*100).toFixed(0)} % hallazgo</div>`;
+  cg.appendChild(el);
+});
+
+/* ---------- Ranking ---------- */
+const scored=DATA.map(d=>{
+  const ss=d[3];let sc=0,cS=0,cA=0,cP=0;
+  ss.forEach(s=>{if(s[1]==='S'){sc+=3;cS++}else if(s[1]==='A'){sc+=2;cA++}else if(s[1]==='P'){sc+=1;cP++}});
+  const last=ss[ss.length-1];
+  if(last[1]==='S')sc+=4;else if(last[1]==='A')sc+=2;
+  // tendencia Fe: última vs primera con dato
+  const fes=ss.map(s=>s[3][0]).filter(v=>v!=null);
+  let feUp=null;
+  if(fes.length>=3&&fes[0]>0&&fes[fes.length-1]/fes[0]>=2&&fes[fes.length-1]>=20)feUp=(fes[fes.length-1]/fes[0]);
+  if(feUp)sc+=2;
+  return {d,sc,cS,cA,cP,last,feUp};
+}).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc);
+
+const rk=document.getElementById('rank');
+scored.slice(0,12).forEach(x=>{
+  const [tag,cmpn]=x.d;
+  const b=document.createElement('button');
+  b.className='rk'+(x.cS===0?' sel-a':'');
+  const why=[];
+  if(x.cS)why.push(`<span class="pill p-S">${x.cS}× Severo</span>`);
+  if(x.cA)why.push(`<span class="pill p-A">${x.cA}× Anormal</span>`);
+  if(x.cP&&!x.cS&&!x.cA)why.push(`<span class="pill p-P">${x.cP}× Precaución</span>`);
+  why.push(`<span class="pill p-${x.last[1]==='-'?'N':x.last[1]}">último: ${EST[x.last[1]][0]}</span>`);
+  if(x.feUp)why.push(`<span class="pill p-i">Fe ×${x.feUp.toFixed(1).replace('.',',')}</span>`);
+  b.innerHTML=`<div class="tag">${tag}</div><div class="cmp">${cmpn}</div><div class="why">${why.join('')}</div>${spark(x.d)}`;
+  b.addEventListener('click',()=>{select(x.d[0]);document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'})});
+  rk.appendChild(b);
+});
+
+function spark(d){
+  const fes=d[3].map(s=>s[3][0]);
+  const vals=fes.filter(v=>v!=null);
+  if(vals.length<2)return '';
+  const w=64,h=24,mx=Math.max(...vals),mn=Math.min(...vals),rg=mx-mn||1;
+  const pts=fes.map((v,i)=>v==null?null:[(i/(fes.length-1))*w, h-3-((v-mn)/rg)*(h-6)]).filter(Boolean);
+  return `<svg width="${w}" height="${h}" aria-hidden="true"><polyline points="${pts.map(p=>p.map(n=>n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--chart-line)" stroke-width="1.5"/><circle cx="${pts[pts.length-1][0].toFixed(1)}" cy="${pts[pts.length-1][1].toFixed(1)}" r="2.5" fill="var(${EST[d[3][d[3].length-1][1]][1]})"/></svg>`;
+}
+
+/* ---------- Explorer ---------- */
+const areaSel=document.getElementById('area');
+areaSel.innerHTML='<option value="">Todas las áreas</option>'+Object.entries(AREA_NAMES)
+  .filter(([c])=>DATA.some(d=>d[2]===c))
+  .map(([c,n])=>`<option value="${c}">${n} (${c})</option>`).join('');
+document.getElementById('expnote').textContent=`${DATA.length} puntos de muestreo · escribe al menos 2 caracteres para buscar`;
+
+const q=document.getElementById('q'),hits=document.getElementById('hits');
+function refreshHits(){
+  const t=q.value.trim().toUpperCase(),a=areaSel.value;
+  let list=DATA;
+  if(a)list=list.filter(d=>d[2]===a);
+  if(t.length>=2)list=list.filter(d=>d[0].toUpperCase().includes(t)||d[1].toUpperCase().includes(t));
+  else if(!a){hits.hidden=true;return}
+  list=list.slice(0,60);
+  hits.hidden=list.length===0;
+  hits.innerHTML=list.map(d=>{
+    const dots=d[3].slice(-6).map(s=>`<i style="background:var(${EST[s[1]][1]})" title="${s[0]} ${EST[s[1]][0]}"></i>`).join('');
+    return `<button data-t="${d[0]}"><span class="tag">${d[0]}</span><span class="cmp">${d[1]}</span><span class="dot">${dots}</span></button>`;
+  }).join('');
+}
+q.addEventListener('input',refreshHits);
+areaSel.addEventListener('change',refreshHits);
+hits.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-t]');
+  if(b){select(b.dataset.t);hits.hidden=true;}
+});
+
+/* ---------- Detail ---------- */
+function chart(ss,pi){
+  const vals=ss.map(s=>s[3][pi]);
+  const have=vals.filter(v=>v!=null);
+  if(have.length<1)return '';
+  const W=250,H=110,L=6,R=6,T=8,B=16;
+  const t0=new Date('2026-01-01').getTime(),t1=new Date('2026-09-01').getTime();
+  const xs=ss.map(s=>L+(new Date(s[0]).getTime()-t0)/(t1-t0)*(W-L-R));
+  let mn=Math.min(...have),mx=Math.max(...have);
+  if(mn===mx){mn=mn===0?-1:mn*0.8;mx=mx===0?1:mx*1.2}
+  const pad=(mx-mn)*0.12;mn-=pad;mx+=pad;
+  const y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  // polyline segments (break at nulls)
+  let segs=[],cur=[];
+  vals.forEach((v,i)=>{if(v==null){if(cur.length>1)segs.push(cur);cur=[]}else cur.push([xs[i],y(v)])});
+  if(cur.length>1)segs.push(cur);
+  const lines=segs.map(sg=>`<polyline points="${sg.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="var(--chart-line)" stroke-width="1.6"/>`).join('');
+  const dots=vals.map((v,i)=>v==null?'':`<circle cx="${xs[i].toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.4" fill="var(${EST[ss[i][1]][1]})"><title>${ss[i][0].slice(8,10)}-${ss[i][0].slice(5,7)}: ${fmt(v,pi)} (${EST[ss[i][1]][0]})</title></circle>`).join('');
+  const grid=[0.5].map(f=>{const gy=T+f*(H-T-B);return `<line x1="${L}" y1="${gy}" x2="${W-R}" y2="${gy}" stroke="var(--chart-grid)"/>`}).join('');
+  const mlbl=[...new Set(ss.map(s=>+s[0].slice(5,7)))].map(m=>{
+    const gx=L+(new Date(`2026-${String(m).padStart(2,'0')}-15`).getTime()-t0)/(t1-t0)*(W-L-R);
+    return `<text x="${gx.toFixed(0)}" y="${H-3}" font-size="9" text-anchor="middle" fill="var(--muted)" font-family="IBM Plex Sans">${MONTHS[m-1]}</text>`;
+  }).join('');
+  const lastIdx=vals.reduce((a,v,i)=>v==null?a:i,-1);
+  const lastV=lastIdx>=0?fmt(vals[lastIdx],pi):'–';
+  return {svg:`<svg viewBox="0 0 ${W} ${H}" role="img">${grid}${lines}${dots}${mlbl}</svg>`,last:lastV};
+}
+
+function select(tag){
+  const d=DATA.find(x=>x[0]===tag);
+  if(!d)return;
+  const [t,cmpn,area,ss]=d;
+  const det=document.getElementById('detail');
+  const tl=ss.map(s=>`<div class="tl"><b style="background:var(${EST[s[1]][1]})" title="${EST[s[1]][0]}"></b>${s[0].slice(8,10)}-${s[0].slice(5,7)}</div>`).join('');
+  const cells=PARAMS.map(([name,unit,pi])=>{
+    const c=chart(ss,pi);
+    if(!c)return '';
+    return `<div class="ch"><h4>${name} <span class="u">${unit}</span><b>${c.last}</b></h4>${c.svg}</div>`;
+  }).join('');
+  const rows=[...ss].reverse().map(s=>{
+    const e=EST[s[1]];
+    return `<tr><td>${s[0].slice(8,10)}-${s[0].slice(5,7)}-26</td><td>${s[2]}</td><td><span class="est" style="background:var(${e[2]});color:var(${e[1]})">${e[0]}</span></td>${s[3].map((v,i)=>`<td>${fmt(v,i)}</td>`).join('')}</tr>`;
+  }).join('');
+  det.innerHTML=`
+    <div class="det-head">
+      <div><div class="tagline">${t} · ${AREA_NAMES[area]||('Área '+area)}</div><h3>${cmpn}</h3>
+      <div class="meta">${ss.length} muestras en 2026 · puntos coloreados según el estado del informe de esa muestra</div></div>
+    </div>
+    <div class="timeline">${tl}</div>
+    <div class="charts">${cells}</div>
+    <div class="tblwrap"><table>
+      <thead><tr><th>Fecha</th><th>Muestra</th><th>Estado</th><th>Fe</th><th>Cu</th><th>Cr</th><th>Pb</th><th>Si</th><th>Al</th><th>Ni</th><th>PQI</th><th>V40</th><th>V100</th><th>TAN</th><th>Agua</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+}
+
+// arranque: el peor equipo del ranking
+if(scored.length)select(scored[0].d[0]);
+
+});
+</script>
+<script>
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
+</script>
+</body>
+</html>

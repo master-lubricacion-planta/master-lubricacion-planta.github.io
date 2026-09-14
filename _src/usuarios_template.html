@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1c47">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Usuarios — Administración</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+    --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+    --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+    --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+    --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+    --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+    --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
+    --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+  --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+  --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+  --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+  --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+  --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+  --oil:#e5a33c; --oil-bg:#3a2e17; --grease:#57c093; --grease-bg:#1c3529;
+  --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --oil:#b06e10; --oil-bg:#f7ead2; --grease:#2c7a5b; --grease-bg:#ddefe6;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+button{font:inherit;color:inherit}
+
+header{position:sticky;top:0;z-index:10;background:linear-gradient(100deg,var(--navy),var(--navy-2));padding:12px 14px 0;border-bottom:3px solid var(--orange)}
+.brand{display:flex;align-items:center;gap:10px;max-width:920px;margin:0 auto}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.logo svg{width:22px;height:22px;fill:#fff}
+.brand h1{font-size:17px;font-weight:800;margin:0;color:var(--on-navy)}
+.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+.brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tecklogo{height:24px;width:auto;display:block}
+.adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
+.tabs{display:flex;align-items:center;gap:10px;max-width:920px;margin:10px auto 0;flex-wrap:wrap}
+.tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 2px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
+.tabs a svg{width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin-right:4px}
+.tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
+.tabs .slash{color:var(--on-navy-2);font-weight:300;font-size:17px}
+#back{margin-left:auto;margin-bottom:6px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:var(--on-navy);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;display:none}
+
+main{padding:14px;max-width:920px;margin:0 auto}
+.dayhdr{font-size:19px;font-weight:800;margin:4px 2px 2px}
+.daysub{font-size:13px;color:var(--ink-2);margin:0 2px 14px}
+.hint{color:var(--ink-2);text-align:center;padding:40px 20px;font-size:15px}
+.offlinetag{font-size:11.5px;font-weight:700;color:var(--ok);background:var(--ok-bg);display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;margin-bottom:10px}
+
+.kpis{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 14px;box-shadow:var(--shadow)}
+.kpi .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.kpi.ok .v{color:var(--ok)} .kpi.bad .v{color:var(--bad)} .kpi.oil .v{color:var(--oil)} .kpi.gr .v{color:var(--grease)}
+
+.vistas{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.vchip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;color:var(--ink-2)}
+.vchip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+:root[data-theme="dark"] .vchip.on{color:#0a1128}
+
+.grp{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink);margin:16px 2px 8px}
+.plist{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
+.prod{padding:11px 14px;border-bottom:1px solid var(--line)}
+.prod:last-child{border-bottom:0}
+.prow{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pn{font-size:14px;font-weight:800}
+.pv{font-size:11.5px;color:var(--ink-3);font-weight:600}
+.pubi{font-size:10.5px;font-weight:800;letter-spacing:.04em;background:var(--accent-soft);color:var(--accent-ink);border-radius:999px;padding:2px 9px}
+.ptot{margin-left:auto;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.ptot small{font-size:11px;color:var(--ink-3);font-weight:700}
+.pbar{position:relative;height:12px;border-radius:999px;background:var(--na-bg);margin-top:7px;overflow:visible}
+.pbar>i{display:block;height:100%;border-radius:999px}
+.pbar .minmark{position:absolute;top:-3px;bottom:-3px;width:2.5px;background:var(--ink-2);border-radius:2px;opacity:.75}
+.pdet{font-size:11.5px;color:var(--ink-2);margin-top:5px}
+.pdet b{color:var(--ink)}
+.balo{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px}
+.balo.bajo{background:var(--bad-bg);color:var(--bad)}
+.balo.justo{background:var(--orange-soft);color:var(--orange-ink)}
+.balo.ok{background:var(--ok-bg);color:var(--ok)}
+
+.mform{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.mform h3{margin:0 0 10px;font-size:15px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.frow label{font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.frow input,.frow select{width:100%;padding:9px 10px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.movchips{display:flex;gap:8px;margin-bottom:10px}
+.mchip{flex:1;border:1.5px solid var(--line);background:var(--bg);border-radius:11px;padding:11px;font-size:14.5px;font-weight:800;cursor:pointer;text-align:center}
+.mchip.sal.on{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.mchip.ent.on{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.btn{width:100%;padding:13px;border-radius:11px;border:0;font-weight:800;font-size:15px;cursor:pointer;background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn{color:#0a1128}
+
+.mov{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.mov:last-child{border-bottom:0}
+.mf{font-size:11.5px;color:var(--ink-3);font-weight:700;min-width:74px}
+.mtag{font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px}
+.mtag.SALIDA{background:var(--bad-bg);color:var(--bad)}
+.mtag.ENTRADA{background:var(--ok-bg);color:var(--ok)}
+.minfo{flex:1;min-width:200px;font-size:13px}
+.minfo b{font-size:13.5px}
+.mcant{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mdel{border:0;background:none;color:var(--bad);font-weight:800;cursor:pointer;font-size:13px}
+.appmark{font-size:10px;color:var(--tA);font-weight:800}
+
+.dash{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.dash h3{margin:0 0 10px;font-size:14.5px}
+.abar{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.abar .an{width:200px;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abar .atrack{flex:1;height:14px;border-radius:999px;background:var(--na-bg);overflow:hidden}
+.abar .atrack>i{display:block;height:100%;border-radius:999px;background:var(--oil)}
+.abar .av{width:90px;text-align:right;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+
+/* barra de navegación visible */
+.navvolver{display:flex;gap:8px;margin:2px 0 14px;flex-wrap:wrap}
+.bvolver{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+.savemsg{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
+.savemsg.show{opacity:.95}
+footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
+</style>
+<style>
+.ucard{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+.ucard h3{margin:0 0 8px;font-size:15px}
+.ufrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ufrow label{font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.ufrow input,.ufrow select,.ulist select{width:100%;padding:9px 10px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font-family:inherit}
+.ubtn{margin-top:10px;padding:11px 16px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:800;font-size:14.5px;cursor:pointer}
+:root[data-theme="dark"] .ubtn{color:#0a1128}
+.ubtn.ghost{background:var(--surface);border:1.5px solid var(--line);color:var(--ink-2);font-weight:700;font-size:12.5px;padding:7px 10px;margin:0}
+.ubtn.danger{border-color:var(--bad);color:var(--bad)}
+.ulist{display:flex;flex-direction:column;gap:8px}
+.urow{display:grid;grid-template-columns:1.4fr 1.6fr 130px auto;gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.urow .un{font-weight:800}
+.urow .ue{font-size:12.5px;color:var(--ink-2);word-break:break-all}
+.urow.inactivo{opacity:.55}
+.uacts{display:flex;gap:6px;flex-wrap:wrap}
+.umsg{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13.5px;font-weight:700;display:none}
+.umsg.ok{display:block;background:var(--ok-bg);color:var(--ok)}
+.umsg.bad{display:block;background:var(--bad-bg);color:var(--bad)}
+.uclave{font-family:ui-monospace,Consolas,monospace;font-size:18px;background:var(--orange-soft);color:var(--orange-ink);border:2px solid var(--orange);border-radius:10px;padding:10px 14px;margin-top:8px;display:inline-block;letter-spacing:.06em}
+@media(max-width:640px){.urow{grid-template-columns:1fr}.ufrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="noprint">
+  <div class="brand">
+    <a class="logo" href="index.html" aria-label="Ir al buscador"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></a>
+    <span><h1>Maestro de Lubricación</h1><span class="sub">Concentradora</span></span>
+    <span class="brandright">
+      <img class="tecklogo" src="__TECKLOGO__" alt="Teck">
+      <span class="adminline">Admin: Nicolás Saravia</span>
+    </span>
+  </div>
+  <nav class="tabs">
+    <a href="index.html"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2z"/></svg>Maestro</a>
+    <span class="slash">/</span>
+    <a href="pautas.html"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8.5 12h7v1.6h-7zm0 3.6h7v1.6h-7z"/></svg>Pautas</a>
+    <span class="slash">/</span>
+    <a href="ruta.html"><svg viewBox="0 0 24 24"><path d="M10 4a2 2 0 0 1 4 0v9.3a4.7 4.7 0 1 1-4 0zm2 14.8a2.3 2.3 0 0 0 1-4.4V5h-2v9.4a2.3 2.3 0 0 0 1 4.4z"/></svg>Ruta Crítica</a>
+    <span class="slash">/</span>
+    <a href="plan52.html"><svg viewBox="0 0 24 24"><path d="M9 2h6v3h4v17H5V5h4zm0 5H7v13h10V7h-2v2H9zm2-3v2h2V4zm-2.3 9.8 1.6 1.6 3.9-3.9 1.4 1.4-5.3 5.3-3-3z"/></svg>Plan 52</a>
+    <span class="slash">/</span>
+    <a href="muestras.html"><svg viewBox="0 0 24 24"><path d="M10 2h4v2h-1v4.6l5.4 9.4A2.5 2.5 0 0 1 16.2 22H7.8a2.5 2.5 0 0 1-2.2-4l5.4-9.4V4h-1zm3 7.2V4h-2v5.2l-2.3 4h6.6zM8 15l-1.7 3a.9.9 0 0 0 .8 1.4h9.8a.9.9 0 0 0 .8-1.4L16 15z"/></svg>Muestras</a>
+    <span class="slash">/</span>
+    <a href="consumo.html"><svg viewBox="0 0 24 24"><path d="M5 4h14v2h-1v13a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V6H5zm3 2v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6zm2-4h4v1.5h-4zM9.5 9h5v1.6h-5zm0 3.4h5V14h-5z"/></svg>Consumibles</a>
+    <span class="slash">/</span>
+    <a href="tendencias.html"><svg viewBox="0 0 24 24"><path d="M3 3h2v16h16v2H3zm4.6 11.9-1.2-1.6 5-6.6 3.9 3.9 4.3-5.9 1.6 1.2-5.7 7.8-4-4z"/></svg>Tendencias</a>
+    <button id="back">‹ Volver</button>
+  </nav>
+</header>
+<main>
+  <div id="cont">
+    <div class="dayhdr">Usuarios de la aplicación</div>
+    <p class="daysub">Cada persona entra con su propio correo y contraseña. <b>Técnico</b> podrá ingresar datos cuando se habilite el ingreso (enero 2027) · <b>Supervisor</b> solo visualiza · <b>Administrador</b> gestiona todo.</p>
+    <div class="ucard">
+      <h3>➕ Crear usuario</h3>
+      <div class="ufrow">
+        <div><label>Nombre y apellido</label><input id="unombre" placeholder="Ej: Juan Pérez"></div>
+        <div><label>Correo</label><input id="uemail" type="email" autocapitalize="none" placeholder="nombre@empresa.com"></div>
+        <div><label>Rol</label><select id="urol"><option value="tecnico">Técnico</option><option value="supervisor">Supervisor</option><option value="admin">Administrador</option></select></div>
+        <div><label>Contraseña inicial</label><input id="uclave" placeholder="Se genera sola si la dejas vacía"></div>
+      </div>
+      <button class="ubtn" id="ucrear">Crear usuario</button>
+      <div class="umsg" id="umsg"></div>
+    </div>
+    <div class="ucard">
+      <h3>🗄 Respaldo de la nube</h3>
+      <p class="daysub" style="margin:0 0 6px">Descarga una copia completa de lo que hay en Firestore (pautas, ruta crítica, plan 52, muestras, consumibles y usuarios) en un archivo JSON. Recomendado: una vez por semana, guardarlo en SharePoint o en tu PC.</p>
+      <button class="ubtn" id="urespaldo">⬇ Descargar respaldo</button>
+      <div class="umsg" id="urmsg"></div>
+    </div>
+    <div class="ucard">
+      <h3>👥 Usuarios registrados</h3>
+      <div class="ulist" id="ulist"><div class="hint">Cargando…</div></div>
+    </div>
+  </div>
+</main>
+<footer>Administración de usuarios · solo administradores · Admin: Nicolás Saravia</footer>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",
+  authDomain: "lubricacion-teck-qb.firebaseapp.com",
+  projectId: "lubricacion-teck-qb",
+  storageBucket: "lubricacion-teck-qb.firebasestorage.app",
+  messagingSenderId: "697204585611",
+  appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
+};
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); /* el candado (gate.html) ya la inicializa */
+const db=firebase.firestore();
+const $=s=>document.querySelector(s);
+const esc=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor',inactivo:'Desactivado'};
+function msg(t,cls){ const m=$('#umsg'); m.textContent=t; m.className='umsg '+cls; }
+function claveAleatoria(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'; let s=''; for(let i=0;i<10;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; }
+
+/* Crear la cuenta en una instancia secundaria de Firebase para no cerrar la sesión del administrador */
+let appSec=null;
+function authSecundaria(){ if(!appSec) appSec=firebase.initializeApp(firebaseConfig,'secundaria'); return appSec.auth(); }
+
+$('#ucrear').onclick=async()=>{
+  const nombre=$('#unombre').value.trim(), email=$('#uemail').value.trim().toLowerCase(), rol=$('#urol').value;
+  let clave=$('#uclave').value.trim();
+  if(!nombre||!email){ msg('Escribe el nombre y el correo.','bad'); return; }
+  if(clave&&clave.length<6){ msg('La contraseña debe tener al menos 6 caracteres.','bad'); return; }
+  if(!clave) clave=claveAleatoria();
+  $('#ucrear').disabled=true; msg('Creando…','ok');
+  try{
+    const sec=authSecundaria();
+    const cred=await sec.createUserWithEmailAndPassword(email,clave);
+    const uid=cred.user.uid;
+    await sec.signOut();
+    await db.collection('usuarios').doc(uid).set({nombre,email,rol,creado:new Date().toISOString(),creadoPor:(window.LUB_USER&&window.LUB_USER.email)||''});
+    $('#umsg').innerHTML='✅ Usuario creado. Entrégale estos datos (la contraseña se muestra <b>solo esta vez</b>; puede cambiarla con "¿Olvidaste tu contraseña?"):<br>Correo: <b>'+esc(email)+'</b><br><span class="uclave">'+esc(clave)+'</span>';
+    $('#umsg').className='umsg ok';
+    $('#unombre').value=''; $('#uemail').value=''; $('#uclave').value='';
+    cargar();
+  }catch(e){
+    const M={'auth/email-already-in-use':'Ese correo ya tiene cuenta. Si no aparece en la lista, avísame para asignarle rol.','auth/invalid-email':'El correo no es válido.','auth/weak-password':'La contraseña es muy débil (mínimo 6 caracteres).','auth/network-request-failed':'Sin conexión a internet.','permission-denied':'No tienes permiso (reglas de Firestore).'};
+    msg(M[e.code]||('No se pudo crear: '+(e.code||e.message)),'bad');
+  }
+  $('#ucrear').disabled=false;
+};
+
+async function cambiarRol(uid,rol){ try{ await db.collection('usuarios').doc(uid).set({rol,modificado:new Date().toISOString()},{merge:true}); cargar(); }catch(e){ alert('No se pudo cambiar el rol: '+(e.code||e.message)); } }
+async function resetClave(email){ try{ await firebase.auth().sendPasswordResetEmail(email); alert('Correo enviado a '+email+' para crear una contraseña nueva.'); }catch(e){ alert('No se pudo enviar: '+(e.code||e.message)); } }
+
+async function cargar(){
+  const box=$('#ulist');
+  try{
+    const snap=await db.collection('usuarios').get();
+    const us=[]; snap.forEach(d=>us.push(Object.assign({uid:d.id},d.data())));
+    us.sort((a,b)=>(a.rol==='inactivo')-(b.rol==='inactivo') || (a.nombre||'').localeCompare(b.nombre||''));
+    if(!us.length){ box.innerHTML='<div class="hint">Aún no hay usuarios.</div>'; return; }
+    const yo=(window.LUB_USER&&window.LUB_USER.uid)||'';
+    box.innerHTML=us.map(u=>`<div class="urow ${u.rol==='inactivo'?'inactivo':''}" data-uid="${esc(u.uid)}">
+      <div><div class="un">${esc(u.nombre||'—')}${u.uid===yo?' <span style="color:var(--orange-ink);font-size:11px">(tú)</span>':''}</div><div class="ue">${esc(u.email||'')}</div></div>
+      <div class="ue">${u.creado?'Creado '+esc(u.creado.slice(0,10)):''}${u.creadoPor?' · por '+esc(u.creadoPor):''}</div>
+      <div><select class="usel" ${u.uid===yo?'disabled':''}>${['tecnico','supervisor','admin','inactivo'].map(r=>`<option value="${r}" ${u.rol===r?'selected':''}>${ROL_TXT[r]}</option>`).join('')}</select></div>
+      <div class="uacts"><button class="ubtn ghost ureset" data-email="${esc(u.email||'')}">🔑 Restablecer clave</button></div>
+    </div>`).join('');
+    box.querySelectorAll('.usel').forEach(s=>s.onchange=()=>{ const uid=s.closest('.urow').dataset.uid; if(s.value==='inactivo'&&!confirm('¿Desactivar este usuario? No podrá entrar a la app.')){ cargar(); return; } cambiarRol(uid,s.value); });
+    box.querySelectorAll('.ureset').forEach(b=>b.onclick=()=>resetClave(b.dataset.email));
+  }catch(e){ box.innerHTML='<div class="hint">No se pudo cargar la lista ('+esc(e.code||e.message)+').</div>'; }
+}
+
+/* Respaldo: exporta todas las colecciones con la sesión del administrador (sin llaves ni claves guardadas) */
+$('#urespaldo').onclick=async()=>{
+  const m=$('#urmsg'); m.className='umsg ok'; m.textContent='Leyendo la nube…'; $('#urespaldo').disabled=true;
+  try{
+    const out={generado:new Date().toISOString(), por:(window.LUB_USER&&window.LUB_USER.email)||'', colecciones:{}};
+    let total=0;
+    for(const col of ['pautas','ruta','usuarios']){
+      const snap=await db.collection(col).get({source:'server'});
+      const docs={}; snap.forEach(d=>{ docs[d.id]=d.data(); }); out.colecciones[col]=docs; total+=snap.size;
+    }
+    const f=new Date(), stamp=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0')+'-'+String(f.getDate()).padStart(2,'0');
+    const blob=new Blob([JSON.stringify(out,null,1)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='respaldo-lubricacion-'+stamp+'.json'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    m.textContent='✅ Respaldo descargado: '+total+' documentos ('+Math.round(blob.size/1024)+' KB) → respaldo-lubricacion-'+stamp+'.json';
+  }catch(e){ m.className='umsg bad'; m.textContent='No se pudo generar el respaldo: '+(e.code||e.message); }
+  $('#urespaldo').disabled=false;
+};
+/* esperar a que el candado resuelva el usuario */
+(function esperar(){ if(window.LUB_USER) cargar(); else setTimeout(esperar,200); })();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
+</script>
+</body>
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1c47">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Panorama</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --live:#1d7a4f; --live-bg:#dff1e7;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+    --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+    --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+    --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+    --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+    --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+    --live:#57c093; --live-bg:#173628;
+    --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+  --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+  --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+  --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+  --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+  --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+  --live:#57c093; --live-bg:#173628;
+  --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --live:#1d7a4f; --live-bg:#dff1e7;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+button{font:inherit;color:inherit}
+
+header{position:sticky;top:0;z-index:10;background:linear-gradient(100deg,var(--navy),var(--navy-2));padding:12px 14px 0;border-bottom:3px solid var(--orange)}
+.brand{display:flex;align-items:center;gap:10px;max-width:820px;margin:0 auto}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.logo svg{width:22px;height:22px;fill:#fff}
+.brand h1{font-size:17px;font-weight:800;margin:0;color:var(--on-navy)}
+.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+.brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tecklogo{height:24px;width:auto;display:block}
+.adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
+.tabs{display:flex;align-items:center;gap:10px;max-width:820px;margin:10px auto 0}
+.tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 2px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
+.tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
+.tabs .slash{color:var(--on-navy-2);font-weight:300;font-size:17px}
+#back{margin-left:auto;margin-bottom:6px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:var(--on-navy);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;display:none}
+
+main{padding:14px;max-width:820px;margin:0 auto}
+.dayhdr{font-size:19px;font-weight:800;margin:4px 2px 2px}
+.daysub{font-size:13px;color:var(--ink-2);margin:0 2px 14px}
+
+.livepill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--live);background:var(--live-bg);padding:4px 11px;border-radius:999px;margin-bottom:12px}
+.livepill .dot{width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.offlinebox{background:var(--orange-soft);color:var(--orange-ink);border-radius:12px;padding:14px;font-size:13.5px;font-weight:600;margin-bottom:14px}
+
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.wcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
+.wcard .wn{font-weight:800;font-size:15px}
+.wcard .wd{font-size:11px;color:var(--ink-3);margin-top:2px}
+.wcard .wt{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;margin-top:6px;letter-spacing:.04em}
+.wcard .wt.A{background:var(--tA-bg);color:var(--tA)}
+.wcard .wt.B{background:var(--tB-bg);color:var(--tB)}
+.wcard.now{border:2px solid var(--orange)}
+.wcard.now .wn::after{content:' · ACTUAL';color:var(--orange);font-size:10px;letter-spacing:.05em}
+.wcard.nodata{opacity:.55}
+
+.summ{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.summ .s{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;box-shadow:var(--shadow)}
+.summ .s b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.summ .s span{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.summ .s.done b{color:var(--ok)}
+.summ .s.part b{color:var(--orange-ink)}
+.summ .s.p0 b{color:var(--na)}
+.summ .s.sind b{color:var(--ink-3)}
+
+.dcard{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:13px;margin-bottom:8px;box-shadow:var(--shadow);padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.dcard .dn{font-weight:800;font-size:15px;min-width:96px}
+.dcard .df{color:var(--ink-3);font-size:13px}
+.dcard .dc{margin-left:auto;font-size:12px;color:var(--ink-2);text-align:right;display:flex;gap:6px}
+.mini{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px}
+.mini.done{background:var(--ok-bg);color:var(--ok)}
+.mini.part{background:var(--orange-soft);color:var(--orange-ink)}
+.mini.p0{background:var(--na-bg);color:var(--na)}
+
+.otcard{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;box-shadow:var(--shadow);padding:13px 14px;cursor:pointer;display:flex;align-items:center;gap:12px}
+.otcard.nop{cursor:default;opacity:.55}
+.otcard .otinfo{flex:1;min-width:0}
+.otcard .tag{font-weight:800;font-size:15px}
+.otcard .otd{font-size:13px;color:var(--ink-2);margin-top:1px}
+.otcard .otmeta{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.otcard .tecmeta{font-size:12px;color:var(--accent-ink);font-weight:700;margin-top:3px}
+.prog{flex:0 0 auto;text-align:right}
+.ring{font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap;display:block}
+.ring.p0{background:var(--na-bg);color:var(--na)}
+.ring.part{background:var(--orange-soft);color:var(--orange-ink)}
+.ring.done{background:var(--ok-bg);color:var(--ok)}
+.ring.sind{background:var(--bg);color:var(--ink-3);border:1px dashed var(--line)}
+.updated{font-size:10.5px;color:var(--ink-3);margin-top:4px}
+
+.dhdr{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.dhdr .tag{font-weight:800;font-size:17px}
+.dhdr .fd{font-size:13.5px;color:var(--ink-2);margin:2px 0 10px}
+.dhdr .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px}
+.dhdr .frow div b{display:block;font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.grp{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink);margin:16px 2px 8px}
+.act{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;box-shadow:var(--shadow)}
+.act .ad{font-size:14px;font-weight:600;line-height:1.35}
+.act .an{color:var(--ink-3);font-weight:800;margin-right:4px}
+.act .row2{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.act .val{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-weight:700;font-size:14px}
+.act .est{font-size:12.5px;font-weight:800;padding:5px 12px;border-radius:999px}
+.act .est.B{background:var(--ok-bg);color:var(--ok)}
+.act .est.M{background:var(--bad-bg);color:var(--bad)}
+.act .est.NA{background:var(--na-bg);color:var(--na)}
+.act .est.none{background:var(--na-bg);color:var(--ink-3)}
+.act .obs{font-size:13px;color:var(--ink-2);margin-top:6px;font-style:italic}
+.obsgbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13.5px;margin-top:6px}
+
+footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
+.hint{color:var(--ink-2);text-align:center;padding:40px 20px;font-size:15px}
+</style>
+</head>
+<body>
+<!-- Candado de acceso (Firebase Authentication) + roles + modo visualizador.
+     build.py inyecta este bloque al inicio del <body> de TODAS las páginas y agrega
+     los SDK firebase-app / firebase-auth / firebase-firestore en el <head>.
+     · Cada persona entra con su correo y contraseña individual. El rol vive en
+       Firestore: usuarios/{uid} = {nombre, email, rol: admin|tecnico|supervisor|inactivo}.
+       Los administradores gestionan cuentas en usuarios.html.
+     · INGRESO define qué roles pueden ingresar datos. Hasta enero 2027 todos van en
+       modo visualizador (solo lectura); para habilitar a los técnicos: tecnico:true.
+     · Las reglas de Firestore (firestore.rules) exigen sesión para leer y rol para
+       escribir; esto es solo la capa visual. -->
+<style>
+#lubgate{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#0b1c47,#12295e)}
+html.lub-locked #lubgate{display:flex}
+html.lub-locked body>*:not(#lubgate){display:none!important}
+#lubgate .gcard{width:100%;max-width:360px;background:#fff;border-radius:18px;padding:26px 24px 22px;box-shadow:0 18px 50px rgba(0,0,0,.45);text-align:center;font:15px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:#101a33}
+#lubgate .glogo{width:52px;height:52px;border-radius:15px;background:#f5822b;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+#lubgate .glogo svg{width:32px;height:32px;fill:#fff}
+#lubgate h2{margin:0;font-size:19px;font-weight:800;color:#0b1c47}
+#lubgate .gsub{font-size:11px;font-weight:700;color:#8391ad;text-transform:uppercase;letter-spacing:.1em;margin:2px 0 18px}
+#lubgate label{display:block;text-align:left;font-size:10.5px;font-weight:800;color:#4a5776;text-transform:uppercase;letter-spacing:.06em;margin:10px 2px 4px}
+#lubgate input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1.5px solid #dde3ee;border-radius:10px;background:#f4f6fa;color:#101a33;font-family:inherit}
+#lubgate input:focus{outline:none;border-color:#0c2a66}
+#lubgate button{width:100%;margin-top:16px;padding:13px;border:0;border-radius:11px;background:#0c2a66;color:#fff;font-size:15.5px;font-weight:800;cursor:pointer;font-family:inherit}
+#lubgate button:disabled{opacity:.6;cursor:default}
+#lubgate button.gsec{background:#f4f6fa;color:#0c2a66;margin-top:8px;font-weight:700}
+#lubgate .gerr{display:none;margin-top:10px;background:#f9e0de;color:#b3261e;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gerr.show{display:block}
+#lubgate .gok{display:none;margin-top:10px;background:#dff1e7;color:#1d7a4f;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gok.show{display:block}
+#lubgate .glink{display:inline-block;margin-top:12px;font-size:12.5px;color:#0c2a66;font-weight:700;cursor:pointer;text-decoration:underline}
+#lubgate .gfoot{margin-top:14px;font-size:11px;color:#8391ad}
+#lubgate .gload{padding:18px 0 6px;color:#4a5776;font-size:14px;font-weight:600}
+#lubgate .gload::before{content:'';display:block;width:26px;height:26px;margin:0 auto 10px;border:3px solid #dde3ee;border-top-color:#f5822b;border-radius:50%;animation:lubspin .8s linear infinite}
+@keyframes lubspin{to{transform:rotate(360deg)}}
+#lubgate .gcard.shake{animation:lubshake .35s}
+@keyframes lubshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#lubgate [hidden]{display:none!important}
+/* barra de usuario (abajo a la izquierda) y chip visualizador (abajo a la derecha) */
+#lubuserbar{display:none;position:fixed;bottom:10px;left:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;gap:8px;align-items:center;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lubuserbar.show{display:flex}
+#lubuserbar a{color:#ffd9b8;text-decoration:none;cursor:pointer}
+#lubuserbar a:hover{text-decoration:underline}
+#lubuserbar .lubsep{opacity:.5}
+#lubviewerchip{display:none;position:fixed;bottom:10px;right:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;pointer-events:none}
+html.lub-viewer #lubviewerchip{display:block}
+@media print{#lubviewerchip,#lubuserbar,#lubnuevo{display:none!important}}
+#lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+#lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
+/* ---- modo visualizador: sin ingreso de datos ---- */
+html.lub-viewer #fabsave{display:none!important}
+html.lub-viewer .offlinetag{display:none!important}
+/* pautas */
+html.lub-viewer #blimpiar,html.lub-viewer .borrartop,html.lub-viewer #bemail,
+html.lub-viewer #femaillock,html.lub-viewer .fotos{display:none!important}
+html.lub-viewer .btnbar:has(#bemail){display:none!important}
+html.lub-viewer #form input,html.lub-viewer #form textarea,html.lub-viewer .chip{pointer-events:none;opacity:.75}
+/* ruta crítica (el select de tendencias #tsel sigue activo: no está en esta lista) */
+html.lub-viewer #rborrar{display:none!important}
+html.lub-viewer input.iv,html.lub-viewer select.ie,
+html.lub-viewer #rnoc,html.lub-viewer #rnoc2,html.lub-viewer #rhora,html.lub-viewer #robs{pointer-events:none;opacity:.75}
+/* plan 52 + muestras */
+html.lub-viewer .echip,html.lub-viewer .idia,html.lub-viewer .iot,html.lub-viewer .iobs,
+html.lub-viewer .irc,html.lub-viewer .irep,html.lub-viewer .iest{pointer-events:none;opacity:.75}
+/* consumibles: sin formulario de movimientos ni eliminar */
+html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
+</style>
+<div id="lubgate">
+  <div class="gcard">
+    <div class="glogo"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></div>
+    <h2>Maestro de Lubricación</h2>
+    <div class="gsub">Concentradora · acceso restringido</div>
+    <div class="gload" id="lubgload">Verificando acceso…</div>
+    <form id="lubgform" hidden>
+      <label for="lubgemail">Correo</label>
+      <input id="lubgemail" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" placeholder="nombre@empresa.com">
+      <label for="lubgpass">Contraseña</label>
+      <input id="lubgpass" type="password" autocomplete="current-password" placeholder="Contraseña">
+      <button type="submit" id="lubgbtn">Entrar</button>
+      <div class="gerr" id="lubgerr"></div>
+      <div class="gok" id="lubgok"></div>
+      <span class="glink" id="lubgreset">¿Olvidaste tu contraseña?</span>
+    </form>
+    <div id="lubgnoacc" hidden>
+      <div class="gerr show" id="lubgnoacctxt">Tu cuenta aún no tiene acceso asignado. Pídele al administrador que te habilite.</div>
+      <button type="button" class="gsec" id="lubgsalir2">Salir</button>
+    </div>
+    <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
+  </div>
+</div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
+<script>
+(function(){
+  var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
+  var INGRESO={admin:false,tecnico:false,supervisor:false}; /* enero 2027: admin y tecnico en true */
+  var ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor'};
+  var firebaseConfig={apiKey:"AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",authDomain:"lubricacion-teck-qb.firebaseapp.com",projectId:"lubricacion-teck-qb",storageBucket:"lubricacion-teck-qb.firebasestorage.app",messagingSenderId:"697204585611",appId:"1:697204585611:web:824c3cf28291bdf1ec108e"};
+  var root=document.documentElement;
+  root.classList.add('lub-locked');
+  window.LUB_VIEWER=true; root.classList.add('lub-viewer');
+  window.LUB_USER=null; window.LUB_ROL=null;
+  try{ localStorage.removeItem('lub_auth'); }catch(e){} /* candado antiguo de clave compartida */
+  var $=function(id){return document.getElementById(id)};
+  var gate=$('lubgate'), form=$('lubgform'), load=$('lubgload'), noacc=$('lubgnoacc'), err=$('lubgerr'), ok=$('lubgok'), btn=$('lubgbtn');
+
+  if(!window.firebase){ load.textContent='No se pudo cargar el sistema de acceso. Revisa la conexión y recarga.'; return; }
+  var app=firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);
+  var auth=firebase.auth(), db=firebase.firestore();
+  try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
+
+  /* ---- Datos de la app: viven en la nube (coleccion 'datos', en partes <1MB) y
+     NO en las paginas. Las paginas piden lo suyo con lubCuandoListo([...], fn):
+     se sirve primero desde el cache offline de Firestore y, si el servidor tiene
+     una version nueva, se deja en cache y se avisa con un boton "Actualizar".
+     En localhost (desarrollo) los datos salen de _src/publicar/datos.json. ---- */
+  var DEV=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  window.LUB={datos:{}};
+  var _esperas=[], _listo=false, _cargas={}, _paqueteDev=null;
+  window.lubCuandoListo=function(nombres,fn){ _esperas.push({n:nombres,fn:fn}); if(_listo) procesar(); };
+  function leer(ref){ return ref.get({source:'cache'}).then(function(s){ if(!s.exists) throw 0; return s; }).catch(function(){ return ref.get(); }); }
+  /* carga bajo demanda (ej. réplica HTML de una pauta: LUB.cargar('rep.'+id)) */
+  window.LUB.cargar=function(n){ return cargarConjunto(n).then(function(){ return LUB.datos[n]; }); };
+  function cargarConjunto(n){
+    if(_cargas[n]) return _cargas[n];
+    if(DEV && n.indexOf('rep.')===0){ /* desarrollo: la réplica sale del archivo local */
+      _cargas[n]=fetch('pautas-html/'+n.slice(4)+'.html').then(function(r){ if(!r.ok) throw new Error('no existe '+n); return r.text(); }).then(function(t){ LUB.datos[n]=t; });
+      return _cargas[n];
+    }
+    if(DEV){
+      _paqueteDev=_paqueteDev||fetch('_src/publicar/datos.json').then(function(r){ if(!r.ok) throw new Error('falta _src/publicar/datos.json (correr build.py)'); return r.json(); });
+      _cargas[n]=_paqueteDev.then(function(p){ if(!(n in p.datos)) throw new Error('conjunto '+n+' no existe en datos.json'); LUB.datos[n]=p.datos[n]; });
+      return _cargas[n];
+    }
+    _cargas[n]=leer(db.collection('datos').doc(n)).then(function(meta){
+      if(!meta.exists) throw new Error('El conjunto "'+n+'" aún no está publicado en la nube (publicar_datos.py)');
+      var m=meta.data(), ps=[];
+      for(var i=0;i<m.partes;i++) ps.push(leer(db.collection('datos').doc(n+'.p'+i)));
+      return Promise.all(ps).then(function(snaps){
+        LUB.datos[n]=JSON.parse(snaps.map(function(s){ return s.data().s; }).join(''));
+        revisarNuevo(n,m.v);
+      });
+    });
+    return _cargas[n];
+  }
+  function revisarNuevo(n,v){
+    db.collection('datos').doc(n).get({source:'server'}).then(function(s){
+      if(!s.exists||s.data().v===v) return;
+      var ps=[]; for(var i=0;i<s.data().partes;i++) ps.push(db.collection('datos').doc(n+'.p'+i).get({source:'server'}));
+      Promise.all(ps).then(avisarNuevo).catch(function(){});
+    }).catch(function(){});
+  }
+  function avisarNuevo(){
+    if($('lubnuevo')) return;
+    var d=document.createElement('div'); d.id='lubnuevo'; d.innerHTML='🔄 Hay datos nuevos<a>Actualizar</a>';
+    d.querySelector('a').onclick=function(){ location.reload(); };
+    document.body.appendChild(d);
+  }
+  function procesar(){
+    var faltan=[];
+    _esperas.forEach(function(e){ e.n.forEach(function(n){ if(!(n in LUB.datos)&&faltan.indexOf(n)<0) faltan.push(n); }); });
+    if(faltan.length){
+      Promise.all(faltan.map(cargarConjunto)).then(procesar,function(err){
+        console.error(err);
+        root.classList.add('lub-locked'); mostrar('load');
+        load.textContent=navigator.onLine?('No se pudieron cargar los datos: '+(err&&err.message?err.message:err)):'Sin conexión y sin datos guardados en este dispositivo. Conéctate a internet y recarga.';
+      });
+      return;
+    }
+    var lista=_esperas; _esperas=[];
+    lista.forEach(function(e){ try{ e.fn(); }catch(err){ console.error(err); } });
+    if(document.body.contains(gate)){ root.classList.remove('lub-locked'); gate.remove(); }
+  }
+
+  function mostrar(cual){ load.hidden=cual!=='load'; form.hidden=cual!=='form'; noacc.hidden=cual!=='noacc'; }
+  function fallo(msg){ err.textContent=msg; err.classList.add('show'); ok.classList.remove('show'); var c=gate.querySelector('.gcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  function aplicarRol(rol){
+    window.LUB_ROL=rol;
+    var puede=!!INGRESO[rol];
+    window.LUB_VIEWER=!puede;
+    root.classList.toggle('lub-viewer',!puede);
+  }
+  function desbloquear(u,perfil){
+    window.LUB_USER={uid:u.uid,email:u.email,nombre:perfil.nombre||u.email,rol:perfil.rol};
+    aplicarRol(perfil.rol);
+    if(/usuarios\.html$/.test(location.pathname) && perfil.rol!=='admin'){ location.replace('index.html'); return; }
+    $('lubuname').textContent=perfil.nombre||u.email;
+    $('lubrolt').textContent=ROL_TXT[perfil.rol]||perfil.rol;
+    $('lubusuarios').hidden=perfil.rol!=='admin';
+    $('lubuserbar').classList.add('show');
+    /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
+    mostrar('load'); load.textContent='Cargando datos…';
+    _listo=true; procesar();
+  }
+  function salir(){ auth.signOut().then(function(){ location.reload(); }); }
+  $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
+
+  var MSG={'auth/invalid-credential':'Correo o contraseña incorrectos','auth/wrong-password':'Correo o contraseña incorrectos','auth/user-not-found':'Correo o contraseña incorrectos','auth/invalid-email':'El correo no es válido','auth/too-many-requests':'Demasiados intentos. Espera unos minutos e inténtalo de nuevo','auth/network-request-failed':'Sin conexión a internet. Para entrar por primera vez en este dispositivo necesitas señal','auth/user-disabled':'Esta cuenta está deshabilitada','auth/configuration-not-found':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/operation-not-allowed':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/missing-password':'Escribe tu contraseña'};
+
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var email=$('lubgemail').value.trim().toLowerCase(), pass=$('lubgpass').value;
+    if(!email||!pass){ fallo('Escribe tu correo y contraseña'); return; }
+    btn.disabled=true; err.classList.remove('show');
+    auth.signInWithEmailAndPassword(email,pass).catch(function(e){ fallo(MSG[e.code]||('No se pudo entrar ('+e.code+')')); }).then(function(){ btn.disabled=false; });
+  });
+  $('lubgreset').onclick=function(){
+    var email=$('lubgemail').value.trim().toLowerCase();
+    if(!email){ fallo('Escribe tu correo arriba y vuelve a tocar aquí'); return; }
+    auth.sendPasswordResetEmail(email).then(function(){ err.classList.remove('show'); ok.textContent='Te enviamos un correo a '+email+' para crear una contraseña nueva (revisa spam).'; ok.classList.add('show'); }).catch(function(e){ fallo(MSG[e.code]||('No se pudo enviar el correo ('+e.code+')')); });
+  };
+
+  if(DEV){ /* desarrollo local: sin login, datos desde el archivo local, rol admin */
+    desbloquear({uid:'dev',email:'dev@localhost'},{nombre:'Modo desarrollo (localhost)',rol:'admin'});
+    return;
+  }
+  auth.onAuthStateChanged(function(u){
+    if(!u){ mostrar('form'); return; }
+    mostrar('load');
+    var ref=db.collection('usuarios').doc(u.uid);
+    ref.get().then(function(snap){ return snap.exists?snap.data():null; }, function(){ return null; }).then(function(perfil){
+      var esAdminFijo=ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())>=0;
+      if(!perfil && esAdminFijo){
+        perfil={nombre:u.displayName||'Nicolás Saravia',email:u.email,rol:'admin',creado:new Date().toISOString()};
+        ref.set(perfil,{merge:true}).catch(function(){});
+      }
+      if(!perfil || !ROL_TXT[perfil.rol]){
+        if(!perfil) $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') aún no tiene acceso asignado. Pídele al administrador que te habilite.';
+        else $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') está desactivada.';
+        mostrar('noacc'); return;
+      }
+      if(esAdminFijo) perfil.rol='admin';
+      desbloquear(u,perfil);
+    });
+  });
+})();
+</script>
+
+<header>
+  <div class="brand">
+    <a class="logo" href="index.html" aria-label="Ir al buscador"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></a>
+    <span><h1>Maestro de Lubricación</h1><span class="sub">Concentradora</span></span>
+    <span class="brandright">
+      <img class="tecklogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAAwCAYAAABUmTXqAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMC1jMDAwIDc5LmRhYmFjYmIsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6OGVhMTgzYzgtOTg1Zi00MmEwLThiNTQtY2FkNjdkZjA4OTM2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM1MzNBODk3MEVDMjExRUM4RjY0RUMzM0ExRUZBNjRDIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM1MzNBODk2MEVDMjExRUM4RjY0RUMzM0ExRUZBNjRDIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyMi41IChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OGVhMTgzYzgtOTg1Zi00MmEwLThiNTQtY2FkNjdkZjA4OTM2IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjhlYTE4M2M4LTk4NWYtNDJhMC04YjU0LWNhZDY3ZGYwODkzNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PhEM5IEAAAPjSURBVHja7Jx7iE1BHMfPtR7Lisj70Wo9/hERWZTnP+T9D8kjjyRSSvIowj8iUhtSQv4iROsfhRKbLCWSEBLJKzavrLwd3+nOzZg9e+/Z63Xi86lvc2fuzD2nmd/3zpk5595UGIYBAERTjy4AwCAAGAQAgwBgEAAMAoBBADAIAAYBwCAAgEEAMAjAT1OfLshNKpVK5HmFYVhgTs8p+qJzDWO0Y1AxyC8NxF5KuubZvFJB++w3ndopaZiT7ytdYcQwyJ9mnrQ4j3YfpbZ0H2sQiOaYZo9XdAMGgWj20QVcYv0PbJL2emXLpGlOfr+02atzna7DIP88ukx6pOSRt3Cv8qpVqd6ViAV+FyVTpN5SE+mpVCEdVf33WTYGUnYBPloyn1EoPZYuSOVq+ybG5oLZ5RojFTjFV6W7jCoG+avY4FwvLY3o5wUmSFVnhgL9fETbfkp2BeldKZ+F0nBpbo7jG4Ntt8fKcE0awuiwBkkCu6UVWb6ESqTjCuQSL7BHKTlbizkyvIhhjh0R5hjJpgEzSBJmj6lKZjtFt6V10n1phLRWaiA1k8qkCbZdZyUHpcZOWxPQh6QHUntpVDaD5DBHFaODQZLAaue1WXMMVnA+t/lKBfEXpRtsfpzyHfS+WV+skZo7bS9JY/XeU88ArWpbLmEOLrGSPnt0U9LTKdrlmCPDQS+oh6pdQ6VTnXJjoumuOeyGQZgl2LdgDmaQpNPfy89U8I/3ygq8fI8gvcvV1CmrUGDfquOxRzivb2IODJJEWnv5YqtstAhqPpJy8yfPo2WQ3hoGLrESxcc82nySPkeYpq5cdl63kQ5r9mrEkGCQJPHAyy9K5Wa56t3z2g1WcNd1fMwDlTec/AC7aAcMkhjOebPBLHvTsLZFfZFdfN/2zFXsLbjj8FaabNMMc3WMBQwLBkkECvTXwY+7VOZbvFxB2t0xRUtponRE2W1OXf/bfpvqbJR6Sx2lUmmVVJbl+GYGme8Vb1WbQYxOHphfl6HsqqXfysIfKXPe6yS9DGtSLb3zyg447RpJF8PcnLb1z3jlfZzP2uG990Rqx5jXTcwgv2cWeahkUlDzjndRxM5SodPug5KJQfoGYTYaxziNJd7ntLOL9gaMUHzY5s2fO0H6qVw375qkQsFo7m+stOsCd6vX3AQ027gnpD1eu8dqN1Av5wTpBxJLg++/Ozc7ZOZp3p027z89XO2aTZ9jjmueCXPXQOZeyUmGL+aXHT/gjzUj/IpL2ZQNVNPhX+P8uYLTLjPTx26X67IaMAgAu1gAGAQAgwBgEAAMAoBBADAIAAYBAAwCgEEAMAgABgFIAN8EGAA/IG3JuFt/tAAAAABJRU5ErkJggg==" alt="Teck">
+      <span class="adminline">Admin: Nicolás Saravia</span>
+    </span>
+  </div>
+  <nav class="tabs">
+    <a href="index.html">Maestro de Lubricación</a>
+    <span class="slash">/</span>
+    <a href="pautas.html">Pautas Plan Semanal</a>
+    <span class="slash">/</span>
+    <a class="on" href="panorama.html">Panorama</a>
+    <button id="back">‹ Volver</button>
+  </nav>
+</header>
+<main>
+  <div id="root"></div>
+</main>
+<footer>Panorama en vivo del equipo · Requiere internet · Admin: Nicolás Saravia</footer>
+<script>
+lubCuandoListo(["pautas", "planes"], function(){
+
+const PAUTAS = LUB.datos.pautas;
+const PLANES = LUB.datos.planes;
+/* la semana actual se calcula sola desde el ancla (jueves 13.08.2026 = semana 33) */
+const SEMANA_ACTUAL = Math.min(52, Math.max(1, 33 + Math.floor((Date.now()-new Date(2026,7,13).getTime())/(7*24*3600*1000))));
+const byId = Object.fromEntries(PAUTAS.map(p=>[p.id,p]));
+const ANCHOR = new Date(2026,7,13);
+const $=s=>document.querySelector(s);
+const esc=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fmt=d=>String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');
+function rangoSemana(w){ const j=new Date(ANCHOR); j.setDate(j.getDate()+(w-33)*7); const m=new Date(j); m.setDate(m.getDate()+6); return {ini:j,fin:m}; }
+function relTime(iso){
+  if(!iso) return '';
+  const s=(Date.now()-new Date(iso).getTime())/1000;
+  if(s<60) return 'hace instantes';
+  if(s<3600) return 'hace '+Math.floor(s/60)+' min';
+  if(s<86400) return 'hace '+Math.floor(s/3600)+' h';
+  return 'hace '+Math.floor(s/86400)+' d';
+}
+let view={name:'semanas'};
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",
+  authDomain: "lubricacion-teck-qb.firebaseapp.com",
+  projectId: "lubricacion-teck-qb",
+  storageBucket: "lubricacion-teck-qb.firebasestorage.app",
+  messagingSenderId: "697204585611",
+  appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
+};
+let CLOUD={}; let cloudReady=false; let cloudErr=false;
+try{
+  if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); /* el candado (gate.html) ya la inicializa */
+  const db=firebase.firestore();
+  db.collection('pautas').onSnapshot(snap=>{
+    const next={};
+    snap.forEach(doc=>{ next[doc.id]=doc.data(); });
+    CLOUD=next; cloudReady=true; render();
+  }, err=>{ cloudErr=true; render(); });
+}catch(e){ cloudErr=true; }
+
+function otObj(ot){ for(const w of Object.values(PLANES)) for(const d of w.days) for(const o of d.ots) if(o.ot===ot) return o; return null; }
+function progress(o){
+  const p=byId[o.pauta]; const c=CLOUD[o.ot];
+  const total=p.acts.length;
+  const done=c&&c.acts? p.acts.filter(a=>c.acts[a.n]&&c.acts[a.n].e).length : 0;
+  return {done,total,has:!!c};
+}
+function statusClass(pr){ return pr.done===0?'p0':(pr.done>=pr.total?'done':'part'); }
+function statusTxt(pr){ return pr.done===0?'Sin datos aún':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total); }
+
+function render(){
+  $('#back').style.display = view.name==='semanas' ? 'none' : 'block';
+  if(view.name==='semanas') renderSemanas();
+  else if(view.name==='dias') renderDias();
+  else if(view.name==='dia') renderDia();
+  else if(view.name==='detalle') renderDetalle();
+}
+function goBack(){
+  if(view.name==='detalle') view={name:'dia',week:view.week,di:view.di};
+  else if(view.name==='dia') view={name:'dias',week:view.week};
+  else view={name:'semanas'};
+  render();
+}
+$('#back').onclick=goBack;
+
+function connBadge(){
+  if(cloudErr) return `<div class="offlinebox">⚠ No se pudo conectar a la nube. Revisa tu conexión a internet — el Panorama necesita señal para mostrar el avance del equipo (las pautas en cada teléfono se guardan igual, sin problema).</div>`;
+  if(!cloudReady) return `<div class="offlinebox">⏳ Conectando con la nube…</div>`;
+  return `<div class="livepill"><span class="dot"></span>En vivo — actualizado en este instante</div>`;
+}
+
+function renderSemanas(){
+  let cards='';
+  for(let w=1;w<=52;w++){
+    const t=(w%2===1)?'A':'B';
+    const r=rangoSemana(w);
+    const has=!!PLANES[w];
+    cards+=`<button class="wcard ${w===SEMANA_ACTUAL?'now':''} ${has?'':'nodata'}" data-w="${w}">
+      <div class="wn">Semana ${w}</div>
+      <div class="wd">Jue ${fmt(r.ini)} – Mié ${fmt(r.fin)}</div>
+      <span class="wt ${t}">TURNO ${t}</span>
+    </button>`;
+  }
+  $('#root').innerHTML=`
+    <div class="dayhdr">Panorama del equipo</div>
+    <p class="daysub">Avance en vivo de las pautas digitales, visto desde cualquier teléfono. Elige la semana.</p>
+    ${connBadge()}
+    <div class="wgrid">${cards}</div>`;
+  document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'dias',week:+b.dataset.w}; render(); });
+}
+
+function renderDias(){
+  const w=view.week; const t=(w%2===1)?'A':'B'; const plan=PLANES[w];
+  const r=rangoSemana(w);
+  let body, summHtml='';
+  if(!plan){
+    body=`<div class="hint">📭 El programa de la Semana ${w} aún no está cargado.</div>`;
+  } else {
+    let tot={done:0,part:0,p0:0,sind:0};
+    body=plan.days.map((d,i)=>{
+      let dd=0,dpart=0,dp0=0,dsind=0;
+      d.ots.forEach(o=>{
+        if(!o.pauta){ dsind++; return; }
+        const pr=progress(o); const cls=statusClass(pr);
+        if(cls==='done') dd++; else if(cls==='part') dpart++; else dp0++;
+      });
+      tot.done+=dd; tot.part+=dpart; tot.p0+=dp0; tot.sind+=dsind;
+      const chips=[dd?`<span class="mini done">${dd} ✓</span>`:'', dpart?`<span class="mini part">${dpart} parcial</span>`:'', dp0?`<span class="mini p0">${dp0} pend.</span>`:''].join('');
+      return `<button class="dcard" data-i="${i}">
+        <span class="dn">${esc(d.nombre)}</span><span class="df">${esc(d.fecha)}</span>
+        <span class="dc">${chips||'<span class="mini p0">sin pautas</span>'}</span>
+      </button>`;
+    }).join('');
+    summHtml=`<div class="summ">
+      <div class="s done"><b>${tot.done}</b><span>Completas</span></div>
+      <div class="s part"><b>${tot.part}</b><span>En progreso</span></div>
+      <div class="s p0"><b>${tot.p0}</b><span>Sin datos</span></div>
+      <div class="s sind"><b>${tot.sind}</b><span>Sin pauta digital</span></div>
+    </div>`;
+  }
+  $('#root').innerHTML=`
+    <div class="dayhdr">Semana ${w} · Turno ${t}</div>
+    <p class="daysub">Jueves ${fmt(r.ini)} al Miércoles ${fmt(r.fin)}</p>
+    ${connBadge()}
+    ${summHtml}
+    ${body}`;
+  document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'dia',week:w,di:+b.dataset.i}; render(); });
+}
+
+function renderDia(){
+  const plan=PLANES[view.week]; const d=plan.days[view.di];
+  $('#root').innerHTML=`
+    <div class="dayhdr">${esc(d.nombre)} ${esc(d.fecha)} · Semana ${view.week}</div>
+    <p class="daysub">${d.ots.length} órdenes de trabajo</p>
+    ${connBadge()}
+    ${d.ots.map(o=>{
+      if(!o.pauta) return `<div class="otcard nop">
+        <div class="otinfo">
+          <div class="tag mono">${esc(o.tag)}</div>
+          <div class="otd">${esc(o.desc)}</div>
+          <div class="otmeta">OT ${o.ot} · ${esc(o.esp)}</div>
+        </div>
+        <div class="prog"><span class="ring sind">Sin pauta digital</span></div>
+      </div>`;
+      const pr=progress(o); const c=CLOUD[o.ot];
+      const cls=statusClass(pr);
+      return `<button class="otcard" data-ot="${o.ot}">
+        <div class="otinfo">
+          <div class="tag mono">${esc(o.tag)}</div>
+          <div class="otd">${esc(o.desc)}</div>
+          <div class="otmeta">OT ${o.ot} · ${esc(byId[o.pauta].titulo)}</div>
+          ${c&&c.tecnico?`<div class="tecmeta">👤 ${esc([c.tecnico,c.tecnico2].filter(Boolean).join(' / '))}</div>`:''}
+        </div>
+        <div class="prog">
+          <span class="ring ${cls}">${statusTxt(pr)}</span>
+          ${c&&c.updatedAt?`<div class="updated">${relTime(c.updatedAt)}</div>`:''}
+        </div>
+      </button>`;
+    }).join('')}`;
+  document.querySelectorAll('.otcard[data-ot]').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:view.week,di:view.di,ot:b.dataset.ot}; render(); });
+}
+
+function renderDetalle(){
+  const ot=view.ot; const o=otObj(ot); const p=byId[o.pauta]; const c=CLOUD[ot]||{};
+  const plan=PLANES[view.week]; const dia=plan.days[view.di];
+  let lastG=null; let actsHtml='';
+  for(const a of p.acts){
+    if(a.g!==lastG){ actsHtml+=`<div class="grp">${esc(a.g||'Actividades')}</div>`; lastG=a.g; }
+    const st=(c.acts&&c.acts[a.n])||{};
+    actsHtml+=`<div class="act">
+      <div class="ad"><span class="an">${a.n}.</span>${esc(a.d)}</div>
+      <div class="row2">
+        ${st.v?`<span class="val">${esc(st.v)}</span>`:''}
+        <span class="est ${st.e||'none'}">${st.e||'— sin registrar —'}</span>
+      </div>
+      ${st.o?`<div class="obs">"${esc(st.o)}"</div>`:''}
+    </div>`;
+  }
+  $('#root').innerHTML=`
+    <div class="dhdr">
+      <div class="tag mono">${esc(o.tag)}</div>
+      <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)}</div>
+      <div class="frow">
+        <div><b>Técnico(s)</b>${esc([c.tecnico,c.tecnico2].filter(Boolean).join(' / ')||'— sin datos —')}</div>
+        <div><b>Fecha</b>${esc(c.fecha||'—')}</div>
+        <div><b>Hora inicio</b>${esc(c.hini||'—')}</div>
+        <div><b>Hora término</b>${esc(c.hter||'—')}</div>
+      </div>
+    </div>
+    ${connBadge()}
+    ${actsHtml}
+    <div class="grp">Observaciones generales</div>
+    <div class="obsgbox">${c.obsg?esc(c.obsg):'<i>Sin observaciones registradas.</i>'}</div>
+    ${c.updatedAt?`<p class="daysub" style="margin-top:10px">Última actualización: ${relTime(c.updatedAt)}</p>`:''}
+    `;
+}
+
+render();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+descargas/
+_src/maestro-lubricacion.html
+_src/publicar/
+_src/secretos/
+# réplicas HTML de pautas: se generan con build_pauta_html.py y se publican en
+# Firestore (publicar_datos.py); ya no van en el sitio público
+pautas-html/

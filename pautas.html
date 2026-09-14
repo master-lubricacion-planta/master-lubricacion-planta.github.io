@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1c47">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Pautas de Inspección</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+    --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+    --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+    --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+    --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+    --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+    --shadow:0 1px 3px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1128; --surface:#111c3d; --line:#243459; --ink:#e8edf8; --ink-2:#a3b1d0; --ink-3:#6d7c9e;
+  --accent:#7da4e8; --accent-soft:#1a2c5c; --accent-ink:#aec8f5;
+  --navy:#060d24; --navy-2:#0d1a40; --on-navy:#ffffff; --on-navy-2:#8fa5d4;
+  --orange:#f5822b; --orange-soft:#3d2a12; --orange-ink:#f0b070;
+  --ok:#57c093; --ok-bg:#173628; --bad:#f2998f; --bad-bg:#42201d; --na:#9daac6; --na-bg:#1c2749;
+  --tA:#7bc4f0; --tA-bg:#0e2c40; --tB:#c9a2ee; --tB-bg:#2b1840;
+  --shadow:0 1px 3px rgba(0,0,0,.45);
+}
+:root[data-theme="light"]{
+  --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
+  --accent:#0c2a66; --accent-soft:#e4ebf8; --accent-ink:#0c2a66;
+  --navy:#0b1c47; --navy-2:#12295e; --on-navy:#ffffff; --on-navy-2:#9db1d9;
+  --orange:#f5822b; --orange-soft:#fdebd7; --orange-ink:#9c5a12;
+  --ok:#1d7a4f; --ok-bg:#dff1e7; --bad:#b3261e; --bad-bg:#f9e0de; --na:#5f6b85; --na-bg:#e7ebf3;
+  --tA:#0c5c8a; --tA-bg:#ddeefa; --tB:#6d28a8; --tB-bg:#efe3fa;
+  --shadow:0 1px 3px rgba(11,28,71,.08),0 6px 18px rgba(11,28,71,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+button{font:inherit;color:inherit}
+
+header{position:sticky;top:0;z-index:10;background:linear-gradient(100deg,var(--navy),var(--navy-2));padding:12px 14px 0;border-bottom:3px solid var(--orange)}
+.brand{display:flex;align-items:center;gap:10px;max-width:820px;margin:0 auto}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.logo svg{width:22px;height:22px;fill:#fff}
+.brand h1{font-size:17px;font-weight:800;margin:0;color:var(--on-navy)}
+.brand .sub{display:block;font-size:10.5px;font-weight:600;color:var(--on-navy-2);text-transform:uppercase;letter-spacing:.1em}
+.brandright{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tecklogo{height:24px;width:auto;display:block}
+.adminline{font-size:9.5px;font-weight:600;color:var(--on-navy-2);letter-spacing:.05em;white-space:nowrap}
+.tabs{display:flex;align-items:center;gap:10px;max-width:820px;margin:10px auto 0;flex-wrap:wrap}
+.tabs a{color:var(--on-navy-2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 2px 10px;border-bottom:3px solid transparent;margin-bottom:-3px}
+.tabs a svg{width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin-right:4px}
+.tabs a.on{color:var(--on-navy);border-bottom-color:var(--orange)}
+.tabs .slash{color:var(--on-navy-2);font-weight:300;font-size:17px}
+#back{margin-left:auto;margin-bottom:6px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:var(--on-navy);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;display:none}
+
+main{padding:14px;max-width:820px;margin:0 auto}
+.dayhdr{font-size:19px;font-weight:800;margin:4px 2px 2px}
+.daysub{font-size:13px;color:var(--ink-2);margin:0 2px 14px}
+
+/* semanas */
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.wcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
+.wcard .wn{font-weight:800;font-size:15px}
+.wcard .wd{font-size:11px;color:var(--ink-3);margin-top:2px}
+.wcard .wt{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;margin-top:6px;letter-spacing:.04em}
+.wcard .wt.A{background:var(--tA-bg);color:var(--tA)}
+.wcard .wt.B{background:var(--tB-bg);color:var(--tB)}
+.wcard.now{border:2px solid var(--orange);background:var(--card-grad)}
+.wcard.now .wn::after{content:' · ACTUAL';color:var(--orange);font-size:10px;letter-spacing:.05em}
+.wcard.nodata{opacity:.55}
+
+/* días */
+.dcard{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:13px;margin-bottom:8px;box-shadow:var(--shadow);padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.dcard .dn{font-weight:800;font-size:15px;min-width:96px}
+.dcard .df{color:var(--ink-3);font-size:13px}
+.dcard .dc{margin-left:auto;font-size:12.5px;color:var(--ink-2);text-align:right}
+.dcard .dc b{color:var(--accent-ink)}
+.dcard.now{border:2px solid var(--orange)}
+.hoytag{font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--orange);background:var(--orange-soft);border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:2px}
+
+.otcard{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;box-shadow:var(--shadow);padding:13px 14px;cursor:pointer;display:flex;align-items:center;gap:12px}
+.otcard.nop{cursor:default;opacity:.62}
+.otcard .otinfo{flex:1;min-width:0}
+.otcard .tag{font-weight:800;font-size:15px}
+.otcard .otd{font-size:13px;color:var(--ink-2);margin-top:1px}
+.otcard .otmeta{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.prog{flex:0 0 auto;text-align:right}
+.ring{font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.ring.p0{background:var(--na-bg);color:var(--na)}
+.ring.part{background:var(--orange-soft);color:var(--orange-ink)}
+.ring.done{background:var(--ok-bg);color:var(--ok)}
+.ring.sind{background:var(--bg);color:var(--ink-3);border:1px dashed var(--line)}
+
+.fhdr{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.fhdr .tag{font-weight:800;font-size:17px}
+.fhdr .fd{font-size:13.5px;color:var(--ink-2);margin:2px 0 10px}
+.eqimg{width:100%;max-height:260px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
+.otfield{background:var(--orange-soft);border:2px solid var(--orange);border-radius:11px;padding:10px 12px;margin-bottom:10px}
+.otfield label{font-size:11px;font-weight:800;color:var(--orange-ink);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px}
+.otfield input{width:100%;padding:10px;font-size:18px;font-weight:800;border:1.5px solid var(--orange);border-radius:9px;background:var(--surface);color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.frow label{font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.frow input{width:100%;padding:9px 10px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.grp{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink);margin:16px 2px 8px}
+.act{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;box-shadow:var(--shadow)}
+.act .ad{font-size:14px;font-weight:600;line-height:1.35}
+.act .an{color:var(--ink-3);font-weight:800;margin-right:4px}
+.act .lim{font-size:12px;color:var(--ink-2);background:var(--accent-soft);border-radius:8px;padding:6px 9px;margin-top:7px;white-space:pre-line}
+.act .lim.ov{border-left:3px solid var(--orange)}
+.actrow{display:flex;gap:8px;margin-top:9px;align-items:center;flex-wrap:wrap}
+.val{flex:1;min-width:110px;padding:9px 10px;font-size:16px;font-weight:700;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.chips{display:flex;gap:6px;flex:0 0 auto}
+.chip{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:800;cursor:pointer}
+.chip.B.on{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.chip.M.on{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.chip.NA.on{background:var(--na-bg);color:var(--na);border-color:var(--na)}
+.obs{width:100%;margin-top:8px;padding:8px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.obsg{width:100%;min-height:70px;padding:10px;font-size:14px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-family:inherit}
+.borrartop{display:block;width:100%;margin-top:10px;background:none;border:1.5px solid var(--bad);color:var(--bad);border-radius:10px;padding:9px 12px;font-size:13.5px;font-weight:700;cursor:pointer}
+
+.fotos{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-top:14px}
+.fotos.locked{opacity:.85}
+.fotos h3{margin:0 0 4px;font-size:15px}
+.fotos .fsub{font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+.lockmsg{background:var(--orange-soft);color:var(--orange-ink);border-radius:10px;padding:10px 12px;font-size:13.5px;font-weight:600}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fslot{position:relative;border:2px dashed var(--line);border-radius:12px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--ink-3);font-size:12px;font-weight:700;cursor:pointer;overflow:hidden;background:var(--bg)}
+.fslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fslot .del{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.65);color:#fff;border:0;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer;z-index:2}
+.fslot .cam{font-size:26px}
+.btnbar{display:flex;gap:8px;margin:14px 0 30px}
+.btn{flex:1;padding:13px;border-radius:11px;border:0;font-weight:800;font-size:15px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#0a1128}
+.btn.ghost{background:var(--surface);border:1.5px solid var(--line);color:var(--ink-2)}
+.savemsg{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
+.savemsg.show{opacity:.95}
+.offlinetag{font-size:11.5px;font-weight:700;color:var(--ok);background:var(--ok-bg);display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;margin-bottom:10px}
+.fab-save{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:40;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:15px 30px;font-weight:800;font-size:15.5px;box-shadow:0 8px 24px rgba(11,28,71,.4);cursor:pointer;align-items:center;gap:9px}
+.fab-save.show{display:flex}
+:root[data-theme="dark"] .fab-save{color:#0a1128}
+.fab-save .ic{font-size:18px}
+.fab-save.saved{background:var(--ok)}
+.fabspacer{height:78px}
+footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
+.hint{color:var(--ink-2);text-align:center;padding:40px 20px;font-size:15px}
+
+#informe{display:none}
+.repwrap{background:#fff;color:#000}
+@media print{
+  header,#listado,#form,footer,.noprint{display:none!important}
+  #informe{display:block!important}
+  body{background:#fff}
+  main{max-width:100%;padding:0}
+}
+.rep{font-size:12px;color:#000}
+.rep h2{font-size:16px;margin:0 0 2px}
+.rep .rh{display:flex;justify-content:space-between;border-bottom:2.5px solid #0b1c47;padding-bottom:6px;margin-bottom:8px}
+.rep table{width:100%;border-collapse:collapse;margin-top:6px}
+.rep th,.rep td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top;font-size:11px}
+.rep th{background:#e8ecf5}
+.rep .gr td{background:#f0f2f8;font-weight:700;text-transform:uppercase;font-size:10px}
+.rep .foot{margin-top:10px;font-size:10px;color:#444;display:flex;justify-content:space-between}
+.rep .fotosrep{display:flex;gap:8px;margin-top:10px}
+.rep .fotosrep img{width:32%;border:1px solid #999}
+.rep .otbox{border:2px solid #b45309;background:#fdebd7;padding:4px 10px;border-radius:6px;font-weight:800}
+
+/* barra de navegación visible (pedido: el Volver del encabezado era muy camuflado) */
+.navvolver{display:flex;gap:8px;margin:2px 0 14px;flex-wrap:wrap}
+.bvolver{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+.bvolver.cal{background:var(--accent-soft)}
+.bvolver svg{width:15px;height:15px;fill:currentColor}
+</style>
+</head>
+<body>
+<!-- Candado de acceso (Firebase Authentication) + roles + modo visualizador.
+     build.py inyecta este bloque al inicio del <body> de TODAS las páginas y agrega
+     los SDK firebase-app / firebase-auth / firebase-firestore en el <head>.
+     · Cada persona entra con su correo y contraseña individual. El rol vive en
+       Firestore: usuarios/{uid} = {nombre, email, rol: admin|tecnico|supervisor|inactivo}.
+       Los administradores gestionan cuentas en usuarios.html.
+     · INGRESO define qué roles pueden ingresar datos. Hasta enero 2027 todos van en
+       modo visualizador (solo lectura); para habilitar a los técnicos: tecnico:true.
+     · Las reglas de Firestore (firestore.rules) exigen sesión para leer y rol para
+       escribir; esto es solo la capa visual. -->
+<style>
+#lubgate{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#0b1c47,#12295e)}
+html.lub-locked #lubgate{display:flex}
+html.lub-locked body>*:not(#lubgate){display:none!important}
+#lubgate .gcard{width:100%;max-width:360px;background:#fff;border-radius:18px;padding:26px 24px 22px;box-shadow:0 18px 50px rgba(0,0,0,.45);text-align:center;font:15px/1.45 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:#101a33}
+#lubgate .glogo{width:52px;height:52px;border-radius:15px;background:#f5822b;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+#lubgate .glogo svg{width:32px;height:32px;fill:#fff}
+#lubgate h2{margin:0;font-size:19px;font-weight:800;color:#0b1c47}
+#lubgate .gsub{font-size:11px;font-weight:700;color:#8391ad;text-transform:uppercase;letter-spacing:.1em;margin:2px 0 18px}
+#lubgate label{display:block;text-align:left;font-size:10.5px;font-weight:800;color:#4a5776;text-transform:uppercase;letter-spacing:.06em;margin:10px 2px 4px}
+#lubgate input{width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1.5px solid #dde3ee;border-radius:10px;background:#f4f6fa;color:#101a33;font-family:inherit}
+#lubgate input:focus{outline:none;border-color:#0c2a66}
+#lubgate button{width:100%;margin-top:16px;padding:13px;border:0;border-radius:11px;background:#0c2a66;color:#fff;font-size:15.5px;font-weight:800;cursor:pointer;font-family:inherit}
+#lubgate button:disabled{opacity:.6;cursor:default}
+#lubgate button.gsec{background:#f4f6fa;color:#0c2a66;margin-top:8px;font-weight:700}
+#lubgate .gerr{display:none;margin-top:10px;background:#f9e0de;color:#b3261e;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gerr.show{display:block}
+#lubgate .gok{display:none;margin-top:10px;background:#dff1e7;color:#1d7a4f;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700}
+#lubgate .gok.show{display:block}
+#lubgate .glink{display:inline-block;margin-top:12px;font-size:12.5px;color:#0c2a66;font-weight:700;cursor:pointer;text-decoration:underline}
+#lubgate .gfoot{margin-top:14px;font-size:11px;color:#8391ad}
+#lubgate .gload{padding:18px 0 6px;color:#4a5776;font-size:14px;font-weight:600}
+#lubgate .gload::before{content:'';display:block;width:26px;height:26px;margin:0 auto 10px;border:3px solid #dde3ee;border-top-color:#f5822b;border-radius:50%;animation:lubspin .8s linear infinite}
+@keyframes lubspin{to{transform:rotate(360deg)}}
+#lubgate .gcard.shake{animation:lubshake .35s}
+@keyframes lubshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#lubgate [hidden]{display:none!important}
+/* barra de usuario (abajo a la izquierda) y chip visualizador (abajo a la derecha) */
+#lubuserbar{display:none;position:fixed;bottom:10px;left:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;gap:8px;align-items:center;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lubuserbar.show{display:flex}
+#lubuserbar a{color:#ffd9b8;text-decoration:none;cursor:pointer}
+#lubuserbar a:hover{text-decoration:underline}
+#lubuserbar .lubsep{opacity:.5}
+#lubviewerchip{display:none;position:fixed;bottom:10px;right:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;pointer-events:none}
+html.lub-viewer #lubviewerchip{display:block}
+@media print{#lubviewerchip,#lubuserbar,#lubnuevo{display:none!important}}
+#lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+#lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
+/* ---- modo visualizador: sin ingreso de datos ---- */
+html.lub-viewer #fabsave{display:none!important}
+html.lub-viewer .offlinetag{display:none!important}
+/* pautas */
+html.lub-viewer #blimpiar,html.lub-viewer .borrartop,html.lub-viewer #bemail,
+html.lub-viewer #femaillock,html.lub-viewer .fotos{display:none!important}
+html.lub-viewer .btnbar:has(#bemail){display:none!important}
+html.lub-viewer #form input,html.lub-viewer #form textarea,html.lub-viewer .chip{pointer-events:none;opacity:.75}
+/* ruta crítica (el select de tendencias #tsel sigue activo: no está en esta lista) */
+html.lub-viewer #rborrar{display:none!important}
+html.lub-viewer input.iv,html.lub-viewer select.ie,
+html.lub-viewer #rnoc,html.lub-viewer #rnoc2,html.lub-viewer #rhora,html.lub-viewer #robs{pointer-events:none;opacity:.75}
+/* plan 52 + muestras */
+html.lub-viewer .echip,html.lub-viewer .idia,html.lub-viewer .iot,html.lub-viewer .iobs,
+html.lub-viewer .irc,html.lub-viewer .irep,html.lub-viewer .iest{pointer-events:none;opacity:.75}
+/* consumibles: sin formulario de movimientos ni eliminar */
+html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
+</style>
+<div id="lubgate">
+  <div class="gcard">
+    <div class="glogo"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></div>
+    <h2>Maestro de Lubricación</h2>
+    <div class="gsub">Concentradora · acceso restringido</div>
+    <div class="gload" id="lubgload">Verificando acceso…</div>
+    <form id="lubgform" hidden>
+      <label for="lubgemail">Correo</label>
+      <input id="lubgemail" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" placeholder="nombre@empresa.com">
+      <label for="lubgpass">Contraseña</label>
+      <input id="lubgpass" type="password" autocomplete="current-password" placeholder="Contraseña">
+      <button type="submit" id="lubgbtn">Entrar</button>
+      <div class="gerr" id="lubgerr"></div>
+      <div class="gok" id="lubgok"></div>
+      <span class="glink" id="lubgreset">¿Olvidaste tu contraseña?</span>
+    </form>
+    <div id="lubgnoacc" hidden>
+      <div class="gerr show" id="lubgnoacctxt">Tu cuenta aún no tiene acceso asignado. Pídele al administrador que te habilite.</div>
+      <button type="button" class="gsec" id="lubgsalir2">Salir</button>
+    </div>
+    <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
+  </div>
+</div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
+<script>
+(function(){
+  var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
+  var INGRESO={admin:false,tecnico:false,supervisor:false}; /* enero 2027: admin y tecnico en true */
+  var ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor'};
+  var firebaseConfig={apiKey:"AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",authDomain:"lubricacion-teck-qb.firebaseapp.com",projectId:"lubricacion-teck-qb",storageBucket:"lubricacion-teck-qb.firebasestorage.app",messagingSenderId:"697204585611",appId:"1:697204585611:web:824c3cf28291bdf1ec108e"};
+  var root=document.documentElement;
+  root.classList.add('lub-locked');
+  window.LUB_VIEWER=true; root.classList.add('lub-viewer');
+  window.LUB_USER=null; window.LUB_ROL=null;
+  try{ localStorage.removeItem('lub_auth'); }catch(e){} /* candado antiguo de clave compartida */
+  var $=function(id){return document.getElementById(id)};
+  var gate=$('lubgate'), form=$('lubgform'), load=$('lubgload'), noacc=$('lubgnoacc'), err=$('lubgerr'), ok=$('lubgok'), btn=$('lubgbtn');
+
+  if(!window.firebase){ load.textContent='No se pudo cargar el sistema de acceso. Revisa la conexión y recarga.'; return; }
+  var app=firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);
+  var auth=firebase.auth(), db=firebase.firestore();
+  try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
+
+  /* ---- Datos de la app: viven en la nube (coleccion 'datos', en partes <1MB) y
+     NO en las paginas. Las paginas piden lo suyo con lubCuandoListo([...], fn):
+     se sirve primero desde el cache offline de Firestore y, si el servidor tiene
+     una version nueva, se deja en cache y se avisa con un boton "Actualizar".
+     En localhost (desarrollo) los datos salen de _src/publicar/datos.json. ---- */
+  var DEV=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  window.LUB={datos:{}};
+  var _esperas=[], _listo=false, _cargas={}, _paqueteDev=null;
+  window.lubCuandoListo=function(nombres,fn){ _esperas.push({n:nombres,fn:fn}); if(_listo) procesar(); };
+  function leer(ref){ return ref.get({source:'cache'}).then(function(s){ if(!s.exists) throw 0; return s; }).catch(function(){ return ref.get(); }); }
+  /* carga bajo demanda (ej. réplica HTML de una pauta: LUB.cargar('rep.'+id)) */
+  window.LUB.cargar=function(n){ return cargarConjunto(n).then(function(){ return LUB.datos[n]; }); };
+  function cargarConjunto(n){
+    if(_cargas[n]) return _cargas[n];
+    if(DEV && n.indexOf('rep.')===0){ /* desarrollo: la réplica sale del archivo local */
+      _cargas[n]=fetch('pautas-html/'+n.slice(4)+'.html').then(function(r){ if(!r.ok) throw new Error('no existe '+n); return r.text(); }).then(function(t){ LUB.datos[n]=t; });
+      return _cargas[n];
+    }
+    if(DEV){
+      _paqueteDev=_paqueteDev||fetch('_src/publicar/datos.json').then(function(r){ if(!r.ok) throw new Error('falta _src/publicar/datos.json (correr build.py)'); return r.json(); });
+      _cargas[n]=_paqueteDev.then(function(p){ if(!(n in p.datos)) throw new Error('conjunto '+n+' no existe en datos.json'); LUB.datos[n]=p.datos[n]; });
+      return _cargas[n];
+    }
+    _cargas[n]=leer(db.collection('datos').doc(n)).then(function(meta){
+      if(!meta.exists) throw new Error('El conjunto "'+n+'" aún no está publicado en la nube (publicar_datos.py)');
+      var m=meta.data(), ps=[];
+      for(var i=0;i<m.partes;i++) ps.push(leer(db.collection('datos').doc(n+'.p'+i)));
+      return Promise.all(ps).then(function(snaps){
+        LUB.datos[n]=JSON.parse(snaps.map(function(s){ return s.data().s; }).join(''));
+        revisarNuevo(n,m.v);
+      });
+    });
+    return _cargas[n];
+  }
+  function revisarNuevo(n,v){
+    db.collection('datos').doc(n).get({source:'server'}).then(function(s){
+      if(!s.exists||s.data().v===v) return;
+      var ps=[]; for(var i=0;i<s.data().partes;i++) ps.push(db.collection('datos').doc(n+'.p'+i).get({source:'server'}));
+      Promise.all(ps).then(avisarNuevo).catch(function(){});
+    }).catch(function(){});
+  }
+  function avisarNuevo(){
+    if($('lubnuevo')) return;
+    var d=document.createElement('div'); d.id='lubnuevo'; d.innerHTML='🔄 Hay datos nuevos<a>Actualizar</a>';
+    d.querySelector('a').onclick=function(){ location.reload(); };
+    document.body.appendChild(d);
+  }
+  function procesar(){
+    var faltan=[];
+    _esperas.forEach(function(e){ e.n.forEach(function(n){ if(!(n in LUB.datos)&&faltan.indexOf(n)<0) faltan.push(n); }); });
+    if(faltan.length){
+      Promise.all(faltan.map(cargarConjunto)).then(procesar,function(err){
+        console.error(err);
+        root.classList.add('lub-locked'); mostrar('load');
+        load.textContent=navigator.onLine?('No se pudieron cargar los datos: '+(err&&err.message?err.message:err)):'Sin conexión y sin datos guardados en este dispositivo. Conéctate a internet y recarga.';
+      });
+      return;
+    }
+    var lista=_esperas; _esperas=[];
+    lista.forEach(function(e){ try{ e.fn(); }catch(err){ console.error(err); } });
+    if(document.body.contains(gate)){ root.classList.remove('lub-locked'); gate.remove(); }
+  }
+
+  function mostrar(cual){ load.hidden=cual!=='load'; form.hidden=cual!=='form'; noacc.hidden=cual!=='noacc'; }
+  function fallo(msg){ err.textContent=msg; err.classList.add('show'); ok.classList.remove('show'); var c=gate.querySelector('.gcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  function aplicarRol(rol){
+    window.LUB_ROL=rol;
+    var puede=!!INGRESO[rol];
+    window.LUB_VIEWER=!puede;
+    root.classList.toggle('lub-viewer',!puede);
+  }
+  function desbloquear(u,perfil){
+    window.LUB_USER={uid:u.uid,email:u.email,nombre:perfil.nombre||u.email,rol:perfil.rol};
+    aplicarRol(perfil.rol);
+    if(/usuarios\.html$/.test(location.pathname) && perfil.rol!=='admin'){ location.replace('index.html'); return; }
+    $('lubuname').textContent=perfil.nombre||u.email;
+    $('lubrolt').textContent=ROL_TXT[perfil.rol]||perfil.rol;
+    $('lubusuarios').hidden=perfil.rol!=='admin';
+    $('lubuserbar').classList.add('show');
+    /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
+    mostrar('load'); load.textContent='Cargando datos…';
+    _listo=true; procesar();
+  }
+  function salir(){ auth.signOut().then(function(){ location.reload(); }); }
+  $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
+
+  var MSG={'auth/invalid-credential':'Correo o contraseña incorrectos','auth/wrong-password':'Correo o contraseña incorrectos','auth/user-not-found':'Correo o contraseña incorrectos','auth/invalid-email':'El correo no es válido','auth/too-many-requests':'Demasiados intentos. Espera unos minutos e inténtalo de nuevo','auth/network-request-failed':'Sin conexión a internet. Para entrar por primera vez en este dispositivo necesitas señal','auth/user-disabled':'Esta cuenta está deshabilitada','auth/configuration-not-found':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/operation-not-allowed':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/missing-password':'Escribe tu contraseña'};
+
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var email=$('lubgemail').value.trim().toLowerCase(), pass=$('lubgpass').value;
+    if(!email||!pass){ fallo('Escribe tu correo y contraseña'); return; }
+    btn.disabled=true; err.classList.remove('show');
+    auth.signInWithEmailAndPassword(email,pass).catch(function(e){ fallo(MSG[e.code]||('No se pudo entrar ('+e.code+')')); }).then(function(){ btn.disabled=false; });
+  });
+  $('lubgreset').onclick=function(){
+    var email=$('lubgemail').value.trim().toLowerCase();
+    if(!email){ fallo('Escribe tu correo arriba y vuelve a tocar aquí'); return; }
+    auth.sendPasswordResetEmail(email).then(function(){ err.classList.remove('show'); ok.textContent='Te enviamos un correo a '+email+' para crear una contraseña nueva (revisa spam).'; ok.classList.add('show'); }).catch(function(e){ fallo(MSG[e.code]||('No se pudo enviar el correo ('+e.code+')')); });
+  };
+
+  if(DEV){ /* desarrollo local: sin login, datos desde el archivo local, rol admin */
+    desbloquear({uid:'dev',email:'dev@localhost'},{nombre:'Modo desarrollo (localhost)',rol:'admin'});
+    return;
+  }
+  auth.onAuthStateChanged(function(u){
+    if(!u){ mostrar('form'); return; }
+    mostrar('load');
+    var ref=db.collection('usuarios').doc(u.uid);
+    ref.get().then(function(snap){ return snap.exists?snap.data():null; }, function(){ return null; }).then(function(perfil){
+      var esAdminFijo=ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())>=0;
+      if(!perfil && esAdminFijo){
+        perfil={nombre:u.displayName||'Nicolás Saravia',email:u.email,rol:'admin',creado:new Date().toISOString()};
+        ref.set(perfil,{merge:true}).catch(function(){});
+      }
+      if(!perfil || !ROL_TXT[perfil.rol]){
+        if(!perfil) $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') aún no tiene acceso asignado. Pídele al administrador que te habilite.';
+        else $('lubgnoacctxt').textContent='Tu cuenta ('+u.email+') está desactivada.';
+        mostrar('noacc'); return;
+      }
+      if(esAdminFijo) perfil.rol='admin';
+      desbloquear(u,perfil);
+    });
+  });
+})();
+</script>
+
+<header class="noprint">
+  <div class="brand">
+    <a class="logo" href="index.html" aria-label="Ir al buscador"><svg viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2zm0 17.5a3.5 3.5 0 0 1-3.5-3.5c0-.4.33-.75.75-.75s.75.34.75.75a2 2 0 0 0 2 2c.41 0 .75.34.75.75s-.34.75-.75.75z"/></svg></a>
+    <span><h1>Maestro de Lubricación</h1><span class="sub">Concentradora</span></span>
+    <span class="brandright">
+      <img class="tecklogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAAAwCAYAAABUmTXqAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDcuMC1jMDAwIDc5LmRhYmFjYmIsIDIwMjEvMDQvMTQtMDA6Mzk6NDQgICAgICAgICI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6OGVhMTgzYzgtOTg1Zi00MmEwLThiNTQtY2FkNjdkZjA4OTM2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM1MzNBODk3MEVDMjExRUM4RjY0RUMzM0ExRUZBNjRDIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM1MzNBODk2MEVDMjExRUM4RjY0RUMzM0ExRUZBNjRDIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIFBob3Rvc2hvcCAyMi41IChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OGVhMTgzYzgtOTg1Zi00MmEwLThiNTQtY2FkNjdkZjA4OTM2IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjhlYTE4M2M4LTk4NWYtNDJhMC04YjU0LWNhZDY3ZGYwODkzNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PhEM5IEAAAPjSURBVHja7Jx7iE1BHMfPtR7Lisj70Wo9/hERWZTnP+T9D8kjjyRSSvIowj8iUhtSQv4iROsfhRKbLCWSEBLJKzavrLwd3+nOzZg9e+/Z63Xi86lvc2fuzD2nmd/3zpk5595UGIYBAERTjy4AwCAAGAQAgwBgEAAMAoBBADAIAAYBwCAAgEEAMAjAT1OfLshNKpVK5HmFYVhgTs8p+qJzDWO0Y1AxyC8NxF5KuubZvFJB++w3ndopaZiT7ytdYcQwyJ9mnrQ4j3YfpbZ0H2sQiOaYZo9XdAMGgWj20QVcYv0PbJL2emXLpGlOfr+02atzna7DIP88ukx6pOSRt3Cv8qpVqd6ViAV+FyVTpN5SE+mpVCEdVf33WTYGUnYBPloyn1EoPZYuSOVq+ybG5oLZ5RojFTjFV6W7jCoG+avY4FwvLY3o5wUmSFVnhgL9fETbfkp2BeldKZ+F0nBpbo7jG4Ntt8fKcE0awuiwBkkCu6UVWb6ESqTjCuQSL7BHKTlbizkyvIhhjh0R5hjJpgEzSBJmj6lKZjtFt6V10n1phLRWaiA1k8qkCbZdZyUHpcZOWxPQh6QHUntpVDaD5DBHFaODQZLAaue1WXMMVnA+t/lKBfEXpRtsfpzyHfS+WV+skZo7bS9JY/XeU88ArWpbLmEOLrGSPnt0U9LTKdrlmCPDQS+oh6pdQ6VTnXJjoumuOeyGQZgl2LdgDmaQpNPfy89U8I/3ygq8fI8gvcvV1CmrUGDfquOxRzivb2IODJJEWnv5YqtstAhqPpJy8yfPo2WQ3hoGLrESxcc82nySPkeYpq5cdl63kQ5r9mrEkGCQJPHAyy9K5Wa56t3z2g1WcNd1fMwDlTec/AC7aAcMkhjOebPBLHvTsLZFfZFdfN/2zFXsLbjj8FaabNMMc3WMBQwLBkkECvTXwY+7VOZbvFxB2t0xRUtponRE2W1OXf/bfpvqbJR6Sx2lUmmVVJbl+GYGme8Vb1WbQYxOHphfl6HsqqXfysIfKXPe6yS9DGtSLb3zyg447RpJF8PcnLb1z3jlfZzP2uG990Rqx5jXTcwgv2cWeahkUlDzjndRxM5SodPug5KJQfoGYTYaxziNJd7ntLOL9gaMUHzY5s2fO0H6qVw375qkQsFo7m+stOsCd6vX3AQ027gnpD1eu8dqN1Av5wTpBxJLg++/Ozc7ZOZp3p027z89XO2aTZ9jjmueCXPXQOZeyUmGL+aXHT/gjzUj/IpL2ZQNVNPhX+P8uYLTLjPTx26X67IaMAgAu1gAGAQAgwBgEAAMAoBBADAIAAYBAAwCgEEAMAgABgFIAN8EGAA/IG3JuFt/tAAAAABJRU5ErkJggg==" alt="Teck">
+      <span class="adminline">Admin: Nicolás Saravia</span>
+    </span>
+  </div>
+  <nav class="tabs">
+    <a  href="index.html"><svg  viewBox="0 0 24 24"><path d="M12 2C12 2 5.5 9.2 5.5 14a6.5 6.5 0 0 0 13 0C18.5 9.2 12 2 12 2z"/></svg>Maestro</a>
+    <span class="slash">/</span>
+    <a class="on" href="pautas.html"><svg  viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8.5 12h7v1.6h-7zm0 3.6h7v1.6h-7z"/></svg>Pautas</a>
+    <span class="slash">/</span>
+    <a  href="ruta.html"><svg  viewBox="0 0 24 24"><path d="M10 4a2 2 0 0 1 4 0v9.3a4.7 4.7 0 1 1-4 0zm2 14.8a2.3 2.3 0 0 0 1-4.4V5h-2v9.4a2.3 2.3 0 0 0 1 4.4z"/></svg>Ruta Crítica</a>
+    <span class="slash">/</span>
+    <a  href="plan52.html"><svg  viewBox="0 0 24 24"><path d="M9 2h6v3h4v17H5V5h4zm0 5H7v13h10V7h-2v2H9zm2-3v2h2V4zm-2.3 9.8 1.6 1.6 3.9-3.9 1.4 1.4-5.3 5.3-3-3z"/></svg>Plan 52</a>
+    <span class="slash">/</span>
+    <a  href="muestras.html"><svg  viewBox="0 0 24 24"><path d="M10 2h4v2h-1v4.6l5.4 9.4A2.5 2.5 0 0 1 16.2 22H7.8a2.5 2.5 0 0 1-2.2-4l5.4-9.4V4h-1zm3 7.2V4h-2v5.2l-2.3 4h6.6zM8 15l-1.7 3a.9.9 0 0 0 .8 1.4h9.8a.9.9 0 0 0 .8-1.4L16 15z"/></svg>Muestras</a>
+    <span class="slash">/</span>
+    <a href="consumo.html"><svg  viewBox="0 0 24 24"><path d="M5 4h14v2h-1v13a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V6H5zm3 2v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6zm2-4h4v1.5h-4zM9.5 9h5v1.6h-5zm0 3.4h5V14h-5z"/></svg>Consumibles</a>
+    <span class="slash">/</span>
+    <a  href="tendencias.html"><svg  viewBox="0 0 24 24"><path d="M3 3h2v16h16v2H3zm4.6 11.9-1.2-1.6 5-6.6 3.9 3.9 4.3-5.9 1.6 1.2-5.7 7.8-4-4z"/></svg>Tendencias</a>
+    <button id="back">‹ Volver</button>
+  </nav>
+</header>
+<div id="pwabar" class="noprint" hidden>
+  <span class="pwatxt">📲 <b>Instala la app</b> para tenerla como acceso directo en tu teléfono</span>
+  <button id="pwago">Instalar</button>
+  <button id="pwax" aria-label="Cerrar">✕</button>
+</div>
+<div id="pwaios" class="noprint" hidden>
+  <div class="pwacard">
+    <h3>📲 Instalar la app</h3>
+    <div id="pwapasos"></div>
+    <button id="pwaiosok">Entendido</button>
+  </div>
+</div>
+<style>
+#pwabar{display:flex;align-items:center;gap:10px;max-width:820px;margin:10px auto 0;padding:10px 12px;background:var(--orange-soft);border:1px solid var(--orange);border-radius:12px;color:var(--orange-ink);font-size:14px}
+#pwabar[hidden]{display:none}
+#pwabar .pwatxt{flex:1}
+#pwabar button{border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:14px}
+#pwago{background:var(--orange);color:#fff}
+#pwax{background:transparent;color:inherit;padding:6px}
+#pwaios{position:fixed;inset:0;background:rgba(5,10,30,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+#pwaios[hidden]{display:none}
+#pwaios .pwacard{background:var(--surface);color:var(--ink);border-radius:16px;max-width:420px;padding:20px 22px;box-shadow:var(--shadow)}
+#pwaios ol{margin:6px 0 12px;padding-left:20px;line-height:1.6}
+#pwapasos h4{margin:12px 0 2px;font-size:14.5px}
+#pwapasos h4:first-child{margin-top:2px}
+.pwanota{font-size:13px;background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin:10px 0}
+#pwaiosok{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;width:100%;cursor:pointer}
+</style>
+<script>
+(function(){
+  const bar=document.getElementById('pwabar'), go=document.getElementById('pwago'), x=document.getElementById('pwax');
+  const ios=document.getElementById('pwaios'), pasos=document.getElementById('pwapasos');
+  const standalone=matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+  const ua=navigator.userAgent;
+  const esIos=/iphone|ipad|ipod/i.test(ua);
+  const esMovil=esIos||/android/i.test(ua);
+  const enOtraApp=/wv\)|FBAN|FBAV|Instagram|WhatsApp|Line\//i.test(ua);
+  let instPrompt=null;
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); instPrompt=e; });
+  if(standalone || localStorage.getItem('pwaNo')) return;
+  bar.hidden=false; /* siempre visible mientras no esté instalada */
+  go.onclick=async()=>{
+    if(instPrompt){ /* Android/Chrome con instalación directa: un toque y listo */
+      instPrompt.prompt();
+      const r=await instPrompt.userChoice;
+      if(r&&r.outcome==='accepted') bar.hidden=true;
+      instPrompt=null; return;
+    }
+    /* Guía completa: siempre se muestran los pasos de Android Y de iPhone
+       (primero los del teléfono detectado), más la salida desde WhatsApp. */
+    const G_AND='<h4>🤖 En Android (Chrome)</h4><ol><li>Toca el menú <b>⋮</b> de Chrome (arriba a la derecha)</li><li>Elige <b>“Agregar a la pantalla principal”</b> o <b>“Instalar aplicación”</b></li><li>Confirma con <b>Instalar</b> — el ícono queda en tu pantalla</li></ol>';
+    const G_IOS='<h4>🍎 En iPhone (Safari)</h4><ol><li>Toca el botón <b>Compartir</b>: el cuadrado con flecha hacia arriba, abajo al centro de Safari</li><li>Baja en la lista y elige <b>“Añadir a pantalla de inicio”</b></li><li>Toca <b>Añadir</b></li></ol>';
+    const G_APP='<p class="pwanota">⚠️ ¿Abriste este enlace desde <b>WhatsApp u otra app</b>? Ahí no se puede instalar: toca el menú <b>⋮</b> (o <b>···</b>) de esa pantalla, elige <b>“Abrir en el navegador”</b>, y sigue los pasos de arriba.</p>';
+    const G_PC='<p class="pwanota">💻 En el computador: haz clic en el ícono de instalar al final de la barra de direcciones de Chrome o Edge.</p>';
+    let html = esIos ? (G_IOS + G_AND) : (G_AND + G_IOS);
+    html += G_APP;
+    if(!esMovil) html += G_PC;
+    pasos.innerHTML=html; ios.hidden=false;
+  };
+  x.onclick=()=>{ bar.hidden=true; localStorage.setItem('pwaNo','1'); };
+  document.getElementById('pwaiosok').onclick=()=>{ ios.hidden=true; };
+})();
+</script>
+<main>
+  <div id="listado"></div>
+  <div id="form"></div>
+  <div id="informe"></div>
+</main>
+<footer class="noprint">Prototipo pautas digitales · 📴 No requiere internet: los datos y fotos se guardan en este dispositivo · Admin: Nicolás Saravia</footer>
+<div class="savemsg" id="savemsg">✓ Guardado</div>
+<button class="fab-save noprint" id="fabsave"><span class="ic">💾</span><span class="fabtxt">Guardar pauta</span></button>
+<script>
+lubCuandoListo(["overrides", "pautas", "planes"], function(){
+
+const PAUTAS = LUB.datos.pautas;
+const PLANES = LUB.datos.planes; /* {33:{week,turno,days:[{nombre,fecha,ots:[...]}]}} */
+const IMGPLNS = ["QB2-0300-IOC4-PLN-009", "QB2-0300-IOC4-PLN-075", "QB2-0300-IOC4-PLN-076", "QB2-0300-IOC4-PLN-093", "QB2-0300-IOC4-PLN-1003", "QB2-0300-IOC4-PLN-1045", "QB2-0300-IOC4-PLN-1048", "QB2-0300-IOC4-PLN-1062", "QB2-0300-IOC4-PLN-1063", "QB2-0300-IOC4-PLN-1067", "QB2-0300-IOC4-PLN-1113", "QB2-0300-IOC4-PLN-1290", "QB2-0300-IOC4-PLN-168", "QB2-0300-IOC4-PLN-172", "QB2-0300-IOC4-PLN-177", "QB2-0300-IOC4-PLN-182", "QB2-0300-IOC4-PLN-187", "QB2-0300-IOC4-PLN-382", "QB2-0300-IOC4-PLN-425", "QB2-0300-IOC4-PLN-457", "QB2-0300-IOC4-PLN-459", "QB2-0300-IOC4-PLN-481", "QB2-0300-IOC4-PLN-483", "QB2-0300-IOC4-PLN-484", "QB2-0300-IOC4-PLN-530", "QB2-0300-IOC4-PLN-549", "QB2-0300-IOC4-PLN-569", "QB2-0300-IOC4-PLN-571", "QB2-0300-IOC4-PLN-574", "QB2-0300-IOC4-PLN-575", "QB2-0300-IOC4-PLN-576", "QB2-0300-IOC4-PLN-577", "QB2-0300-IOC4-PLN-578", "QB2-0300-IOC4-PLN-579", "QB2-0300-IOC4-PLN-580", "QB2-0300-IOC4-PLN-614", "QB2-0300-IOC4-PLN-615", "QB2-0300-IOC4-PLN-617", "QB2-0300-IOC4-PLN-618", "QB2-0300-IOC4-PLN-638", "QB2-0300-IOC4-PLN-639", "QB2-0300-IOC4-PLN-640", "QB2-0300-IOC4-PLN-641", "QB2-0300-IOC4-PLN-647", "QB2-0300-IOC4-PLN-648", "QB2-0300-IOC4-PLN-659", "QB2-0300-IOC4-PLN-660", "QB2-0300-IOC4-PLN-661", "QB2-0300-IOC4-PLN-663", "QB2-0300-IOC4-PLN-664", "QB2-0300-IOC4-PLN-665", "QB2-0300-IOC4-PLN-666", "QB2-0300-IOC4-PLN-667", "QB2-0300-IOC4-PLN-668", "QB2-0300-IOC4-PLN-669", "QB2-0300-IOC4-PLN-671", "QB2-0300-IOC4-PLN-672", "QB2-0300-IOC4-PLN-673", "QB2-0300-IOC4-PLN-676", "QB2-0300-IOC4-PLN-677", "QB2-0300-IOC4-PLN-689", "QB2-0300-IOC4-PLN-690", "QB2-0300-IOC4-PLN-727", "QB2-0300-IOC4-PLN-728", "QB2-0300-IOC4-PLN-729", "QB2-0300-IOC4-PLN-730", "QB2-0300-IOC4-PLN-733", "QB2-0300-IOC4-PLN-734", "QB2-0300-IOC4-PLN-735", "QB2-0300-IOC4-PLN-738", "QB2-0300-IOC4-PLN-739", "QB2-0300-IOC4-PLN-740", "QB2-0300-IOC4-PLN-741", "QB2-0300-IOC4-PLN-748", "QB2-0300-IOC4-PLN-759", "QB2-0300-IOC4-PLN-760", "QB2-0300-IOC4-PLN-785", "QB2-0300-IOC4-PLN-813", "QB2-0300-IOC4-PLN-814", "QB2-0300-IOC4-PLN-815", "QB2-0300-IOC4-PLN-816", "QB2-0300-IOC4-PLN-818", "QB2-0300-IOC4-PLN-820", "QB2-0300-IOC4-PLN-821", "QB2-0300-IOC4-PLN-823", "QB2-0300-IOC4-PLN-824", "QB2-0300-IOC4-PLN-826", "QB2-0300-IOC4-PLN-827", "QB2-0300-IOC4-PLN-832", "QB2-0300-IOC4-PLN-837", "QB2-0300-IOC4-PLN-841", "QB2-0300-IOC4-PLN-843", "QB2-0300-IOC4-PLN-844", "QB2-0300-IOC4-PLN-846", "QB2-0300-IOC4-PLN-847", "QB2-0300-IOC4-PLN-848", "QB2-0300-IOC4-PLN-850", "QB2-0300-IOC4-PLN-870", "QB2-0300-IOC4-PLN-871", "QB2-0300-IOC4-PLN-872", "QB2-0300-IOC4-PLN-873", "QB2-0300-IOC4-PLN-874", "QB2-0300-IOC4-PLN-875", "QB2-0300-IOC4-PLN-876", "QB2-0300-IOC4-PLN-877", "QB2-0300-IOC4-PLN-878", "QB2-0300-IOC4-PLN-879", "QB2-0300-IOC4-PLN-881", "QB2-0300-IOC4-PLN-882", "QB2-0300-IOC4-PLN-883", "QB2-0300-IOC4-PLN-884", "QB2-0300-IOC4-PLN-885", "QB2-0300-IOC4-PLN-890", "QB2-0300-IOC4-PLN-906", "QB2-0300-IOC4-PLN-910", "QB2-0300-IOC4-PLN-914", "QB2-0300-IOC4-PLN-918", "QB2-0300-IOC4-PLN-956", "QB2-0300-IOC4-PLN-957", "QB2-0300-IOC4-PLN-958", "QB2-0300-IOC4-PLN-960", "QB2-0300-IOC4-PLN-963", "QB2-0300-IOC4-PLN-964", "QB2-0300-IOC4-PLN-965", "QB2-0300-IOC4-PLN-966", "QB2-0300-IOC4-PLN-967", "QB2-0300-IOC4-PLN-968", "QB2-0300-IOC4-PLN-969", "QB2-0300-IOC4-PLN-970", "QB2-0300-IOC4-PLN-971", "QB2-0300-IOC4-PLN-972", "QB2-0300-IOC4-PLN-973", "QB2-0300-IOC4-PLN-974", "QB2-0300-IOC4-PLN-975", "QB2-0300-IOC4-PLN-979", "QB2-0300-IOC4-PLN-980", "QB2-0300-IOC4-PLN-981", "QB2-0300-IOC4-PLN-982", "QB2-0300-IOC4-PLN-984", "QB2-0300-IOC4-PLN-985", "QB2-0300-IOC4-PLN-988", "QB2-0300-MTN2-PLN-050", "QB2-0600-IOC4-PLN-094", "QB2-0600-IOC4-PLN-098", "QB2-0600-IOC4-PLN-099", "QB2-0600-MTN2-PLN-027", "QB2-0600-MTN2-PLN-043", "QB2-0600-MTN2-PLN-045", "QB2-0600-MTN2-PLN-047", "QB2-1400-IOC4-PLN-007"];
+const OVERRIDES = LUB.datos.overrides;
+const byId = Object.fromEntries(PAUTAS.map(p=>[p.id,p]));
+/* fechas: jueves de la semana 33 = 13.08.2026; la semana laboral va de jueves a miércoles,
+   así que la semana actual se calcula sola a partir de esa ancla (no dejar fija). */
+const ANCHOR = new Date(2026,7,13);
+const SEMANA_ACTUAL = Math.min(52, Math.max(1, 33 + Math.floor((Date.now()-ANCHOR.getTime())/(7*24*3600*1000))));
+const $=s=>document.querySelector(s);
+const esc=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fmt=d=>String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');
+function rangoSemana(w){ const j=new Date(ANCHOR); j.setDate(j.getDate()+(w-33)*7); const m=new Date(j); m.setDate(m.getDate()+6); return {ini:j,fin:m}; }
+/* se entra por el selector de semanas (la actual viene destacada) */
+let view={name:'semanas'};
+
+/* input type=time exige "HH:MM" exacto: normaliza valores antiguos tipo "8:00" */
+const horaNorm = h=>{ const m=/^(\d{1,2}):(\d{2})/.exec((h||'').trim()); return m?String(m[1]).padStart(2,'0')+':'+m[2]:''; };
+const K = ot=>'pinsp_'+ot;
+const load = ot=>{ try{return JSON.parse(localStorage.getItem(K(ot)))||{}}catch(e){return {}} };
+
+/* ---- Nube (Firebase Firestore): cada teléfono sube su avance cuando tiene señal.
+   Si no hay internet, Firestore lo guarda en su propia cola local y lo sube solo
+   apenas vuelva la conexión — no hace falta reintentar nada a mano. */
+const firebaseConfig = {
+  apiKey: "AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",
+  authDomain: "lubricacion-teck-qb.firebaseapp.com",
+  projectId: "lubricacion-teck-qb",
+  storageBucket: "lubricacion-teck-qb.firebasestorage.app",
+  messagingSenderId: "697204585611",
+  appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
+};
+let cloudDb=null, cloudOk=false;
+try{
+  if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); /* el candado (gate.html) ya la inicializa */
+  cloudDb=firebase.firestore();
+  cloudDb.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+  cloudOk=true;
+}catch(e){ cloudOk=false; }
+
+function syncCloud(ot,d){
+  if(!cloudOk) return;
+  try{
+    cloudDb.collection('pautas').doc(ot).set({
+      ot: d.ot||ot, tecnico: d.tecnico||'', tecnico2: d.tecnico2||'', fecha: d.fecha||'', hini: d.hini||'', hter: d.hter||'',
+      obsg: d.obsg||'', acts: d.acts||{}, updatedAt: new Date().toISOString()
+    }, {merge:true}).catch(()=>{});
+  }catch(e){}
+}
+
+const save = (ot,d)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(ot),JSON.stringify(d)); syncCloud(ot,d); flash(); };
+let flashT; function flash(msg){ const m=$('#savemsg'); m.textContent=msg||'✓ Guardado'; m.classList.add('show'); clearTimeout(flashT); flashT=setTimeout(()=>m.classList.remove('show'),1100); }
+
+let dbp=null;
+function idb(){ if(dbp) return dbp;
+  dbp=new Promise((res,rej)=>{ const r=indexedDB.open('pautasfotos',1);
+    r.onupgradeneeded=()=>r.result.createObjectStore('fotos');
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); });
+  return dbp; }
+async function fotoPut(k,blob){ const db=await idb(); return new Promise((res,rej)=>{ const t=db.transaction('fotos','readwrite'); t.objectStore('fotos').put(blob,k); t.oncomplete=res; t.onerror=()=>rej(t.error); }); }
+async function fotoGet(k){ const db=await idb(); return new Promise((res)=>{ const r=db.transaction('fotos').objectStore('fotos').get(k); r.onsuccess=()=>res(r.result||null); r.onerror=()=>res(null); }); }
+async function fotoDel(k){ const db=await idb(); return new Promise((res)=>{ const t=db.transaction('fotos','readwrite'); t.objectStore('fotos').delete(k); t.oncomplete=res; t.onerror=res; }); }
+function comprimir(file){ return new Promise(res=>{ const img=new Image(); img.onload=()=>{ const M=1100; let w=img.width,h=img.height; if(w>M){h=h*M/w;w=M} if(h>M){w=w*M/h;h=M}
+  const c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+  c.toBlob(b=>res(b),'image/jpeg',.65); URL.revokeObjectURL(img.src); }; img.src=URL.createObjectURL(file); }); }
+
+function otObj(ot){ for(const w of Object.values(PLANES)) for(const d of w.days) for(const o of d.ots) if(o.ot===ot) return o; return null; }
+function limFor(o,a){ const ov=(OVERRIDES[o.pauta]||{})[o.tag]||{}; return {lim: ov[a.n]||a.lim, custom: !!ov[a.n]}; }
+function reqComplete(o,d){
+  const p=byId[o.pauta]; d.acts=d.acts||{};
+  if(!(d.ot||'').trim()) return false;
+  for(const a of p.acts){
+    const st=d.acts[a.n]||{};
+    if(!st.e) return false;
+    if(/^MEDIR/i.test(a.d) && st.e!=='NA' && !(st.v||'').toString().trim()) return false;
+  }
+  return true;
+}
+function progress(o){
+  const p=byId[o.pauta]; const d=load(o.ot);
+  const total=p.acts.length;
+  const done=p.acts.filter(a=>d.acts&&d.acts[a.n]&&d.acts[a.n].e).length;
+  return {done,total};
+}
+
+/* ---------- vistas ---------- */
+function render(){
+  $('#form').innerHTML=''; $('#listado').innerHTML='';
+  $('#back').style.display = view.name==='semanas' ? 'none' : 'block';
+  $('#fabsave').classList.remove('show','saved');
+  if(view.name==='semanas') renderSemanas();
+  else if(view.name==='dias') renderDias();
+  else if(view.name==='dia') renderDia();
+  else if(view.name==='formulario') renderForm();
+  barraVolver();
+  window.scrollTo(0,0);
+}
+function barraVolver(){
+  if(view.name==='semanas') return;
+  const cont=[...document.querySelectorAll('#listado,#form,#resumen,#planilla')].find(e=>e&&e.innerHTML.trim());
+  if(!cont) return;
+  const nivel1=(view.name==='dias');
+  const div=document.createElement('div');
+  div.className='navvolver noprint';
+  div.innerHTML=(nivel1?'':'<button class="bvolver" id="bvolver">‹ Volver</button>')+
+    '<button class="bvolver cal" id="bcal"><svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h4v18H3V4h4zm12 8H5v10h14zM5 8h14V6H5z"/></svg>Volver al calendario</button>';
+  cont.prepend(div);
+  const bv=div.querySelector('#bvolver'); if(bv) bv.onclick=goBack;
+  div.querySelector('#bcal').onclick=()=>{ view={name:'semanas'}; render(); };
+}
+function goBack(){
+  if(view.name==='formulario') view={name:'dia',week:view.week,di:view.di};
+  else if(view.name==='dia') view={name:'dias',week:view.week};
+  else view={name:'semanas'};
+  render();
+}
+$('#back').onclick=goBack;
+
+function renderSemanas(){
+  let cards='';
+  for(let w=1;w<=52;w++){
+    const t=(w%2===1)?'A':'B';
+    const r=rangoSemana(w);
+    const has=!!PLANES[w];
+    cards+=`<button class="wcard ${w===SEMANA_ACTUAL?'now':''} ${has?'':'nodata'}" data-w="${w}">
+      <div class="wn">Semana ${w}</div>
+      <div class="wd">Jue ${fmt(r.ini)} – Mié ${fmt(r.fin)}</div>
+      <span class="wt ${t}">TURNO ${t}</span>
+    </button>`;
+  }
+  $('#listado').innerHTML=`
+    <div class="dayhdr">Plan semanal ${new Date().getFullYear()===2026?'2026':''}</div>
+    <p class="daysub">Jornada 7×7 · semanas impares <b>Turno A</b>, pares <b>Turno B</b>. Estás en la <b>Semana ${SEMANA_ACTUAL} · Turno ${SEMANA_ACTUAL%2===1?'A':'B'}</b>.</p>
+    <div class="wgrid">${cards}</div>`;
+  document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'dias',week:+b.dataset.w}; render(); });
+}
+
+function renderDias(){
+  const w=view.week; const t=(w%2===1)?'A':'B'; const plan=PLANES[w];
+  const r=rangoSemana(w);
+  let body;
+  if(!plan){
+    body=`<div class="hint">📭 El programa de la Semana ${w} aún no está cargado.<br><br>Cuando llegue el plan semanal, el administrador lo sube y aparecerá aquí.</div>`;
+  } else {
+    const hoy=fmt(new Date());
+    body=plan.days.map((d,i)=>{
+      const conp=d.ots.filter(o=>o.pauta).length;
+      const esHoy=d.fecha===hoy;
+      return `<button class="dcard ${esHoy?'now':''}" data-i="${i}">
+        <span class="dn">${esc(d.nombre)}${esHoy?'<span class="hoytag">HOY</span>':''}</span><span class="df">${esc(d.fecha)}</span>
+        <span class="dc"><b>${d.ots.length}</b> OT · ${conp} con pauta digital</span>
+      </button>`;
+    }).join('');
+  }
+  $('#listado').innerHTML=`
+    <div class="dayhdr">Semana ${w} · Turno ${t}</div>
+    <p class="daysub">Jueves ${fmt(r.ini)} al Miércoles ${fmt(r.fin)} (jornada 7×7)</p>
+    ${body}`;
+  document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'dia',week:w,di:+b.dataset.i}; render(); });
+}
+
+function renderDia(){
+  const plan=PLANES[view.week]; const d=plan.days[view.di];
+  $('#listado').innerHTML=`
+    <div class="dayhdr">${esc(d.nombre)} ${esc(d.fecha)} · Semana ${view.week}</div>
+    <p class="daysub">${d.ots.length} órdenes de trabajo · toca una con pauta digital para llenarla.</p>
+    ${d.ots.map(o=>{
+      if(!o.pauta) return `<div class="otcard nop">
+        <div class="otinfo">
+          <div class="tag mono">${esc(o.tag)}</div>
+          <div class="otd">${esc(o.desc)}</div>
+          <div class="otmeta">OT ${o.ot} · ${esc(o.esp)}</div>
+        </div>
+        <div class="prog"><span class="ring sind">Sin pauta digital</span></div>
+      </div>`;
+      const pr=progress(o);
+      const cls=pr.done===0?'p0':(pr.done>=pr.total?'done':'part');
+      const txt=pr.done===0?'Pendiente':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total);
+      return `<button class="otcard" data-ot="${o.ot}">
+        <div class="otinfo">
+          <div class="tag mono">${esc(o.tag)}</div>
+          <div class="otd">${esc(o.desc)}</div>
+          <div class="otmeta">OT ${o.ot} · ${esc(byId[o.pauta].titulo)} · ${esc(o.pauta)}</div>
+        </div>
+        <div class="prog"><span class="ring ${cls}">${txt}</span></div>
+      </button>`;
+    }).join('')}`;
+  document.querySelectorAll('.otcard[data-ot]').forEach(b=>b.onclick=()=>{ view={name:'formulario',week:view.week,di:view.di,ot:b.dataset.ot}; render(); });
+}
+
+let cur=null;
+const cloudChecked=new Set();
+function syncFromCloudIfNeeded(ot){
+  if(!cloudOk || cloudChecked.has(ot)) return;
+  cloudChecked.add(ot);
+  const local=load(ot);
+  const localHasData = !!(local.ot || Object.keys(local.acts||{}).some(k=>local.acts[k]&&local.acts[k].e));
+  if(localHasData) return; /* este dispositivo ya tiene su propio avance: nunca lo pisamos */
+  cloudDb.collection('pautas').doc(ot).get().then(snap=>{
+    if(!snap.exists) return;
+    const cloud=snap.data();
+    const cloudHasData = !!(cloud.ot || Object.keys(cloud.acts||{}).some(k=>cloud.acts[k]&&cloud.acts[k].e));
+    if(!cloudHasData) return;
+    /* Dispositivo nuevo sin datos propios (ej: PC de oficina): traemos lo que
+       se completó en el celular. */
+    localStorage.setItem(K(ot),JSON.stringify({
+      ot:cloud.ot||'', tecnico:cloud.tecnico||'', tecnico2:cloud.tecnico2||'', fecha:cloud.fecha||'', hini:cloud.hini||'', hter:cloud.hter||'',
+      obsg:cloud.obsg||'', acts:cloud.acts||{}
+    }));
+    if(view.name==='formulario' && view.ot===ot){ flash('☁ Datos traídos desde la nube'); render(); }
+  }).catch(()=>{});
+}
+
+function renderForm(){
+  const ot=view.ot; cur=ot;
+  const o=otObj(ot); const p=byId[o.pauta]; const d=load(ot);
+  syncFromCloudIfNeeded(ot);
+  const plan=PLANES[view.week]; const dia=plan.days[view.di];
+  d.acts=d.acts||{};
+  let lastG=null; let actsHtml='';
+  for(const a of p.acts){
+    if(a.g!==lastG){ actsHtml+=`<div class="grp">${esc(a.g||'Actividades')}</div>`; lastG=a.g; }
+    const st=d.acts[a.n]||{};
+    const medir=/^MEDIR/i.test(a.d);
+    const L=limFor(o,a);
+    actsHtml+=`<div class="act" data-n="${a.n}">
+      <div class="ad"><span class="an">${a.n}.</span>${esc(a.d)}</div>
+      ${L.lim?`<div class="lim ${L.custom?'ov':''}">${L.custom?'⭐ Parámetro específico de este equipo:\n':''}${esc(L.lim)}</div>`:''}
+      <div class="actrow">
+        ${medir?`<input class="val" inputmode="decimal" placeholder="Valor medido *" value="${esc(st.v||'')}">`:''}
+        <div class="chips">
+          <button class="chip B ${st.e==='B'?'on':''}">B</button>
+          <button class="chip M ${st.e==='M'?'on':''}">M</button>
+          <button class="chip NA ${st.e==='NA'?'on':''}">N/A</button>
+        </div>
+      </div>
+      <input class="obs" placeholder="Observación (opcional)" value="${esc(st.o||'')}">
+    </div>`;
+  }
+  const hasImg=IMGPLNS.includes(o.pauta);
+  $('#form').innerHTML=`
+    <div class="fhdr">
+      <div class="tag mono">${esc(o.tag)}</div>
+      <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
+      <div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=93" alt="Equipo">`:''}
+      <div class="otfield">
+        <label>⚠ N° Orden de Trabajo (obligatorio)</label>
+        <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
+      </div>
+      <div class="frow">
+        <div><label>Técnico 1</label><input id="ftec" value="${esc(d.tecnico||'')}" placeholder="Nombre y apellido"></div>
+        <div><label>Técnico 2 (opcional)</label><input id="ftec2" value="${esc(d.tecnico2||'')}" placeholder="Nombre y apellido"></div>
+        <div><label>Fecha</label><input id="ffecha" value="${esc(d.fecha||new Date().toLocaleDateString('es-CL'))}"></div>
+        <div><label>Hora inicio</label><input id="fini" type="time" value="${esc(horaNorm(d.hini))}"></div>
+        <div><label>Hora término</label><input id="fter" type="time" value="${esc(horaNorm(d.hter))}"></div>
+      </div>
+      <button class="borrartop" id="blimpiar2">🗑 Borrar todos los datos ingresados en esta pauta</button>
+    </div>
+    ${actsHtml}
+    <div class="grp">Observaciones generales</div>
+    <textarea class="obsg" id="fobsg" placeholder="Observaciones generales de la inspección…">${esc(d.obsg||'')}</textarea>
+    <div class="fotos" id="fotos"></div>
+    <div class="btnbar">
+      <button class="btn ghost" id="blimpiar">Borrar datos</button>
+      <button class="btn primary" id="bimprimir">📄 Informe / Imprimir</button>
+    </div>
+    <div class="btnbar">
+      <button class="btn primary" id="bemail" disabled>⬇ Descargar PDF (formato Máximo)</button>
+    </div>
+    <div class="lockmsg" id="femaillock">🔒 Para descargar el PDF completa los campos obligatorios: <b>N° de OT</b>, el <b>estado (B/M/N/A)</b> de todas las actividades y el <b>valor medido</b> de cada MEDIR.</div>
+    <p class="fsub">💡 Esta pauta también se puede abrir y descargar más tarde desde un computador de oficina — se sincroniza sola apenas haya internet.</p>
+    <div class="fabspacer"></div>`;
+  const persist=()=>{
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.tecnico2=$('#ftec2').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    save(ot,d); renderFotos(o,d);
+  };
+  ['#fot','#ftec','#ftec2','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
+  const bemail=$('#bemail');
+  if(bemail) bemail.onclick=()=>descargarPdf(o,d);
+  if(navigator.onLine) cargarLibsPdf().catch(()=>{}); /* precarga: el botón responde al instante */
+  document.querySelectorAll('.act').forEach(el=>{
+    const n=el.dataset.n;
+    const st=()=> d.acts[n]=d.acts[n]||{};
+    const v=el.querySelector('.val');
+    if(v) v.addEventListener('change',()=>{ st().v=v.value; save(ot,d); renderFotos(o,d); });
+    el.querySelector('.obs').addEventListener('change',()=>{ st().o=el.querySelector('.obs').value; save(ot,d); });
+    el.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+      const val=c.classList.contains('B')?'B':(c.classList.contains('M')?'M':'NA');
+      st().e = (st().e===val)? '' : val;
+      el.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+      if(st().e) c.classList.add('on');
+      save(ot,d); renderFotos(o,d);
+    });
+  });
+  const borrarTodo=async()=>{ if(confirm('¿Borrar TODOS los datos y fotos ingresados en esta pauta? Esta acción no se puede deshacer.')){
+    localStorage.removeItem(K(ot)); for(let i=0;i<3;i++) await fotoDel(ot+'_'+i);
+    /* borrar también la copia en la nube: si queda, al reabrir la pauta el sync
+       la traería de vuelta y los datos "borrados" resucitarían */
+    try{ if(cloudOk) cloudDb.collection('pautas').doc(ot).delete().catch(()=>{}); }catch(e){}
+    flash('🗑 Pauta borrada');
+    render(); } };
+  $('#blimpiar').onclick=borrarTodo;
+  if($('#blimpiar2')) $('#blimpiar2').onclick=borrarTodo;
+  $('#bimprimir').onclick=async()=>{ await renderInforme(ot); window.print(); };
+  renderFotos(o,d);
+
+  /* Guardado explícito: recoge TODO lo que haya en pantalla (incluso campos sin confirmar aún) y lo escribe en el dispositivo. No requiere internet: usa localStorage/IndexedDB del propio teléfono. */
+  const fab=$('#fabsave'); const fabtxt=fab.querySelector('.fabtxt');
+  function saveAll(){
+    d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.tecnico2=$('#ftec2').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
+    document.querySelectorAll('.act').forEach(el=>{
+      const n=el.dataset.n; const st=d.acts[n]=d.acts[n]||{};
+      const v=el.querySelector('.val'); if(v) st.v=v.value;
+      st.o=el.querySelector('.obs').value;
+    });
+    save(ot,d); renderFotos(o,d);
+    fab.classList.add('saved'); fabtxt.textContent='✓ Guardado en tu teléfono';
+    flash('💾 Pauta guardada — no necesitas internet');
+    setTimeout(()=>{ fab.classList.remove('saved'); fabtxt.textContent='Guardar pauta'; },1800);
+  }
+  fab.classList.add('show'); fab.onclick=saveAll;
+}
+
+async function renderFotos(o,d){
+  const bemail=$('#bemail'), lockmsg=$('#femaillock');
+  if(bemail){ const ok2=reqComplete(o,d); bemail.disabled=!ok2; if(lockmsg) lockmsg.style.display=ok2?'none':''; }
+  const box=$('#fotos'); if(!box) return;
+  const ok=reqComplete(o,d);
+  if(!ok){
+    box.className='fotos locked';
+    box.innerHTML=`<h3>📷 Fotografías (3)</h3>
+      <div class="lockmsg">🔒 Para habilitar las fotos completa los campos obligatorios: <b>N° de OT</b>, el <b>estado (B/M/N/A)</b> de todas las actividades y el <b>valor medido</b> de cada MEDIR.</div>`;
+    return;
+  }
+  box.className='fotos';
+  const slots=[];
+  for(let i=0;i<3;i++) slots.push(await fotoGet(cur+'_'+i));
+  box.innerHTML=`<h3>📷 Fotografías (3)</h3>
+    <p class="fsub">Toca un recuadro para tomar la foto con la cámara o elegirla de la galería.</p>
+    <div class="fgrid">${slots.map((b,i)=> b
+      ? `<div class="fslot" data-i="${i}"><img src="${URL.createObjectURL(b)}"><button class="del" data-i="${i}">✕</button></div>`
+      : `<label class="fslot"><span class="cam">📷</span>Foto ${i+1}<input type="file" accept="image/*" capture="environment" data-i="${i}" hidden></label>`
+    ).join('')}</div>`;
+  box.querySelectorAll('input[type=file]').forEach(inp=>inp.addEventListener('change',async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const blob=await comprimir(f);
+    await fotoPut(cur+'_'+inp.dataset.i, blob);
+    flash('📷 Foto guardada');
+    renderFotos(o,load(cur));
+  }));
+  box.querySelectorAll('.del').forEach(b=>b.onclick=async()=>{ await fotoDel(cur+'_'+b.dataset.i); renderFotos(o,load(cur)); });
+}
+
+async function renderInforme(ot){
+  const o=otObj(ot); const p=byId[o.pauta]; const d=load(ot); d.acts=d.acts||{};
+  const plan=PLANES[view.week]; const dia=plan.days[view.di];
+  let rows=''; let lastG=null;
+  for(const a of p.acts){
+    if(a.g!==lastG){ rows+=`<tr class="gr"><td colspan="5">${esc(a.g||'Actividades')}</td></tr>`; lastG=a.g; }
+    const st=d.acts[a.n]||{};
+    const L=limFor(o,a);
+    rows+=`<tr><td>${a.n}</td><td>${esc(a.d)}${L.custom?' ⭐':''}</td><td>${esc(st.v||'')}</td><td style="text-align:center;font-weight:700">${esc(st.e||'')}</td><td>${esc(st.o||'')}</td></tr>`;
+  }
+  /* Las fotos NO van en informes ni PDFs: quedan solo guardadas en la app
+     (dispositivo + nube), como respaldo interno de la inspección. */
+  const fotos=[];
+  $('#informe').innerHTML=`<div class="rep repwrap">
+    <div class="rh">
+      <div><h2>Pauta de Inspección — ${esc(p.titulo)}</h2>
+        <div><b>${esc(o.tag)}</b> · ${esc(o.desc)} · Semana ${view.week} · ${esc(dia.nombre)} ${esc(dia.fecha)}</div></div>
+      <div style="text-align:right"><span class="otbox">OT ${esc(d.ot||o.ot)}</span><br>${esc(o.pauta)}</div>
+    </div>
+    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b></div>
+    <table>
+      <tr><th style="width:24px">N°</th><th>Actividad</th><th style="width:90px">Valor</th><th style="width:52px">Estado</th><th style="width:170px">Observación</th></tr>
+      ${rows}
+    </table>
+    <div style="margin-top:8px"><b>Observaciones generales:</b> ${esc(d.obsg||'—')}</div>
+    ${fotos.length?`<div class="fotosrep">${fotos.map(u=>`<img src="${u}">`).join('')}</div>`:''}
+    <div class="foot"><span>Registrado en terreno con app Maestro de Lubricación · Admin: Nicolás Saravia</span><span>Firma: ______________________</span></div>
+  </div>`;
+}
+
+/* ---------- PDF fiel al Excel: se genera y descarga en el propio dispositivo,
+   sin subir nada a ningún servidor. Funciona en el celular apenas se completa
+   la pauta, o más tarde en un PC de oficina (los datos llegan solos por la nube). */
+let pdfLibsReady=null;
+function cargarLibsPdf(){
+  if(pdfLibsReady) return pdfLibsReady;
+  pdfLibsReady=new Promise((resolve,reject)=>{
+    const scripts=[
+      'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+    ];
+    let left=scripts.length;
+    scripts.forEach(src=>{
+      const s=document.createElement('script'); s.src=src;
+      s.onload=()=>{ if(--left===0) resolve(); };
+      s.onerror=()=>reject(new Error('No se pudo cargar '+src));
+      document.head.appendChild(s);
+    });
+  });
+  return pdfLibsReady;
+}
+function celda(root,sheet,ref){ return root.querySelector(`[id="${sheet}!${ref}"]`); }
+/* Los datos anotados por el técnico se escriben en negrita y más grandes que el
+   texto impreso del formato, para que destaquen igual que una anotación a mano. */
+function marcarCelda(root,sheet,ref,texto,px){
+  const el=celda(root,sheet,ref); if(!el) return;
+  el.textContent=texto;
+  el.style.fontWeight='700';
+  el.style.fontSize=(px||17)+'px';
+  el.style.color='#000';
+}
+
+async function descargarPdf(o,d){
+  const btn=$('#bemail'); if(!btn||btn.disabled) return;
+  const p=byId[o.pauta];
+  if(!p.cellmap || !p.sheet){ alert('Esta pauta todavía no tiene la plantilla de PDF generada. Avisa al admin.'); return; }
+  const original=btn.textContent;
+  btn.disabled=true; btn.textContent='⏳ Preparando…';
+  try{
+    await cargarLibsPdf();
+
+    /* la réplica HTML vive en la nube (datos/rep.<PLN>), no en el sitio público */
+    const html=await LUB.cargar('rep.'+p.id);
+    const cont=document.createElement('div');
+    cont.style.cssText='position:absolute;left:0;top:99999px;background:#fff';
+    cont.innerHTML=html;
+    document.body.appendChild(cont);
+    /* recortar cualquier texto que se derrame por el borde derecho (comportamiento
+       de Excel con celdas sin ajustar): el PDF debe medir exactamente la tabla */
+    const tablaAncho=cont.querySelector('table');
+    if(tablaAncho){ cont.style.width=tablaAncho.offsetWidth+'px'; cont.style.overflow='hidden'; }
+    /* Esperar a que las imágenes (figuras data-URI) y fuentes terminen de cargar:
+       si se mide la altura de las filas antes, los cortes de página quedan
+       desplazados y una página puede rebanar la figura por la mitad.
+       (No usar img.decode() ni requestAnimationFrame: en pestañas en segundo
+       plano quedan pendientes para siempre.) */
+    await Promise.all([...cont.querySelectorAll('img')].map(im=> im.complete ? Promise.resolve() : new Promise(res=>{ im.onload=im.onerror=res; })));
+    if(document.fonts && document.fonts.ready) await document.fonts.ready.catch(()=>{});
+    await new Promise(res=>setTimeout(res,60));
+    void cont.offsetHeight; /* forzar reflow con los tamaños reales de las imágenes */
+
+    const sh=p.sheet, cm=p.cellmap;
+    if(cm.ot) marcarCelda(cont,sh,cm.ot,'OT: '+(d.ot||o.ot));
+    if(cm.empresa) marcarCelda(cont,sh,cm.empresa,'Teck QB2 - Lubricación');
+    if(cm.fecha_inicio && cm.fecha_inicio[0]) marcarCelda(cont,sh,cm.fecha_inicio[0], (d.fecha||'')+' '+(d.hini||''));
+    if(cm.fecha_termino && cm.fecha_termino[0]) marcarCelda(cont,sh,cm.fecha_termino[0], (d.fecha||'')+' '+(d.hter||''));
+    if(cm.tecnicos && cm.tecnicos[0]) marcarCelda(cont,sh,cm.tecnicos[0], d.tecnico||'');
+    if(cm.tecnicos && cm.tecnicos[1] && d.tecnico2) marcarCelda(cont,sh,cm.tecnicos[1], d.tecnico2);
+    for(const a of cm.activities){
+      const st=(d.acts||{})[a.n]||{};
+      if(a.valor && st.v) marcarCelda(cont,sh,a.valor, st.v, 18);
+      if(a.estado){
+        if(st.e) marcarCelda(cont,sh,a.estado, st.e, 18);
+      }else{
+        const marks={B:a.b,M:a.m,NA:a.na};
+        const ref=marks[st.e];
+        if(ref) marcarCelda(cont,sh,ref,'X',18);
+      }
+    }
+
+    /* La FIGURA del equipo debe quedar SIEMPRE en la primera hoja (como en la
+       pauta original de Máximo). Se ajusta DESPUÉS de rellenar los campos (el
+       texto grande de OT/fechas agranda el encabezado): si la fila de FIGURAS
+       termina más abajo de lo que cabe en la página 1, se achican las imágenes
+       lo justo para que la fila completa entre — el texto conserva su tamaño. */
+    if(tablaAncho){
+      void cont.offsetHeight;
+      const capDom=(215.9-2*8)*(tablaAncho.offsetWidth/(279.4-2*8)); /* alto útil de una página, en px del DOM */
+      const figImgs=[...tablaAncho.querySelectorAll('img')].filter(im=>/max-height/.test(im.getAttribute('style')||''));
+      if(figImgs.length){
+        const filaFig=figImgs[0].closest('tr');
+        const imgsFila=figImgs.filter(im=>im.closest('tr')===filaFig);
+        for(let intento=0;intento<5;intento++){
+          const fin=tablaAncho.offsetTop+filaFig.offsetTop+filaFig.offsetHeight;
+          if(fin<=capDom-4) break; /* margen de 4px para no quedar al filo */
+          const totalImg=imgsFila.reduce((s,im)=>s+im.offsetHeight,0);
+          if(totalImg<90) break; /* no achicar más allá de lo legible */
+          const f=Math.max(0.35,(totalImg-(fin-(capDom-4)))/totalImg);
+          imgsFila.forEach(im=>{ im.style.maxHeight=Math.max(30,Math.floor(im.offsetHeight*f))+'px'; });
+          void cont.offsetHeight;
+        }
+      }
+    }
+
+    btn.textContent='⏳ Generando PDF…';
+    /* Posición de cada fila para cortar las páginas justo en el borde de una fila
+       (nunca a mitad de un texto), igual que el PDF paginado que genera Máximo. */
+    const tabla=cont.querySelector('table');
+    const rowTops=tabla?[...tabla.querySelectorAll('tr')].map(tr=>tabla.offsetTop+tr.offsetTop):[];
+    const altoDom=cont.scrollHeight;
+    const canvas=await html2canvas(cont,{scale:1.3,useCORS:true});
+    document.body.removeChild(cont);
+
+    /* Páginas tamaño carta apaisadas con margen, como la pauta impresa desde Máximo. */
+    const {jsPDF}=window.jspdf;
+    const pdfDoc=new jsPDF({unit:'mm',format:'letter',orientation:'landscape'});
+    const MARGEN=8, ANCHO=279.4-2*MARGEN, ALTO=215.9-2*MARGEN;
+    const escala=canvas.height/altoDom;              /* px de canvas por px de DOM */
+    const pxPorMm=canvas.width/ANCHO;                /* px de canvas por mm impreso */
+    const altoPagPx=ALTO*pxPorMm;
+    const cortes=[0];
+    let y=0;
+    while(y+altoPagPx<canvas.height){
+      const tope=y+altoPagPx;
+      let corte=-1;
+      for(const rt of rowTops){
+        const rp=rt*escala;
+        if(rp>y+40*escala && rp<=tope) corte=rp;      /* última fila que cabe entera */
+      }
+      if(corte<0) corte=tope;                         /* fila más alta que la página: cortar igual */
+      cortes.push(corte); y=corte;
+    }
+    cortes.push(canvas.height);
+    for(let i=0;i<cortes.length-1;i++){
+      const hPx=cortes[i+1]-cortes[i];
+      if(hPx<2) continue;
+      const c2=document.createElement('canvas');
+      c2.width=canvas.width; c2.height=Math.ceil(hPx);
+      const ctx=c2.getContext('2d');
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,c2.width,c2.height);
+      ctx.drawImage(canvas,0,cortes[i],canvas.width,hPx,0,0,canvas.width,hPx);
+      if(i>0) pdfDoc.addPage();
+      pdfDoc.addImage(c2.toDataURL('image/jpeg',0.85),'JPEG',MARGEN,MARGEN,ANCHO,hPx/pxPorMm);
+    }
+    pdfDoc.setProperties({title:'Pauta OT '+(d.ot||o.ot)+' - '+(p.titulo||'')});
+    pdfDoc.save('Pauta_OT'+(d.ot||o.ot)+'.pdf');
+
+    flash('⬇ PDF descargado');
+    btn.textContent='✓ Descargado';
+    setTimeout(()=>{ btn.textContent=original; btn.disabled=false; },2000);
+  }catch(e){
+    console.error(e);
+    alert('No se pudo generar el PDF. Intenta de nuevo.\n\n'+(e&&e.message?e.message:''));
+    btn.textContent=original; btn.disabled=false;
+  }
+}
+
+render();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
+
+});
+</script>
+</body>
+</html>

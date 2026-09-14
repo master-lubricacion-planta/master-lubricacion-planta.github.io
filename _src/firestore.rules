@@ -1,0 +1,48 @@
+// Reglas de Firestore — proyecto lubricacion-teck-qb
+// Pegar en: console.firebase.google.com/project/lubricacion-teck-qb/firestore → Reglas → Publicar
+//
+// · Leer cualquier dato exige sesión iniciada (Firebase Authentication).
+// · Escribir exige rol admin o tecnico (usuarios/{uid}.rol). Borrar, solo admin.
+// · Los correos de ADMIN_FIJOS son administradores aunque falte su doc de rol
+//   (arranque inicial) — deben coincidir con ADMIN_EMAILS de gate.html.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function conSesion() { return request.auth != null; }
+    function adminFijo() { return conSesion() && request.auth.token.email in ['nicolassaraviaalegria@gmail.com']; }
+    function tienePerfil() { return conSesion() && exists(/databases/$(db)/documents/usuarios/$(request.auth.uid)); }
+    function rol() { return tienePerfil() ? get(/databases/$(db)/documents/usuarios/$(request.auth.uid)).data.rol : ''; }
+    function esAdmin() { return adminFijo() || rol() == 'admin'; }
+    function puedeEscribir() { return esAdmin() || rol() == 'tecnico'; }
+
+    // perfiles y roles
+    match /usuarios/{uid} {
+      allow read: if conSesion() && (request.auth.uid == uid || esAdmin());
+      allow create, update: if esAdmin() || (adminFijo() && request.auth.uid == uid);
+      allow delete: if esAdmin();
+    }
+
+    // pautas digitales + docs especiales (P52-W<n>, MU-2026-<mm>, CONS-MOVS)
+    match /pautas/{doc} {
+      allow read: if conSesion();
+      allow create, update: if puedeEscribir();
+      allow delete: if esAdmin();
+    }
+
+    // ruta crítica nocturna (doc = fecha)
+    match /ruta/{doc} {
+      allow read: if conSesion();
+      allow create, update: if puedeEscribir();
+      allow delete: if esAdmin();
+    }
+
+    // datos de la app (maestro, pautas, planes, historiales, tendencias):
+    // los publica build.py + publicar_datos.py con cuenta de servicio (salta las
+    // reglas); desde la app solo se leen con sesión
+    match /datos/{doc} {
+      allow read: if conSesion();
+      allow write: if false;
+    }
+  }
+}
