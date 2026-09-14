@@ -329,17 +329,43 @@ try{
   cloudOk=true;
 }catch(e){ cloudOk=false; }
 
-function syncCloud(ot,d){
+/* Multiusuario (fase 2, sep-2026): cada escritura lleva quién y cuándo, y sube SOLO
+   los campos que cambiaron con merge profundo — dos parejas en la misma OT desde
+   distintas tablets no se pisan (acts.3 de una y acts.7 de otra conviven). */
+const ME=()=>window.LUB_USER||{uid:'',nombre:'',email:''};
+function quien(){ const m=ME(); return {uid:m.uid||'',nombre:m.nombre||'',email:m.email||''}; }
+function todo(ot,d){ return {ot:d.ot||ot, tecnico:d.tecnico||'', tecnico2:d.tecnico2||'', fecha:d.fecha||'', hini:d.hini||'', hter:d.hter||'', obsg:d.obsg||'', acts:d.acts||{}}; }
+function syncCloud(ot,d,cambios){
   if(!cloudOk) return;
   try{
-    cloudDb.collection('pautas').doc(ot).set({
-      ot: d.ot||ot, tecnico: d.tecnico||'', tecnico2: d.tecnico2||'', fecha: d.fecha||'', hini: d.hini||'', hter: d.hter||'',
-      obsg: d.obsg||'', acts: d.acts||{}, updatedAt: new Date().toISOString()
-    }, {merge:true}).catch(()=>{});
+    const carga=Object.assign({}, cambios||todo(ot,d), {actualizadoPor:quien(), updatedAt:new Date().toISOString()});
+    if(!d.registradoEn){ d.registradoEn=new Date().toISOString(); carga.registradoPor=quien(); carga.registradoEn=d.registradoEn; localStorage.setItem(K(ot),JSON.stringify(d)); }
+    cloudDb.collection('pautas').doc(ot).set(carga,{merge:true}).catch(()=>{});
   }catch(e){}
 }
+function fusionar(local,nube){ /* la nube (ya fusionada) manda sobre lo local, campo a campo */
+  const r=JSON.parse(JSON.stringify(local||{}));
+  for(const k of ['ot','tecnico','tecnico2','fecha','hini','hter','obsg','registradoEn']) if(nube[k]!==undefined) r[k]=nube[k];
+  r.acts=r.acts||{};
+  for(const n in (nube.acts||{})){ r.acts[n]=Object.assign({}, r.acts[n]||{}, nube.acts[n]); }
+  return r;
+}
+let escuchaOT=null, escuchaFn=null;
+function escuchar(ot){
+  if(escuchaFn){ escuchaFn(); escuchaFn=null; }
+  if(!cloudOk) return;
+  escuchaOT=ot;
+  escuchaFn=cloudDb.collection('pautas').doc(ot).onSnapshot(snap=>{
+    if(!snap.exists || snap.metadata.hasPendingWrites) return;
+    const c=snap.data(); if(c.actualizadoPor && c.actualizadoPor.uid && c.actualizadoPor.uid===ME().uid) return;
+    const local=load(ot), m=fusionar(local,c);
+    if(JSON.stringify(m)===JSON.stringify(local)) return;
+    localStorage.setItem(K(ot),JSON.stringify(m));
+    if(view.name==='formulario' && view.ot===ot){ flash('🔄 Actualizado por '+((c.actualizadoPor&&c.actualizadoPor.nombre)||'otro dispositivo')); render(); }
+  },()=>{});
+}
 
-const save = (ot,d)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(ot),JSON.stringify(d)); syncCloud(ot,d); flash(); };
+const save = (ot,d,cambios)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(ot),JSON.stringify(d)); syncCloud(ot,d,cambios); flash(); };
 let flashT; function flash(msg){ const m=$('#savemsg'); m.textContent=msg||'✓ Guardado'; m.classList.add('show'); clearTimeout(flashT); flashT=setTimeout(()=>m.classList.remove('show'),1100); }
 
 let dbp=null;
@@ -376,6 +402,7 @@ function progress(o){
 
 /* ---------- vistas ---------- */
 function render(){
+  if(view.name!=='formulario' && escuchaFn){ escuchaFn(); escuchaFn=null; }
   $('#form').innerHTML=''; $('#listado').innerHTML='';
   $('#back').style.display = view.name==='semanas' ? 'none' : 'block';
   $('#fabsave').classList.remove('show','saved');
@@ -496,7 +523,7 @@ function syncFromCloudIfNeeded(ot){
        se completó en el celular. */
     localStorage.setItem(K(ot),JSON.stringify({
       ot:cloud.ot||'', tecnico:cloud.tecnico||'', tecnico2:cloud.tecnico2||'', fecha:cloud.fecha||'', hini:cloud.hini||'', hter:cloud.hter||'',
-      obsg:cloud.obsg||'', acts:cloud.acts||{}
+      obsg:cloud.obsg||'', acts:cloud.acts||{}, registradoEn:cloud.registradoEn||''
     }));
     if(view.name==='formulario' && view.ot===ot){ flash('☁ Datos traídos desde la nube'); render(); }
   }).catch(()=>{});
@@ -506,6 +533,9 @@ function renderForm(){
   const ot=view.ot; cur=ot;
   const o=otObj(ot); const p=byId[o.pauta]; const d=load(ot);
   syncFromCloudIfNeeded(ot);
+  if(escuchaOT!==ot || !escuchaFn) escuchar(ot);
+  /* Técnico 1 = quien está logueado (una tablet por pareja: entra uno de los dos) */
+  if(!d.tecnico && ME().nombre && !window.LUB_VIEWER) d.tecnico=ME().nombre;
   const plan=PLANES[view.week]; const dia=plan.days[view.di];
   d.acts=d.acts||{};
   let lastG=null; let actsHtml='';
@@ -540,8 +570,8 @@ function renderForm(){
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
       </div>
       <div class="frow">
-        <div><label>Técnico 1</label><input id="ftec" value="${esc(d.tecnico||'')}" placeholder="Nombre y apellido"></div>
-        <div><label>Técnico 2 (opcional)</label><input id="ftec2" value="${esc(d.tecnico2||'')}" placeholder="Nombre y apellido"></div>
+        <div><label>Técnico 1 (sesión)</label><input id="ftec" value="${esc(d.tecnico||'')}" placeholder="Nombre y apellido" ${ME().nombre?'readonly':''}></div>
+        <div><label>Técnico 2 (opcional)</label><input id="ftec2" list="ltecnicos" value="${esc(d.tecnico2||'')}" placeholder="Elige de la lista o escribe"><datalist id="ltecnicos"></datalist></div>
         <div><label>Fecha</label><input id="ffecha" value="${esc(d.fecha||new Date().toLocaleDateString('es-CL'))}"></div>
         <div><label>Hora inicio</label><input id="fini" type="time" value="${esc(horaNorm(d.hini))}"></div>
         <div><label>Hora término</label><input id="fter" type="time" value="${esc(horaNorm(d.hter))}"></div>
@@ -564,8 +594,9 @@ function renderForm(){
     <div class="fabspacer"></div>`;
   const persist=()=>{
     d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.tecnico2=$('#ftec2').value; d.fecha=$('#ffecha').value; d.hini=$('#fini').value; d.hter=$('#fter').value; d.obsg=$('#fobsg').value;
-    save(ot,d); renderFotos(o,d);
+    save(ot,d,{ot:d.ot,tecnico:d.tecnico,tecnico2:d.tecnico2,fecha:d.fecha,hini:d.hini,hter:d.hter,obsg:d.obsg}); renderFotos(o,d);
   };
+  if(window.LUB && LUB.tecnicos) LUB.tecnicos().then(lista=>{ const dl=$('#ltecnicos'); if(dl) dl.innerHTML=lista.filter(n=>n!==d.tecnico).map(n=>`<option value="${esc(n)}">`).join(''); }).catch(()=>{});
   ['#fot','#ftec','#ftec2','#ffecha','#fini','#fter','#fobsg'].forEach(s=>$(s).addEventListener('change',persist));
   const bemail=$('#bemail');
   if(bemail) bemail.onclick=()=>descargarPdf(o,d);
@@ -574,14 +605,14 @@ function renderForm(){
     const n=el.dataset.n;
     const st=()=> d.acts[n]=d.acts[n]||{};
     const v=el.querySelector('.val');
-    if(v) v.addEventListener('change',()=>{ st().v=v.value; save(ot,d); renderFotos(o,d); });
-    el.querySelector('.obs').addEventListener('change',()=>{ st().o=el.querySelector('.obs').value; save(ot,d); });
+    if(v) v.addEventListener('change',()=>{ st().v=v.value; save(ot,d,{acts:{[n]:{v:v.value}}}); renderFotos(o,d); });
+    el.querySelector('.obs').addEventListener('change',()=>{ st().o=el.querySelector('.obs').value; save(ot,d,{acts:{[n]:{o:st().o}}}); });
     el.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
       const val=c.classList.contains('B')?'B':(c.classList.contains('M')?'M':'NA');
       st().e = (st().e===val)? '' : val;
       el.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
       if(st().e) c.classList.add('on');
-      save(ot,d); renderFotos(o,d);
+      save(ot,d,{acts:{[n]:{e:st().e}}}); renderFotos(o,d);
     });
   });
   const borrarTodo=async()=>{ if(confirm('¿Borrar TODOS los datos y fotos ingresados en esta pauta? Esta acción no se puede deshacer.')){

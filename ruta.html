@@ -233,6 +233,8 @@ html.lub-viewer #lubviewerchip{display:block}
 @media print{#lubviewerchip,#lubuserbar,#lubnuevo{display:none!important}}
 #lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
 #lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
+/* ---- borrar: solo administradores (las reglas de Firestore lo exigen igual) ---- */
+html:not(.lub-admin) #blimpiar,html:not(.lub-admin) .borrartop,html:not(.lub-admin) #rborrar,html:not(.lub-admin) .mdel{display:none!important}
 /* ---- modo visualizador: sin ingreso de datos ---- */
 html.lub-viewer #fabsave{display:none!important}
 html.lub-viewer .offlinetag{display:none!important}
@@ -279,7 +281,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
 <script>
 (function(){
   var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
-  var INGRESO={admin:false,tecnico:false,supervisor:false}; /* enero 2027: admin y tecnico en true */
+  var INGRESO={admin:true,tecnico:false,supervisor:false}; /* fase 2 (sep-2026): el admin ingresa para probar; enero 2027: tecnico en true */
   var ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor'};
   var firebaseConfig={apiKey:"AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",authDomain:"lubricacion-teck-qb.firebaseapp.com",projectId:"lubricacion-teck-qb",storageBucket:"lubricacion-teck-qb.firebasestorage.app",messagingSenderId:"697204585611",appId:"1:697204585611:web:824c3cf28291bdf1ec108e"};
   var root=document.documentElement;
@@ -305,6 +307,13 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
   var _esperas=[], _listo=false, _cargas={}, _paqueteDev=null;
   window.lubCuandoListo=function(nombres,fn){ _esperas.push({n:nombres,fn:fn}); if(_listo) procesar(); };
   function leer(ref){ return ref.get({source:'cache'}).then(function(s){ if(!s.exists) throw 0; return s; }).catch(function(){ return ref.get(); }); }
+  /* nombres de técnicos/administradores activos (para "Técnico 2" / "Nochero 2") */
+  var _tecnicos=null;
+  window.LUB.tecnicos=function(){
+    if(_tecnicos) return _tecnicos;
+    _tecnicos=(DEV?Promise.resolve([]):db.collection('usuarios').get().then(function(q){ var l=[]; q.forEach(function(d){ var u=d.data(); if(u&&(u.rol==='tecnico'||u.rol==='admin')&&u.nombre) l.push(u.nombre); }); return l.sort(); })).catch(function(){ return []; });
+    return _tecnicos;
+  };
   /* carga bajo demanda (ej. réplica HTML de una pauta: LUB.cargar('rep.'+id)) */
   window.LUB.cargar=function(n){ return cargarConjunto(n).then(function(){ return LUB.datos[n]; }); };
   function cargarConjunto(n){
@@ -373,6 +382,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
     $('lubuname').textContent=perfil.nombre||u.email;
     $('lubrolt').textContent=ROL_TXT[perfil.rol]||perfil.rol;
     $('lubusuarios').hidden=perfil.rol!=='admin';
+    root.classList.toggle('lub-admin',perfil.rol==='admin');
     $('lubuserbar').classList.add('show');
     /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
     mostrar('load'); load.textContent='Cargando datos…';
@@ -559,16 +569,40 @@ try{
   cloudOk=true;
 }catch(e){ cloudOk=false; }
 
-function syncCloud(f,d){
+/* Multiusuario (fase 2): quién y cuándo en cada escritura, y solo los puntos que
+   cambiaron (merge profundo) — dos nocheros en la misma ronda no se pisan. */
+const ME=()=>window.LUB_USER||{uid:'',nombre:'',email:''};
+function quien(){ const m=ME(); return {uid:m.uid||'',nombre:m.nombre||'',email:m.email||''}; }
+function syncCloud(f,d,cambios){
   if(!cloudOk) return;
   try{
-    cloudDb.collection('ruta').doc(f).set({
-      fecha:f, noc:d.noc||'', noc2:d.noc2||'', hora:d.hora||'', obs:d.obs||'',
-      vals:d.vals||{}, updatedAt:new Date().toISOString()
-    },{merge:true}).catch(()=>{});
+    const carga=Object.assign({fecha:f}, cambios||{noc:d.noc||'', noc2:d.noc2||'', hora:d.hora||'', obs:d.obs||'', vals:d.vals||{}}, {actualizadoPor:quien(), updatedAt:new Date().toISOString()});
+    if(!d.registradoEn){ d.registradoEn=new Date().toISOString(); carga.registradoPor=quien(); carga.registradoEn=d.registradoEn; localStorage.setItem(K(f),JSON.stringify(d)); }
+    cloudDb.collection('ruta').doc(f).set(carga,{merge:true}).catch(()=>{});
   }catch(e){}
 }
-const save=(f,d)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(f),JSON.stringify(d)); syncCloud(f,d); flash(); };
+const save=(f,d,cambios)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(f),JSON.stringify(d)); syncCloud(f,d,cambios); flash(); };
+function fusionar(local,nube){
+  const r=JSON.parse(JSON.stringify(local||{}));
+  for(const k of ['noc','noc2','hora','obs','registradoEn']) if(nube[k]!==undefined) r[k]=nube[k];
+  r.vals=r.vals||{};
+  for(const id in (nube.vals||{})) r.vals[id]=Object.assign({}, r.vals[id]||{}, nube.vals[id]);
+  return r;
+}
+let escuchaF=null, escuchaFn=null;
+function escuchar(f){
+  if(escuchaFn){ escuchaFn(); escuchaFn=null; }
+  if(!cloudOk) return;
+  escuchaF=f;
+  escuchaFn=cloudDb.collection('ruta').doc(f).onSnapshot(snap=>{
+    if(!snap.exists || snap.metadata.hasPendingWrites) return;
+    const c=snap.data(); if(c.actualizadoPor && c.actualizadoPor.uid && c.actualizadoPor.uid===ME().uid) return;
+    const local=load(f), m=fusionar(local,c);
+    if(JSON.stringify(m)===JSON.stringify(local)) return;
+    localStorage.setItem(K(f),JSON.stringify(m));
+    if(view.name==='registro' && view.f===f){ flash('🔄 Actualizado por '+((c.actualizadoPor&&c.actualizadoPor.nombre)||'otro dispositivo')); render(); }
+  },()=>{});
+}
 let flashT; function flash(msg){ const m=$('#savemsg'); m.textContent=msg||'✓ Guardado'; m.classList.add('show'); clearTimeout(flashT); flashT=setTimeout(()=>m.classList.remove('show'),1100); }
 function datosLlenos(d){ return !!((d.noc||'').trim() || Object.keys(d.vals||{}).some(k=>d.vals[k]&&(d.vals[k].v||d.vals[k].e))); }
 async function syncFromCloudIfNeeded(f){
@@ -579,7 +613,7 @@ async function syncFromCloudIfNeeded(f){
     if(!snap.exists) return;
     const c=snap.data();
     if(!datosLlenos(c)) return;
-    localStorage.setItem(K(f),JSON.stringify({noc:c.noc||'',noc2:c.noc2||'',hora:c.hora||'',obs:c.obs||'',vals:c.vals||{}}));
+    localStorage.setItem(K(f),JSON.stringify({noc:c.noc||'',noc2:c.noc2||'',hora:c.hora||'',obs:c.obs||'',vals:c.vals||{},registradoEn:c.registradoEn||''}));
   }catch(e){}
 }
 
@@ -614,6 +648,7 @@ function goBack(){
 $('#back').onclick=goBack;
 
 function render(){
+  if(view.name!=='registro' && escuchaFn){ escuchaFn(); escuchaFn=null; }
   $('#listado').innerHTML=''; $('#form').innerHTML=''; $('#planilla').innerHTML='';
   $('#fabsave').classList.remove('show');
   $('#back').style.display = view.name==='semanas' ? 'none':'inline-block';
@@ -674,6 +709,8 @@ function renderDias(){
 function renderRegistro(){
   const f=view.f, d=load(f);
   d.vals=d.vals||{};
+  if(escuchaF!==f || !escuchaFn) escuchar(f);
+  if(!d.noc && ME().nombre && !window.LUB_VIEWER) d.noc=ME().nombre; /* Nochero 1 = sesión */
   const fecha=new Date(f+'T12:00:00');
   /* dia de la semana por comparación de fechas exactas (con aritmética de ms
      el mediodía daba 4.5 días y Math.round lo corría al día siguiente) */
@@ -707,8 +744,8 @@ function renderRegistro(){
       <div class="fd">Ruta crítica nocturna · Semana ${view.week} · registra la temperatura/presión de cada punto, o marca su estado (detenido / stand by / sin acceso).</div>
       <div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div>
       <div class="frow">
-        <div><label>Nochero 1</label><input id="rnoc" value="${esc(d.noc||'')}" placeholder="Nombre y apellido"></div>
-        <div><label>Nochero 2 (opcional)</label><input id="rnoc2" value="${esc(d.noc2||'')}" placeholder="Nombre y apellido"></div>
+        <div><label>Nochero 1 (sesión)</label><input id="rnoc" value="${esc(d.noc||'')}" placeholder="Nombre y apellido" ${ME().nombre?'readonly':''}></div>
+        <div><label>Nochero 2 (opcional)</label><input id="rnoc2" list="lnocheros" value="${esc(d.noc2||'')}" placeholder="Elige de la lista o escribe"><datalist id="lnocheros"></datalist></div>
         <div><label>Hora de la ronda</label><input id="rhora" type="time" value="${esc(d.hora||'')}"></div>
         <div><label>Avance</label><div class="ring ${progreso(f)===0?'p0':(progreso(f)>=NITEMS?'done':'part')}" id="ravance" style="display:inline-block;margin-top:6px">${progreso(f)} / ${NITEMS}</div></div>
       </div>
@@ -735,10 +772,12 @@ function renderRegistro(){
     const n=progreso(f), av=$('#ravance');
     if(av){ av.textContent=n+' / '+NITEMS; av.className='ring '+(n===0?'p0':(n>=NITEMS?'done':'part')); }
   }
-  const persist=()=>{ recoger(); save(f,d); refrescarBadges(); };
-  ['#rnoc','#rnoc2','#rhora','#robs'].forEach(s=>$(s).addEventListener('change',persist));
-  document.querySelectorAll('input.iv').forEach(i=>i.addEventListener('change',e=>{ persist(); i.classList.toggle('filled',!!i.value.trim()); }));
-  document.querySelectorAll('select.ie').forEach(s=>s.addEventListener('change',e=>{ persist(); s.classList.toggle('set',!!s.value); }));
+  const cabecera=()=>{ recoger(); save(f,d,{noc:d.noc,noc2:d.noc2,hora:d.hora,obs:d.obs}); refrescarBadges(); };
+  const punto=(id)=>{ recoger(); save(f,d,{vals:{[id]:d.vals[id]}}); refrescarBadges(); };
+  ['#rnoc','#rnoc2','#rhora','#robs'].forEach(s=>$(s).addEventListener('change',cabecera));
+  document.querySelectorAll('input.iv').forEach(i=>i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); }));
+  document.querySelectorAll('select.ie').forEach(s=>s.addEventListener('change',e=>{ punto(s.dataset.id); s.classList.toggle('set',!!s.value); }));
+  if(window.LUB && LUB.tecnicos) LUB.tecnicos().then(lista=>{ const dl=$('#lnocheros'); if(dl) dl.innerHTML=lista.filter(n=>n!==d.noc).map(n=>`<option value="${esc(n)}">`).join(''); }).catch(()=>{});
   $('#rborrar').onclick=()=>{ if(confirm('¿Borrar todo el registro de esta noche?')){
     localStorage.removeItem(K(f));
     try{ if(cloudOk) cloudDb.collection('ruta').doc(f).delete().catch(()=>{}); }catch(e){}

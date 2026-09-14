@@ -18,7 +18,8 @@ service cloud.firestore {
 
     // perfiles y roles
     match /usuarios/{uid} {
-      allow read: if conSesion() && (request.auth.uid == uid || esAdmin());
+      // todos los usuarios con sesión leen la lista (nombres para "Técnico 2"); escribe solo admin
+      allow read: if conSesion();
       allow create, update: if esAdmin() || (adminFijo() && request.auth.uid == uid);
       allow delete: if esAdmin();
     }

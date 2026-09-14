@@ -234,13 +234,30 @@ try{
   try{ cloudDb.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
   cloudOk=true;
 }catch(e){ cloudOk=false; }
-function syncCloud(w,vals){
+const ME=()=>window.LUB_USER||{uid:'',nombre:'',email:''};
+function quien(){ const m=ME(); return {uid:m.uid||'',nombre:m.nombre||'',email:m.email||''}; }
+function syncCloud(w,vals,cambios){ /* solo los equipos que cambiaron (merge profundo) */
   if(!cloudOk) return;
   try{
-    cloudDb.collection('pautas').doc('P52-W'+w).set({p52:true, week:w, vals:vals||{}, updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{});
+    cloudDb.collection('pautas').doc('P52-W'+w).set({p52:true, week:w, vals:cambios||vals||{}, actualizadoPor:quien(), updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{});
   }catch(e){}
 }
-const save=(w,vals)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(w),JSON.stringify(vals)); syncCloud(w,vals); flash(); };
+const save=(w,vals,cambios)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(w),JSON.stringify(vals)); syncCloud(w,vals,cambios); flash(); };
+let escuchaW=null, escuchaFn=null;
+function escuchar(w){
+  if(escuchaFn){ escuchaFn(); escuchaFn=null; }
+  if(!cloudOk) return;
+  escuchaW=w;
+  escuchaFn=cloudDb.collection('pautas').doc('P52-W'+w).onSnapshot(snap=>{
+    if(!snap.exists || snap.metadata.hasPendingWrites) return;
+    const c=snap.data(); if(c.actualizadoPor && c.actualizadoPor.uid && c.actualizadoPor.uid===ME().uid) return;
+    const local=load(w), m=JSON.parse(JSON.stringify(local));
+    for(const n in (c.vals||{})) m[n]=Object.assign({}, m[n]||{}, c.vals[n]);
+    if(JSON.stringify(m)===JSON.stringify(local)) return;
+    localStorage.setItem(K(w),JSON.stringify(m));
+    if(view.name==='semana' && view.week===w){ flash('🔄 Actualizado por '+((c.actualizadoPor&&c.actualizadoPor.nombre)||'otro dispositivo')); render(); }
+  },()=>{});
+}
 let flashT; function flash(msg){ const m=$('#savemsg'); m.textContent=msg||'✓ Guardado'; m.classList.add('show'); clearTimeout(flashT); flashT=setTimeout(()=>m.classList.remove('show'),1100); }
 async function syncFromCloudIfNeeded(w){
   if(!cloudOk) return;
@@ -292,6 +309,7 @@ function goBack(){
 $('#back').onclick=goBack;
 
 function render(){
+  if(view.name!=='semana' && escuchaFn){ escuchaFn(); escuchaFn=null; }
   $('#listado').innerHTML=''; $('#form').innerHTML=''; $('#resumen').innerHTML='';
   $('#fabsave').classList.remove('show');
   $('#back').style.display = view.name==='semanas' ? 'none':'inline-block';
@@ -326,6 +344,7 @@ function renderSemanas(){
 let filtro='todas';
 function renderSemana(){
   const w=view.week, r=rangoSemana(w), st=statsSemana(w);
+  if(escuchaW!==w || !escuchaFn) escuchar(w);
   const areas={};
   for(const it of ITEMS) (areas[it.area]=areas[it.area]||[]).push(it);
   const vals=load(w);
@@ -384,8 +403,9 @@ function renderSemana(){
     const cur=load(w);
     const base=cur[n]||Object.assign({},efectivo(w,n)||{});
     mut(base);
+    base.por=ME().nombre||''; base.t=new Date().toISOString(); /* quién y cuándo */
     cur[n]=base;
-    save(w,cur);
+    save(w,cur,{[n]:base});
   }
   document.querySelectorAll('.item').forEach(el=>{
     const n=el.dataset.n;
@@ -406,7 +426,7 @@ function renderSemana(){
   }
 
   const fab=$('#fabsave'); fab.classList.add('show');
-  fab.onclick=()=>{ save(w,load(w)); fab.classList.add('saved'); fab.querySelector('.fabtxt').textContent='✓ Guardada'; setTimeout(()=>{fab.classList.remove('saved'); fab.querySelector('.fabtxt').textContent='Guardar semana';},1500); };
+  fab.onclick=()=>{ save(w,load(w),null); fab.classList.add('saved'); fab.querySelector('.fabtxt').textContent='✓ Guardada'; setTimeout(()=>{fab.classList.remove('saved'); fab.querySelector('.fabtxt').textContent='Guardar semana';},1500); };
 
   syncFromCloudIfNeeded(w).then(()=>{ if(view.name==='semana'&&view.week===w&&Object.keys(load(w)).length&&!Object.keys(vals).length) render(); });
 }

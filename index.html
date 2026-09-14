@@ -62,6 +62,8 @@ html.lub-viewer #lubviewerchip{display:block}
 @media print{#lubviewerchip,#lubuserbar,#lubnuevo{display:none!important}}
 #lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
 #lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
+/* ---- borrar: solo administradores (las reglas de Firestore lo exigen igual) ---- */
+html:not(.lub-admin) #blimpiar,html:not(.lub-admin) .borrartop,html:not(.lub-admin) #rborrar,html:not(.lub-admin) .mdel{display:none!important}
 /* ---- modo visualizador: sin ingreso de datos ---- */
 html.lub-viewer #fabsave{display:none!important}
 html.lub-viewer .offlinetag{display:none!important}
@@ -108,7 +110,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
 <script>
 (function(){
   var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
-  var INGRESO={admin:false,tecnico:false,supervisor:false}; /* enero 2027: admin y tecnico en true */
+  var INGRESO={admin:true,tecnico:false,supervisor:false}; /* fase 2 (sep-2026): el admin ingresa para probar; enero 2027: tecnico en true */
   var ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor'};
   var firebaseConfig={apiKey:"AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",authDomain:"lubricacion-teck-qb.firebaseapp.com",projectId:"lubricacion-teck-qb",storageBucket:"lubricacion-teck-qb.firebasestorage.app",messagingSenderId:"697204585611",appId:"1:697204585611:web:824c3cf28291bdf1ec108e"};
   var root=document.documentElement;
@@ -134,6 +136,13 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
   var _esperas=[], _listo=false, _cargas={}, _paqueteDev=null;
   window.lubCuandoListo=function(nombres,fn){ _esperas.push({n:nombres,fn:fn}); if(_listo) procesar(); };
   function leer(ref){ return ref.get({source:'cache'}).then(function(s){ if(!s.exists) throw 0; return s; }).catch(function(){ return ref.get(); }); }
+  /* nombres de técnicos/administradores activos (para "Técnico 2" / "Nochero 2") */
+  var _tecnicos=null;
+  window.LUB.tecnicos=function(){
+    if(_tecnicos) return _tecnicos;
+    _tecnicos=(DEV?Promise.resolve([]):db.collection('usuarios').get().then(function(q){ var l=[]; q.forEach(function(d){ var u=d.data(); if(u&&(u.rol==='tecnico'||u.rol==='admin')&&u.nombre) l.push(u.nombre); }); return l.sort(); })).catch(function(){ return []; });
+    return _tecnicos;
+  };
   /* carga bajo demanda (ej. réplica HTML de una pauta: LUB.cargar('rep.'+id)) */
   window.LUB.cargar=function(n){ return cargarConjunto(n).then(function(){ return LUB.datos[n]; }); };
   function cargarConjunto(n){
@@ -202,6 +211,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
     $('lubuname').textContent=perfil.nombre||u.email;
     $('lubrolt').textContent=ROL_TXT[perfil.rol]||perfil.rol;
     $('lubusuarios').hidden=perfil.rol!=='admin';
+    root.classList.toggle('lub-admin',perfil.rol==='admin');
     $('lubuserbar').classList.add('show');
     /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
     mostrar('load'); load.textContent='Cargando datos…';

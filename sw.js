@@ -1,4 +1,4 @@
-const CACHE = 'lubricacion-v93';
+const CACHE = 'lubricacion-v95';
 const ASSETS = ['./', './index.html', './pautas.html', './panorama.html', './ruta.html', './tendencias.html', './plan52.html', './muestras.html', './consumo.html', './usuarios.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

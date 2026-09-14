@@ -236,13 +236,31 @@ try{
   try{ cloudDb.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
   cloudOk=true;
 }catch(e){ cloudOk=false; }
-function syncCloud(m,vals){
+const ME=()=>window.LUB_USER||{uid:'',nombre:'',email:''};
+function quien(){ const m=ME(); return {uid:m.uid||'',nombre:m.nombre||'',email:m.email||''}; }
+const DOC=m=>'MU-2026-'+String(m).padStart(2,'0');
+function syncCloud(m,vals,cambios){ /* solo los puntos que cambiaron (merge profundo) */
   if(!cloudOk) return;
   try{
-    cloudDb.collection('pautas').doc('MU-2026-'+String(m).padStart(2,'0')).set({mu:true, mes:m, vals:vals||{}, updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{});
+    cloudDb.collection('pautas').doc(DOC(m)).set({mu:true, mes:m, vals:cambios||vals||{}, actualizadoPor:quien(), updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{});
   }catch(e){}
 }
-const save=(m,vals)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(m),JSON.stringify(vals)); syncCloud(m,vals); flash(); };
+const save=(m,vals,cambios)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(m),JSON.stringify(vals)); syncCloud(m,vals,cambios); flash(); };
+let escuchaM=null, escuchaFn=null;
+function escuchar(m){
+  if(escuchaFn){ escuchaFn(); escuchaFn=null; }
+  if(!cloudOk) return;
+  escuchaM=m;
+  escuchaFn=cloudDb.collection('pautas').doc(DOC(m)).onSnapshot(snap=>{
+    if(!snap.exists || snap.metadata.hasPendingWrites) return;
+    const c=snap.data(); if(c.actualizadoPor && c.actualizadoPor.uid && c.actualizadoPor.uid===ME().uid) return;
+    const local=load(m), mm=JSON.parse(JSON.stringify(local));
+    for(const n in (c.vals||{})) mm[n]=Object.assign({}, mm[n]||{}, c.vals[n]);
+    if(JSON.stringify(mm)===JSON.stringify(local)) return;
+    localStorage.setItem(K(m),JSON.stringify(mm));
+    if(view.name==='mes' && view.mes===m){ flash('🔄 Actualizado por '+((c.actualizadoPor&&c.actualizadoPor.nombre)||'otro dispositivo')); render(); }
+  },()=>{});
+}
 let flashT; function flash(msg){ const el=$('#savemsg'); el.textContent=msg||'✓ Guardado'; el.classList.add('show'); clearTimeout(flashT); flashT=setTimeout(()=>el.classList.remove('show'),1100); }
 async function syncFromCloudIfNeeded(m){
   if(!cloudOk) return;
@@ -300,6 +318,7 @@ function goBack(){
 $('#back').onclick=goBack;
 
 function render(){
+  if(view.name!=='mes' && escuchaFn){ escuchaFn(); escuchaFn=null; }
   $('#listado').innerHTML=''; $('#form').innerHTML=''; $('#resumen').innerHTML='';
   $('#fabsave').classList.remove('show');
   $('#back').style.display = view.name==='meses' ? 'none':'inline-block';
@@ -344,6 +363,7 @@ function renderMeses(){
 let filtro='todas';
 function renderMes(){
   const m=view.mes, st=statsMes(m), sa=statsArea(m);
+  if(escuchaM!==m || !escuchaFn) escuchar(m);
   const pct=Math.round(100*st.r/ITEMS.length);
   /* dashboard: áreas ordenadas por muestras faltantes (sin R) */
   const orden=Object.keys(sa).sort((a,b)=>(sa[b].tot-sa[b].r)-(sa[a].tot-sa[a].r));
@@ -425,8 +445,9 @@ function renderMes(){
     const cur=load(m);
     const base=cur[n]||Object.assign({},efectivo(m,n)||{});
     mut(base);
+    base.por=ME().nombre||''; base.t=new Date().toISOString(); /* quién y cuándo */
     cur[n]=base;
-    save(m,cur);
+    save(m,cur,{[n]:base});
   }
   document.querySelectorAll('.item').forEach(el=>{
     const n=el.dataset.n;
@@ -448,7 +469,7 @@ function renderMes(){
   }
 
   const fab=$('#fabsave'); fab.classList.add('show');
-  fab.onclick=()=>{ save(m,load(m)); fab.classList.add('saved'); fab.querySelector('.fabtxt').textContent='✓ Guardado'; setTimeout(()=>{fab.classList.remove('saved'); fab.querySelector('.fabtxt').textContent='Guardar mes';},1500); };
+  fab.onclick=()=>{ save(m,load(m),null); fab.classList.add('saved'); fab.querySelector('.fabtxt').textContent='✓ Guardado'; setTimeout(()=>{fab.classList.remove('saved'); fab.querySelector('.fabtxt').textContent='Guardar mes';},1500); };
 
   syncFromCloudIfNeeded(m).then(()=>{ if(view.name==='mes'&&view.mes===m&&Object.keys(load(m)).length&&!Object.keys(vals).length) render(); });
 }
