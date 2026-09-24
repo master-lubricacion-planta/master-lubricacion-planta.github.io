@@ -7,7 +7,7 @@ Salida rprev.json: {fecha_iso: {id: numero | "estado"}}
 import openpyxl, json, re, sys, datetime, unicodedata, os
 sys.stdout.reconfigure(encoding='utf-8')
 
-SRC = r'C:\Users\alexa\Downloads\Monitoreo de equipos Críticos 2026 (1).xlsx'
+SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'descargas', 'Monitoreo de equipos Críticos 2026.xlsx')
 ANCHOR = datetime.date(2026, 8, 13)  # jueves semana 33
 
 def fecha(w, di):
