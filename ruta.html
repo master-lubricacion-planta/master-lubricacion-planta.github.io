@@ -117,6 +117,11 @@ details.sec>summary .badge{margin-left:auto}
 .itemrow .il .isub{display:block;font-size:11.5px;color:var(--ink-3);font-weight:600}
 .itemrow input.iv{width:110px;padding:9px 10px;font-size:16px;font-weight:700;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:right}
 .itemrow input.iv.filled{border-color:var(--ok);background:var(--ok-bg)}
+.itemrow input.iv.warn{border-color:var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
+.itemrow input.iv.alert{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.itemrow .iu .iref{display:block;font-size:10px;font-weight:600;color:var(--ink-3);white-space:nowrap}
+.desvbox{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;font-weight:700}
+.desvbox .alert{color:var(--bad)} .desvbox .warn{color:var(--orange-ink)}
 .itemrow .iu{font-size:12.5px;font-weight:700;color:var(--ink-3);min-width:34px}
 .itemrow select.ie{padding:9px 6px;font-size:12.5px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink-2);max-width:118px}
 .itemrow select.ie.set{border-color:var(--na);background:var(--na-bg);color:var(--na);font-weight:700}
@@ -716,8 +721,24 @@ function renderDias(){
   $('#vertend2').onclick=()=>{ view={name:'tend'}; render(); };
 }
 
+/* Referencia histórica por punto: promedio y último valor (planilla + app).
+   Sirve para mostrar "últ./prom" junto a cada campo y para la alerta automática
+   de desviación (≥15% naranjo, ≥25% rojo) mientras no existan rangos oficiales. */
+function statsPuntos(excluirFecha){
+  const map={};
+  const add=(f,id,v)=>{ if(f===excluirFecha) return; const n=parseFloat(String(v).replace(',','.')); if(isNaN(n)) return; (map[id]=map[id]||[]).push([f,n]); };
+  for(const f in RPREV){ const dd=RPREV[f]; for(const id in dd){ if(typeof dd[id]==='number') add(f,id,dd[id]); } }
+  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(!k||!k.startsWith('ruta_')) continue; const f=k.slice(5); if(!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue; let dd; try{ dd=JSON.parse(localStorage.getItem(k)); }catch(e){ continue; } const vals=(dd&&dd.vals)||{}; for(const id in vals) if(vals[id]&&vals[id].v) add(f,id,vals[id].v); }
+  const out={};
+  for(const id in map){ const s=map[id].sort((a,b)=>a[0].localeCompare(b[0])); const vs=s.map(x=>x[1]); out[id]={prom:vs.reduce((a,b)=>a+b,0)/vs.length, ult:vs[vs.length-1], n:vs.length}; }
+  return out;
+}
+function desviacion(id,v,ST){ const st=ST[id]; const n=parseFloat(String(v||'').replace(',','.')); if(!st||st.n<3||isNaN(n)||Math.abs(st.prom)<0.5) return null; return (n-st.prom)/Math.abs(st.prom)*100; }
+function pintarDesv(inp,ST){ const pct=desviacion(inp.dataset.id,inp.value,ST); inp.classList.remove('warn','alert'); inp.title=''; if(pct===null) return; if(Math.abs(pct)>=25) inp.classList.add('alert'); else if(Math.abs(pct)>=15) inp.classList.add('warn'); if(Math.abs(pct)>=15) inp.title=(pct>0?'+':'')+pct.toFixed(0)+'% respecto al promedio histórico ('+ST[inp.dataset.id].prom.toFixed(1).replace('.',',')+')'; }
+
 function renderRegistro(){
   const f=view.f, d=load(f);
+  const ST=statsPuntos(f);
   d.vals=d.vals||{};
   if(escuchaF!==f || !escuchaFn) escuchar(f);
   if(!d.noc && ME().nombre && !window.LUB_VIEWER) d.noc=ME().nombre; /* Nochero 1 = sesión */
@@ -737,8 +758,8 @@ function renderRegistro(){
       const opts=['<option value="">—</option>'].concat(ESTADOS.map(e=>`<option value="${e}" ${st.e===e?'selected':''}>${e}</option>`)).join('');
       filas+=`<div class="itemrow">
         <span class="il">${esc(l)}${sub?`<span class="isub">${esc(sub)}</span>`:''}${esPrev?'<span class="isub" style="color:var(--ink-3)">(planilla)</span>':''}</span>
-        <input class="iv ${String(st.v||'').trim()?'filled':''}" data-id="${id}" inputmode="decimal" value="${esc(st.v||'')}" placeholder="—">
-        <span class="iu">${esc(u)}</span>
+        <input class="iv ${String(st.v||'').trim()?'filled':''}" data-id="${id}" inputmode="decimal" value="${esc(st.v||'')}" placeholder="${ST[id]?'últ. '+String(ST[id].ult).replace('.',','):'—'}">
+        <span class="iu">${esc(u)}${ST[id]?`<span class="iref">prom ${ST[id].prom.toFixed(1).replace('.',',')}</span>`:''}</span>
         <select class="ie ${st.e?'set':''}" data-id="${id}" aria-label="Estado">${opts}</select>
       </div>`;
     });
@@ -785,7 +806,13 @@ function renderRegistro(){
   const cabecera=()=>{ recoger(); save(f,d,{noc:d.noc,noc2:d.noc2,hora:d.hora,obs:d.obs}); refrescarBadges(); };
   const punto=(id)=>{ recoger(); const c={vals:{[id]:d.vals[id]}}; if(!d.hora){ const n=new Date(); d.hora=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); c.hora=d.hora; const h=$('#rhora'); if(h) h.value=d.hora; } save(f,d,c); refrescarBadges(); };
   ['#rnoc','#rnoc2','#rhora','#robs'].forEach(s=>$(s).addEventListener('change',cabecera));
-  document.querySelectorAll('input.iv').forEach(i=>i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); }));
+  function resumenDesv(){
+    const nAlert=document.querySelectorAll('input.iv.alert').length, nWarn=document.querySelectorAll('input.iv.warn').length;
+    let box=document.querySelector('.desvbox'); if(!box){ const av=$('#ravance'); if(!av) return; av.insertAdjacentHTML('afterend','<div class="desvbox"></div>'); box=document.querySelector('.desvbox'); }
+    box.innerHTML=(nAlert?`<span class="alert">🔴 ${nAlert} fuera de rango (≥25% del promedio)</span>`:'')+(nWarn?`<span class="warn">🟠 ${nWarn} a revisar (≥15%)</span>`:'')+((nAlert||nWarn)?'':'<span style="color:var(--ink-3);font-weight:600">Sin desviaciones respecto al histórico</span>');
+  }
+  document.querySelectorAll('input.iv').forEach(i=>{ pintarDesv(i,ST); i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); pintarDesv(i,ST); resumenDesv(); }); });
+  resumenDesv();
   document.querySelectorAll('select.ie').forEach(s=>s.addEventListener('change',e=>{ punto(s.dataset.id); s.classList.toggle('set',!!s.value); }));
   if(window.LUB && LUB.tecnicos) LUB.tecnicos().then(lista=>{ const dl=$('#lnocheros'); if(dl) dl.innerHTML=lista.filter(n=>n!==d.noc).map(n=>`<option value="${esc(n)}">`).join(''); }).catch(()=>{});
   $('#rborrar').onclick=()=>{ if(confirm('¿Borrar todo el registro de esta noche?')){
