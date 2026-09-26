@@ -1,0 +1,1421 @@
+{
+ "week": 39,
+ "turno": "A",
+ "anio": 2026,
+ "days": [
+  {
+   "nombre": "Jueves",
+   "fecha": "24.09",
+   "ots": [
+    {
+     "ot": "843709",
+     "tag": "0210-CRB-001",
+     "desc": "PI, 1 S, CHANCADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-577"
+    },
+    {
+     "ot": "843708",
+     "tag": "0210-CRG-002",
+     "desc": "PI, 1 S, PRIMARIO, CHANCADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-579"
+    },
+    {
+     "ot": "839441",
+     "tag": "0210-FEA-001",
+     "desc": "PI, 1 S, ALIMENTADORES, 0210-FEA-001",
+     "esp": "MEC",
+     "pauta": null
+    },
+    {
+     "ot": "843710",
+     "tag": "0210-FEA-001",
+     "desc": "PM, 1 S, ALIMENTADOR",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-580"
+    },
+    {
+     "ot": "843711",
+     "tag": "0220-CVB-001",
+     "desc": "PI, 1 S, CORREA TRANSPORTADOR, N°1 LUB AUTO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-617"
+    },
+    {
+     "ot": "843712",
+     "tag": "0220-CVB-002",
+     "desc": "PI, 1 S, CORREA TRANSPORTADOR, N°2 LUB AUTO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-615"
+    },
+    {
+     "ot": "844287",
+     "tag": "0240-CVB-006",
+     "desc": "PI LUB S-Correa Transportadora SAG CVB-006 [RUN]",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-644"
+    },
+    {
+     "ot": "846473",
+     "tag": "0240-CVB-007",
+     "desc": "PI LUB S-Correa Transportadora SAG CVB-007 [RUN]",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-644"
+    },
+    {
+     "ot": "847907",
+     "tag": "0310-CVB-008",
+     "desc": "PI, 1 S, CORREA ALIMENTADORES, BOLAS (A)",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-673"
+    },
+    {
+     "ot": "847908",
+     "tag": "0310-CVB-009",
+     "desc": "PI, 1 S, CORREA ALIMENTADORES, BOLAS (A)",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-673"
+    },
+    {
+     "ot": "847909",
+     "tag": "0310-CVB-019",
+     "desc": "PI, 1 S, CORREA ALIMENTADORES, BOLAS (A)",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-673"
+    },
+    {
+     "ot": "847954",
+     "tag": "0310-CVH-004",
+     "desc": "PI, LUB, 1S, CORREA TRANSPORTADOR, ANGULAR BOLAS MB",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-672"
+    },
+    {
+     "ot": "847800",
+     "tag": "0310-MLB-001",
+     "desc": "PI, 1 S, MOLINO BOLAS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-671"
+    },
+    {
+     "ot": "847801",
+     "tag": "0310-MLB-002",
+     "desc": "PI, 1 S, MOLINO BOLAS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-671"
+    },
+    {
+     "ot": "847802",
+     "tag": "0310-MLB-003",
+     "desc": "PI, 1 S, MOLINO BOLAS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-671"
+    },
+    {
+     "ot": "847803",
+     "tag": "0310-MLB-004",
+     "desc": "PI, 1 S, MOLINO BOLAS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-671"
+    },
+    {
+     "ot": "847688",
+     "tag": "0310-MLS-001",
+     "desc": "PI, LUB, 1S, MOLINO SAG",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-676"
+    },
+    {
+     "ot": "847689",
+     "tag": "0310-MLS-002",
+     "desc": "PI, LUB, 1S, MOLINO SAG",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-676"
+    },
+    {
+     "ot": "846104",
+     "tag": "0310-PPD-253",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "846105",
+     "tag": "0310-PPD-311",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "846106",
+     "tag": "0310-PPD-312",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "846107",
+     "tag": "0310-PPD-313",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "846108",
+     "tag": "0310-PPD-314",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "846109",
+     "tag": "0310-PPD-315",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "846110",
+     "tag": "0310-PPD-316",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "846111",
+     "tag": "0310-PPD-317",
+     "desc": "PI S-Bba colector secundario",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-669"
+    },
+    {
+     "ot": "848052",
+     "tag": "0310-PPS-011",
+     "desc": "PI, LUB, S, BOMBA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-689"
+    },
+    {
+     "ot": "848053",
+     "tag": "0310-PPS-012",
+     "desc": "PI, LUB, S, BOMBA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-689"
+    },
+    {
+     "ot": "848054",
+     "tag": "0310-PPS-013",
+     "desc": "PI, LUB, S, BOMBA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-689"
+    },
+    {
+     "ot": "848055",
+     "tag": "0310-PPS-014",
+     "desc": "PI, LUB, S, BOMBA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-689"
+    }
+   ]
+  },
+  {
+   "nombre": "Viernes",
+   "fecha": "25.09",
+   "ots": [
+    {
+     "ot": "855943",
+     "tag": "0340-PPS-141",
+     "desc": "0340-PPS-141 BOMBA, U/F MECANISMO ESPESADOR COLECTIVO PPS #141",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-848"
+    },
+    {
+     "ot": "855944",
+     "tag": "0340-PPS-142",
+     "desc": "0340-PPS-142 BOMBA, U/F MECANISMO ESPESADOR COLECTIVO PPS #142",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-848"
+    },
+    {
+     "ot": "855043",
+     "tag": "0340-PPS-143",
+     "desc": "0340-PPS-143 BOMBA, ALIM. CELDAS ROUGHER MOLY PPS #143",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-844"
+    },
+    {
+     "ot": "855044",
+     "tag": "0340-PPS-144",
+     "desc": "0340-PPS-144 BOMBA, ALIM. CELDAS ROUGHER MOLY PPS #144",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-844"
+    },
+    {
+     "ot": "856019",
+     "tag": "0340-PPS-145",
+     "desc": "0340-PPS-145 BOMBA, U/F #1, MECANISMO ESPESADOR COBRE PPS #145",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-846"
+    },
+    {
+     "ot": "856020",
+     "tag": "0340-PPS-146",
+     "desc": "0340-PPS-146 BOMBA, U/F #2, MECANISMO ESPESADOR COBRE PPS #146",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-846"
+    },
+    {
+     "ot": "856057",
+     "tag": "0340-TKF-141",
+     "desc": "PI, 1 S, TANQUE, ESPESANTE CONCENTRADO A GRANEL",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-847"
+    },
+    {
+     "ot": "839861",
+     "tag": "0370-FLF-001",
+     "desc": "PI, 1 S, FILTRO, 0370-FLF-001",
+     "esp": "LUB",
+     "pauta": "QB2-0300-MTN2-PLN-050"
+    },
+    {
+     "ot": "840695",
+     "tag": "0370-PPC-185",
+     "desc": "PI, 1 S, BOMBAS, LAVADO TELA FILTRO PRENSA, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-884"
+    },
+    {
+     "ot": "840696",
+     "tag": "0370-PPC-186",
+     "desc": "PI, 1 S, BOMBAS, LAVADO TELA FILTRO PRENSA, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-884"
+    },
+    {
+     "ot": "841045",
+     "tag": "0370-PPD-181",
+     "desc": "PI, 1 S, BOMBA, SUMIDERO AREA 1ERA LIMP MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-883"
+    },
+    {
+     "ot": "841046",
+     "tag": "0370-PPD-182",
+     "desc": "PI, 1 S, BOMBA, SUMIDERO AREA 1ERA LIMP MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-883"
+    },
+    {
+     "ot": "840619",
+     "tag": "0370-PPD-300",
+     "desc": "PI, 1 S, BOMBAS, DOSIFICACION ESPUMADOR MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-875"
+    },
+    {
+     "ot": "840620",
+     "tag": "0370-PPD-301",
+     "desc": "PI, 1 S, BOMBAS, DOSIFICACION ESPUMADOR MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-875"
+    },
+    {
+     "ot": "840788",
+     "tag": "0370-PPR-193",
+     "desc": "PI, 1 S, BOMBAS, MUESTREO RUGOSO CELULAS MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-878"
+    },
+    {
+     "ot": "840789",
+     "tag": "0370-PPR-194",
+     "desc": "PI, 1 S, BOMBAS, MUESTREO RUGOSO CELULAS MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-878"
+    },
+    {
+     "ot": "840790",
+     "tag": "0370-PPR-195",
+     "desc": "PI, 1 S, BOMBAS, MUESTREO RUGOSO CELULAS MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-878"
+    },
+    {
+     "ot": "840888",
+     "tag": "0370-PPS-025",
+     "desc": "PI, 1 S, BOMBAS, PLANTA RECIRCULACION, 2DA LIMPIEZA MOLY, MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-879"
+    },
+    {
+     "ot": "840889",
+     "tag": "0370-PPS-026",
+     "desc": "PI, 1 S, BOMBAS, RECIRCULACION, 3ª LIMPIEZA MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-882"
+    },
+    {
+     "ot": "840890",
+     "tag": "0370-PPS-027",
+     "desc": "PI, 1 S, BOMBAS, RECIRCULACION, 3ª LIMPIEZA MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-882"
+    },
+    {
+     "ot": "840544",
+     "tag": "0370-PPS-171",
+     "desc": "PI, 1 S, BOMBA, ALIM MOLINO REMOLIENDA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-815"
+    },
+    {
+     "ot": "840545",
+     "tag": "0370-PPS-172",
+     "desc": "PI, 1 S, BOMBA, ALIM MOLINO REMOLIENDA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-815"
+    },
+    {
+     "ot": "840970",
+     "tag": "0370-PPS-173",
+     "desc": "PI, 1 S, BOMBAS, RELAVES, 1RA LIMPIEZA MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-881"
+    },
+    {
+     "ot": "840971",
+     "tag": "0370-PPS-174",
+     "desc": "PI, 1 S, BOMBAS, RELAVES, 1RA LIMPIEZA MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-881"
+    },
+    {
+     "ot": "840318",
+     "tag": "0370-PPS-175",
+     "desc": "PI, 1 S, BOMBA, ALIMENTACION 1ERA LIMPIEZA MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-874"
+    },
+    {
+     "ot": "840319",
+     "tag": "0370-PPS-176",
+     "desc": "PI, 1 S, BOMBA, ALIMENTACION 1ERA LIMPIEZA MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-874"
+    },
+    {
+     "ot": "840394",
+     "tag": "0370-PPS-177",
+     "desc": "PI, 1 S, BOMBA, ALIMENTACION 2DA LIMPIEZA MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-872"
+    },
+    {
+     "ot": "857171",
+     "tag": "0370-PPS-177",
+     "desc": "PM 12M LUB Bba alimentación 2da limpieza Moly",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-911"
+    },
+    {
+     "ot": "840395",
+     "tag": "0370-PPS-178",
+     "desc": "PI, 1 S, BOMBA, ALIMENTACION 2DA LIMPIEZA MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-872"
+    },
+    {
+     "ot": "851657",
+     "tag": "0370-PPS-178",
+     "desc": "PM 12M LUB Bba alimentación 2da limpieza Moly",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-911"
+    },
+    {
+     "ot": "840469",
+     "tag": "0370-PPS-179",
+     "desc": "PI, 1 S, BOMBA, ALIMENTACION 3ERA LIMPIEZA MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-876"
+    },
+    {
+     "ot": "840470",
+     "tag": "0370-PPS-180",
+     "desc": "PI, 1 S, BOMBA, ALIMENTACION 3ERA LIMPIEZA MOLY",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-876"
+    },
+    {
+     "ot": "840243",
+     "tag": "0370-PPS-191",
+     "desc": "PI, 1 S, BOMBA, ALIM ESPESADORCONC CU",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-877"
+    },
+    {
+     "ot": "840244",
+     "tag": "0370-PPS-192",
+     "desc": "PI, 1 S, BOMBA, ALIM ESPESADORCONC CU",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-877"
+    },
+    {
+     "ot": "856103",
+     "tag": "0370-TKF-181",
+     "desc": "PI, 1 S, LUB ESPESADOR CONCENTRADO MO, 0370-TKF-181",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-890"
+    },
+    {
+     "ot": "839919",
+     "tag": "0370-TMS-181",
+     "desc": "PI, 1 M, MECANISMO CONCENTRADO",
+     "esp": "MEC",
+     "pauta": null
+    }
+   ]
+  },
+  {
+   "nombre": "Sábado",
+   "fecha": "26.09",
+   "ots": [
+    {
+     "ot": "849832",
+     "tag": "0410-TKF-281",
+     "desc": "PDM , ESPESADOR, 0410",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1048"
+    },
+    {
+     "ot": "849833",
+     "tag": "0410-TKF-283",
+     "desc": "PDM , ESPESADOR, 0410",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1048"
+    },
+    {
+     "ot": "831376",
+     "tag": "0620-PPS-321",
+     "desc": "PI, 1 M, BOMBA, 0620-PPS-321, CENTRIFUGA H-C",
+     "esp": "#N/A",
+     "pauta": null
+    },
+    {
+     "ot": "830992",
+     "tag": "0620-PPS-322",
+     "desc": "PI, 1 M, BOMBA, 0620-PPS-322, CENTRIFUGA H-C",
+     "esp": "#N/A",
+     "pauta": null
+    },
+    {
+     "ot": "832621",
+     "tag": "0621-PPP-601",
+     "desc": "PI, 1 S, BOMBAS, GEHO, 0621-PPP-601",
+     "esp": "MEC",
+     "pauta": null
+    },
+    {
+     "ot": "832698",
+     "tag": "0621-PPP-601",
+     "desc": "PDM, 1 M, BOMBAS, GEHO, 0621-PPP-601/602,",
+     "esp": "LUB",
+     "pauta": "QB2-0600-IOC4-PLN-099"
+    },
+    {
+     "ot": "878685",
+     "tag": "0621-PPP-602",
+     "desc": "MP LUB PIP SXX_24 - Inspección/lubricación Bombas GEHO",
+     "esp": "LUB",
+     "pauta": "QB2-0600-IOC4-PLN-099"
+    },
+    {
+     "ot": "839581",
+     "tag": "0621-SCB-601",
+     "desc": "PI, S, LUB, HARNERO LÍNEAL - INSPECCIÓN SEMANAL",
+     "esp": "LUB",
+     "pauta": "QB2-0600-MTN2-PLN-043"
+    }
+   ]
+  },
+  {
+   "nombre": "Domingo",
+   "fecha": "27.09",
+   "ots": [
+    {
+     "ot": "840118",
+     "tag": "0320-CHU-105",
+     "desc": "PM, LUB, M, CHUTE, 0320-CHU-105",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-734"
+    },
+    {
+     "ot": "852411",
+     "tag": "0320-CHU-105",
+     "desc": "PM LUB S PEB - Lubricación ruedas carro 0320-CHU-105",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "857383",
+     "tag": "0320-CHU-105",
+     "desc": "PI,4S, CHU-105,LUBRICACIÓN,OPERANDO,INSPECCIONAR BOMBA HIDRÁULICA",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "846863",
+     "tag": "0320-CRC-001",
+     "desc": "PI, 1 S, CHANCADO PEBBLES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-732"
+    },
+    {
+     "ot": "854442",
+     "tag": "0320-CRC-001",
+     "desc": "PI, 1 S, CHANCADO PEBBLES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-732"
+    },
+    {
+     "ot": "846864",
+     "tag": "0320-CRC-002",
+     "desc": "PI, 1 S, CHANCADO PEBBLES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-732"
+    },
+    {
+     "ot": "854443",
+     "tag": "0320-CRC-002",
+     "desc": "PI, 1 S, CHANCADO PEBBLES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-732"
+    },
+    {
+     "ot": "852173",
+     "tag": "0320-CVB-012",
+     "desc": "PM M LUB -CORREA CVB012",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-759"
+    },
+    {
+     "ot": "846901",
+     "tag": "0320-CVB-013",
+     "desc": "PI S LUB Correa  CVB-013",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-735"
+    },
+    {
+     "ot": "846926",
+     "tag": "0320-CVB-014",
+     "desc": "PI S LUB Correa  CVB-014",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-738"
+    },
+    {
+     "ot": "848318",
+     "tag": "0320-CVB-015",
+     "desc": "PI S LUB Correa  CVB-015 (B)",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-740"
+    },
+    {
+     "ot": "846788",
+     "tag": "0320-FEB-021",
+     "desc": "PI, 1 S, ALIMENTADORES, PEBBLES (A)",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-733"
+    },
+    {
+     "ot": "846789",
+     "tag": "0320-FEB-022",
+     "desc": "PI, 1 S, ALIMENTADORES, PEBBLES (A)",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-733"
+    },
+    {
+     "ot": "852887",
+     "tag": "0330-CSC-007",
+     "desc": "PI, 1S, CSC-007008, LUBRICACIÓN, OPERANDO, INSPECCIONAR LA GRASERA DE LAS VÁLVULAS DE CUCHILLOS",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "852926",
+     "tag": "0330-CSC-008",
+     "desc": "PI, 1S, CSC-007008, LUBRICACIÓN, OPERANDO, INSPECCIONAR LA GRASERA DE LAS VÁLVULAS DE CUCHILLOS",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "854668",
+     "tag": "0330-PPC-099",
+     "desc": "0330-PPC-099 BOMBA, CENTRIFUGA, AGUA CELDAS SFR PPC #099",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-816"
+    },
+    {
+     "ot": "854669",
+     "tag": "0330-PPC-100",
+     "desc": "0330-PPC-100 BOMBA, CENTRIFUGA, AGUA CELDAS SFR PPC #100",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-816"
+    },
+    {
+     "ot": "855856",
+     "tag": "0330-PPC-101",
+     "desc": "PI, 1 S, LUB BBA MONIT AGUA PROCESO FLOTACION, 0330-PPC-101",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-820"
+    },
+    {
+     "ot": "855448",
+     "tag": "0330-PPD-271",
+     "desc": "0330-PPD-271 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #271",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855449",
+     "tag": "0330-PPD-272",
+     "desc": "0330-PPD-272 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #272",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855450",
+     "tag": "0330-PPD-273",
+     "desc": "0330-PPD-273 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #273",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855451",
+     "tag": "0330-PPD-274",
+     "desc": "0330-PPD-274 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #274",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855452",
+     "tag": "0330-PPD-275",
+     "desc": "0330-PPD-275 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #275",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855453",
+     "tag": "0330-PPD-276",
+     "desc": "0330-PPD-276 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #276",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855454",
+     "tag": "0330-PPD-277",
+     "desc": "0330-PPD-277 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #277",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855455",
+     "tag": "0330-PPD-278",
+     "desc": "0330-PPD-278 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #278",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855456",
+     "tag": "0330-PPD-279",
+     "desc": "0330-PPD-279 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #279",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855457",
+     "tag": "0330-PPD-280",
+     "desc": "0330-PPD-280 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #280",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855458",
+     "tag": "0330-PPD-281",
+     "desc": "0330-PPD-281 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #281",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "855459",
+     "tag": "0330-PPD-282",
+     "desc": "0330-PPD-282 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA PPD #282",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-837"
+    },
+    {
+     "ot": "852515",
+     "tag": "0330-PPR-081",
+     "desc": "PI, 1 S, BOMBA, SUMIDERO AREA LIMPIEZA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-821"
+    },
+    {
+     "ot": "854968",
+     "tag": "0330-PPS-050",
+     "desc": "PI, 1 S, BOMBA, ALIM MOLINO REMOLIENDA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-815"
+    },
+    {
+     "ot": "854969",
+     "tag": "0330-PPS-051",
+     "desc": "PI, 1 S, BOMBA, ALIM MOLINO REMOLIENDA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-815"
+    },
+    {
+     "ot": "854743",
+     "tag": "0330-PPS-071",
+     "desc": "0330-PPS-071 BOMBA, ALIM. BATERIA CICLONES REMOLIENDA PPS #71",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-826"
+    },
+    {
+     "ot": "854744",
+     "tag": "0330-PPS-072",
+     "desc": "0330-PPS-072 BOMBA, ALIM. BATERIA CICLONES REMOLIENDA PPS #72",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-826"
+    },
+    {
+     "ot": "854818",
+     "tag": "0330-PPS-074",
+     "desc": "0330-PPS-074 BOMBA, ALIM. CELDAS SFR 1ERA LIMPIEZA PPS #74",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-818"
+    },
+    {
+     "ot": "854819",
+     "tag": "0330-PPS-075",
+     "desc": "0330-PPS-075 BOMBA, ALIM. CELDAS SFR 1ERA LIMPIEZA PPS #75",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-818"
+    },
+    {
+     "ot": "854893",
+     "tag": "0330-PPS-077",
+     "desc": "0330-PPS-077 BOMBA, ALIM. CELDAS SFR 2DA LIMPIEZA PPS #77",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-824"
+    },
+    {
+     "ot": "854894",
+     "tag": "0330-PPS-078",
+     "desc": "0330-PPS-078 BOMBA, ALIM. CELDAS SFR 2DA LIMPIEZA PPS #78",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-824"
+    },
+    {
+     "ot": "855881",
+     "tag": "0340-PPC-150",
+     "desc": "PI, 1 S, LUB BBA MONITOREO AREA ESPESAMIENTO, 0340-PPC-150",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-841"
+    }
+   ]
+  },
+  {
+   "nombre": "Lunes",
+   "fecha": "28.09",
+   "ots": [
+    {
+     "ot": "856755",
+     "tag": "0390-MLT-006",
+     "desc": "PI, LUB, 1S, MOLINO MOLIENDA, APAGADO CAL",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-988"
+    },
+    {
+     "ot": "856416",
+     "tag": "0390-PPC-245",
+     "desc": "PI, 1 S, BOMBA, TRANSFERENCIA FROTHER",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-972"
+    },
+    {
+     "ot": "856417",
+     "tag": "0390-PPC-246",
+     "desc": "PI, 1 S, BOMBA, TRANSFERENCIA FROTHER",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-972"
+    },
+    {
+     "ot": "841121",
+     "tag": "0390-PPC-247",
+     "desc": "PI, 1 S, BOMBAS, UF, ESPESANTE CONCENTRADO MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-885"
+    },
+    {
+     "ot": "852577",
+     "tag": "0390-PPC-247",
+     "desc": "PI, LUB S, BOMBA, ALIM COLECTOR PRIM Y SECUNDARIO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-963"
+    },
+    {
+     "ot": "841122",
+     "tag": "0390-PPC-248",
+     "desc": "PI, 1 S, BOMBAS, UF, ESPESANTE CONCENTRADO MOLY, PLANTA MOLIBDENO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-885"
+    },
+    {
+     "ot": "852578",
+     "tag": "0390-PPC-248",
+     "desc": "PI, LUB S, BOMBA, ALIM COLECTOR PRIM Y SECUNDARIO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-963"
+    },
+    {
+     "ot": "856491",
+     "tag": "0390-PPC-249",
+     "desc": "PI, 1 S, BOMBA, TRANSFERENCIA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-971"
+    },
+    {
+     "ot": "856492",
+     "tag": "0390-PPC-250",
+     "desc": "PI, 1 S, BOMBA, TRANSFERENCIA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-971"
+    },
+    {
+     "ot": "855118",
+     "tag": "0390-PPC-251",
+     "desc": "PI, LUB S, BOMBA, ALIM COLECTOR PRIM Y SECUNDARIO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-963"
+    },
+    {
+     "ot": "855119",
+     "tag": "0390-PPC-252",
+     "desc": "PI, LUB S, BOMBA, ALIM COLECTOR PRIM Y SECUNDARIO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-963"
+    },
+    {
+     "ot": "856716",
+     "tag": "0390-PPC-254",
+     "desc": "PI, LUB, 1S, BOMBA, TRANSFERENCIA NAHS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-985"
+    },
+    {
+     "ot": "856717",
+     "tag": "0390-PPC-255",
+     "desc": "PI, LUB, 1S, BOMBA, TRANSFERENCIA NAHS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-985"
+    },
+    {
+     "ot": "856315",
+     "tag": "0390-PPC-256",
+     "desc": "PI, 1 S, BOMBAS, CIRCULACION NAHS, INSTALACIONES REACTIVOS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-965"
+    },
+    {
+     "ot": "856316",
+     "tag": "0390-PPC-257",
+     "desc": "PI, 1 S, BOMBAS, CIRCULACION NAHS, INSTALACIONES REACTIVOS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-965"
+    },
+    {
+     "ot": "856165",
+     "tag": "0390-PPC-259",
+     "desc": "PI, LUB, S, BOMBA, AGUAPROCESO PLANTA CAL",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-967"
+    },
+    {
+     "ot": "856166",
+     "tag": "0390-PPC-260",
+     "desc": "PI, LUB, S, BOMBA, AGUAPROCESO PLANTA CAL",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-967"
+    },
+    {
+     "ot": "856240",
+     "tag": "0390-PPD-258",
+     "desc": "PI, 1 S, BOMBAS, CIRCULACION FUELOIL, INSTALACIONES REACTIVOS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-966"
+    },
+    {
+     "ot": "856241",
+     "tag": "0390-PPD-259",
+     "desc": "PI, 1 S, BOMBAS, CIRCULACION FUELOIL, INSTALACIONES REACTIVOS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-966"
+    },
+    {
+     "ot": "855647",
+     "tag": "0390-PPD-293",
+     "desc": "0390-PPD-293 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA COMBUSTIBLE PPD #293",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-970"
+    },
+    {
+     "ot": "855648",
+     "tag": "0390-PPD-294",
+     "desc": "0390-PPD-294 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA COMBUSTIBLE PPD #294",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-970"
+    },
+    {
+     "ot": "855649",
+     "tag": "0390-PPD-295",
+     "desc": "0390-PPD-295 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA COMBUSTIBLE PPD #295",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-970"
+    },
+    {
+     "ot": "855650",
+     "tag": "0390-PPD-296",
+     "desc": "0390-PPD-296 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA COMBUSTIBLE PPD #296",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-970"
+    },
+    {
+     "ot": "855651",
+     "tag": "0390-PPD-297",
+     "desc": "0390-PPD-297 BOMBA, DESPLAZAMIENTO POSITIVO, DOSIFICADORA COMBUSTIBLE PPD #297",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-970"
+    },
+    {
+     "ot": "855831",
+     "tag": "0390-PPR-236",
+     "desc": "PI, 1 S, LUB BBA SUMIDERO AREA PLANTA CAL, 0390-PPR-236",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-984"
+    },
+    {
+     "ot": "849770",
+     "tag": "0390-PPR-237",
+     "desc": "PI S LUB Bomba 0390-PPR-237",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1045"
+    },
+    {
+     "ot": "855781",
+     "tag": "0390-PPR-245",
+     "desc": "PI, 1 S, LUB BBA SUMIDERO AREA FROTHER, 0390-PPR-245",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-974"
+    },
+    {
+     "ot": "848280",
+     "tag": "1441-HU-001",
+     "desc": "PI, LUB, 1 S, UNIDADES HIDRAULICAS, ESTACION CICLON",
+     "esp": "LUB",
+     "pauta": "QB2-1400-IOC4-PLN-007"
+    },
+    {
+     "ot": "848281",
+     "tag": "1441-HU-002",
+     "desc": "PI, LUB, 1 S, UNIDADES HIDRAULICAS, ESTACION CICLON",
+     "esp": "LUB",
+     "pauta": "QB2-1400-IOC4-PLN-007"
+    },
+    {
+     "ot": "848907",
+     "tag": "1462-PPC-007",
+     "desc": "1462-PPC-007 BOMBA, IMPULSION FILTRACIONES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1063"
+    },
+    {
+     "ot": "848908",
+     "tag": "1462-PPC-008",
+     "desc": "1462-PPC-008 BOMBA, IMPULSION FILTRACIONES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1063"
+    },
+    {
+     "ot": "848909",
+     "tag": "1462-PPC-009",
+     "desc": "1462-PPC-009 BOMBA, IMPULSION FILTRACIONES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1063"
+    },
+    {
+     "ot": "848910",
+     "tag": "1462-PPC-010",
+     "desc": "1462-PPC-010 BOMBA, IMPULSION FILTRACIONES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1063"
+    },
+    {
+     "ot": "849067",
+     "tag": "1473-PPC-631",
+     "desc": "1473-PPC-631 BOMBA, BOOSTER ESTACION #2 WRS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1062"
+    },
+    {
+     "ot": "849068",
+     "tag": "1473-PPC-632",
+     "desc": "1473-PPC-632 BOMBA, BOOSTER ESTACION #2 WRS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1062"
+    },
+    {
+     "ot": "849069",
+     "tag": "1473-PPC-633",
+     "desc": "1473-PPC-633 BOMBA, BOOSTER ESTACION #2 WRS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1062"
+    },
+    {
+     "ot": "849070",
+     "tag": "1473-PPC-634",
+     "desc": "1473-PPC-634 BOMBA, BOOSTER ESTACION #2 WRS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1062"
+    },
+    {
+     "ot": "849246",
+     "tag": "1473-PPV-641",
+     "desc": "1473-PPV-641 BOMBA, VERTICAL, DWS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1067"
+    },
+    {
+     "ot": "849247",
+     "tag": "1473-PPV-642",
+     "desc": "1473-PPV-642 BOMBA, VERTICAL, DWS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1067"
+    },
+    {
+     "ot": "849248",
+     "tag": "1473-PPV-643",
+     "desc": "1473-PPV-643 BOMBA, VERTICAL, DWS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1067"
+    },
+    {
+     "ot": "849249",
+     "tag": "1473-PPV-644",
+     "desc": "1473-PPV-644 BOMBA, VERTICAL, DWS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1067"
+    },
+    {
+     "ot": "849250",
+     "tag": "1473-PPV-651",
+     "desc": "1473-PPV-651 BOMBA, VERTICAL, RWS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1067"
+    },
+    {
+     "ot": "849251",
+     "tag": "1473-PPV-652",
+     "desc": "1473-PPV-652 BOMBA, VERTICAL, RWS",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1067"
+    },
+    {
+     "ot": "849252",
+     "tag": "1473-PPV-653",
+     "desc": "1473-PPV-653 BOMBA, RWS, VERTICAL MULTIETAPA",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-1067"
+    }
+   ]
+  },
+  {
+   "nombre": "Martes",
+   "fecha": "29.09",
+   "ots": [
+    {
+     "ot": "844391",
+     "tag": "0240-FEA-003",
+     "desc": "PM S-Alimentador de recuperación",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-648"
+    },
+    {
+     "ot": "899587",
+     "tag": "0240-FEA-003",
+     "desc": "PI,1S,FEA-003009,LUBRICACION,OPERANDO,INSPECCION Y LUBRICACION REDUCTORES, RODAMIENTOS Y SISTEMA DE GRASAS",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "844392",
+     "tag": "0240-FEA-004",
+     "desc": "PM S-Alimentador de recuperación",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-648"
+    },
+    {
+     "ot": "899636",
+     "tag": "0240-FEA-004",
+     "desc": "PI,1S,FEA-003009,LUBRICACION,OPERANDO,INSPECCION Y LUBRICACION REDUCTORES, RODAMIENTOS Y SISTEMA DE GRASAS",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "844393",
+     "tag": "0240-FEA-005",
+     "desc": "PM S-Alimentador de recuperación",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-648"
+    },
+    {
+     "ot": "899681",
+     "tag": "0240-FEA-005",
+     "desc": "PI,1S,FEA-003009,LUBRICACION,OPERANDO,INSPECCION Y LUBRICACION REDUCTORES, RODAMIENTOS Y SISTEMA DE GRASAS",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "846675",
+     "tag": "0240-FEA-007",
+     "desc": "PM, LUB, S, FEEDERS STOCKPILE",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-648"
+    },
+    {
+     "ot": "846676",
+     "tag": "0240-FEA-008",
+     "desc": "PM, LUB, S, FEEDERS STOCKPILE",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-648"
+    },
+    {
+     "ot": "846677",
+     "tag": "0240-FEA-009",
+     "desc": "PM, LUB, S, FEEDERS STOCKPILE",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-648"
+    },
+    {
+     "ot": "844235",
+     "tag": "0240-FET-011",
+     "desc": "PI S-Alimentador de bolas",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-639"
+    },
+    {
+     "ot": "844238",
+     "tag": "0240-FET-012",
+     "desc": "PI, 1 S, ALIMENTADOR",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-639"
+    },
+    {
+     "ot": "844236",
+     "tag": "0240-FET-014",
+     "desc": "PI S-Alimentador de bolas",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-639"
+    },
+    {
+     "ot": "844237",
+     "tag": "0240-FET-015",
+     "desc": "PI S-Alimentador de bolas",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-639"
+    },
+    {
+     "ot": "848159",
+     "tag": "0310-PPC-040",
+     "desc": "PM, 1 M, BOMBA, IMPULSION TROMMEL",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-690"
+    },
+    {
+     "ot": "848160",
+     "tag": "0310-PPC-041",
+     "desc": "PM, 1 M, BOMBA, IMPULSION TROMMEL",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-690"
+    },
+    {
+     "ot": "848161",
+     "tag": "0310-PPC-042",
+     "desc": "PM, 1 M, BOMBA, IMPULSION TROMMEL",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-690"
+    },
+    {
+     "ot": "845893",
+     "tag": "0310-PPD-241",
+     "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-664"
+    },
+    {
+     "ot": "845894",
+     "tag": "0310-PPD-242",
+     "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-664"
+    },
+    {
+     "ot": "845895",
+     "tag": "0310-PPD-243",
+     "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-664"
+    },
+    {
+     "ot": "845896",
+     "tag": "0310-PPD-244",
+     "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-664"
+    },
+    {
+     "ot": "845897",
+     "tag": "0310-PPD-245",
+     "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-664"
+    },
+    {
+     "ot": "845898",
+     "tag": "0310-PPD-246",
+     "desc": "PI, 1 S, BOMBAS, COLECTOR PRIMARIO, RECTIFICADO",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-664"
+    },
+    {
+     "ot": "855706",
+     "tag": "0390-PPR-248",
+     "desc": "PI, 1 S, LUB BBA SUMIDERO AREA COLECTOR PRIMARIO, 0390-PPR-248",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-979"
+    },
+    {
+     "ot": "856354",
+     "tag": "0390-PPR-260",
+     "desc": "PI, LUB, 1S, BOMBA DERRAMES NAHS, 0390-PPR-260",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-964"
+    },
+    {
+     "ot": "855806",
+     "tag": "0390-PPR-261",
+     "desc": "PI, 1 S, LUB BBA SUMIDERO AREA FUEL OIL, 0390-PPR-261",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-982"
+    },
+    {
+     "ot": "855731",
+     "tag": "0390-PPR-262",
+     "desc": "PI, LUB, 1S, BOMBA, SUMIDERO FLOCULANTE ESPESADOR CONC",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-980"
+    },
+    {
+     "ot": "855756",
+     "tag": "0390-PPR-265",
+     "desc": "PI, LUB, S, BOMBA, SUMIDERO FLOCULANTE ESPESADOR RELAVES",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-981"
+    },
+    {
+     "ot": "855193",
+     "tag": "0390-PPS-241",
+     "desc": "0390-PPS-241 BOMBA, ALIMENTACION ESTANQUE CAL PPS #241",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-968"
+    },
+    {
+     "ot": "857449",
+     "tag": "0390-PPS-241",
+     "desc": "PI, 2S, PPS-241242, LUBRICACION,OPERANDO, MEDIR TEMPERATURA E INSP. LUBRICADOR AUTOMATICO",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "855194",
+     "tag": "0390-PPS-242",
+     "desc": "0390-PPS-242 BOMBA, ALIMENTACION ESTANQUE CAL PPS #242",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-968"
+    },
+    {
+     "ot": "857497",
+     "tag": "0390-PPS-242",
+     "desc": "PI, 2S, PPS-241242, LUBRICACION,OPERANDO, MEDIR TEMPERATURA E INSP. LUBRICADOR AUTOMATICO",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "853115",
+     "tag": "0390-PPS-243",
+     "desc": "PI,2S,PPS-243244,LUBRICACION,OPERANDO, MEDIR TEMPERATURA Y REALIZAR TERMOGRAFIA MOTOR",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "856566",
+     "tag": "0390-PPS-243",
+     "desc": "0390-PPS-243 BOMBA, DISTRIBUCION CAL A MOLIENDA PPS #243",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-973"
+    },
+    {
+     "ot": "853147",
+     "tag": "0390-PPS-244",
+     "desc": "PI,2S,PPS-243244,LUBRICACION,OPERANDO, MEDIR TEMPERATURA Y REALIZAR TERMOGRAFIA MOTOR",
+     "esp": "LUB",
+     "pauta": null
+    },
+    {
+     "ot": "856567",
+     "tag": "0390-PPS-244",
+     "desc": "0390-PPS-244 BOMBA, DISTRIBUCION CAL A MOLIENDA PPS #244",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-973"
+    },
+    {
+     "ot": "857139",
+     "tag": "0390-PPS-269",
+     "desc": "0390-PPS-269 BOMBA, DISTRIBUCION CAL MOLY - FLOTACION PPS #269",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-969"
+    },
+    {
+     "ot": "857140",
+     "tag": "0390-PPS-270",
+     "desc": "0390-PPS-270 BOMBA, DISTRIBUCION CAL MOLY - FLOTACION PPS #270",
+     "esp": "LUB",
+     "pauta": "QB2-0300-IOC4-PLN-969"
+    }
+   ]
+  },
+  {
+   "nombre": "Miércoles",
+   "fecha": "30.09",
+   "ots": [
+    {
+     "ot": "932894",
+     "tag": "210",
+     "desc": "Lub S39 - 26 Housekeeping patio 8",
+     "esp": "LUB",
+     "pauta": null
+    }
+   ]
+  }
+ ]
+}

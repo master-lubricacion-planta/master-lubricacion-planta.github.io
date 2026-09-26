@@ -26,7 +26,8 @@ push = '--sin-push' not in sys.argv
 
 def run(*cmd, **kw):
     print('\n$', ' '.join(cmd))
-    r = subprocess.run(cmd, cwd=base, **kw)
+    kw.setdefault('cwd', base)
+    r = subprocess.run(cmd, **kw)
     if r.returncode != 0:
         sys.exit(f'FALLO: {" ".join(cmd)}')
 
