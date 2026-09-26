@@ -276,7 +276,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <script>
 (function(){
@@ -382,6 +382,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
     $('lubuname').textContent=perfil.nombre||u.email;
     $('lubrolt').textContent=ROL_TXT[perfil.rol]||perfil.rol;
     $('lubusuarios').hidden=perfil.rol!=='admin';
+    $('lubsuper').hidden=!(perfil.rol==='admin'||perfil.rol==='supervisor');
     root.classList.toggle('lub-admin',perfil.rol==='admin');
     $('lubuserbar').classList.add('show');
     /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
