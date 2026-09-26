@@ -183,6 +183,13 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rep .fotosrep img{width:32%;border:1px solid #999}
 .rep .otbox{border:2px solid #b45309;background:#fdebd7;padding:4px 10px;border-radius:6px;font-weight:800}
 
+.hoybox{background:var(--surface);border:2px solid var(--orange);border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow)}
+.hoybox .otcard{margin-bottom:8px}
+#hoylista.colapsado{max-height:330px;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}
+.buscar{margin:0 0 14px}
+.buscar input{width:100%;padding:12px 14px;font-size:16px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.buscar input:focus{outline:none;border-color:var(--accent)}
+#qres{margin-top:8px}
 .hist{background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:13px}
 .hist[hidden]{display:none}
 .histh{font-weight:800;font-size:13.5px;color:var(--accent-ink);margin-bottom:6px}
@@ -460,11 +467,39 @@ function renderSemanas(){
       <span class="wt ${t}">TURNO ${t}</span>
     </button>`;
   }
+  /* Hoy: las OT del día actual, directo al entrar */
+  const hoyF=fmt(new Date()); let hoyHtml='';
+  const planHoy=PLANES[SEMANA_ACTUAL];
+  if(planHoy){
+    const di=planHoy.days.findIndex(d=>d.fecha===hoyF);
+    if(di>=0){
+      const d=planHoy.days[di]; const conp=d.ots.filter(o=>o.pauta);
+      const cerradas=conp.filter(o=>load(o.ot).cerrada).length;
+      hoyHtml=`<div class="hoybox">
+        <div class="dayhdr" style="margin-top:0">📅 Hoy · ${esc(d.nombre)} ${esc(d.fecha)} <span class="hoytag">SEMANA ${SEMANA_ACTUAL}</span></div>
+        <p class="daysub">${d.ots.length} OT programadas · ${conp.length} con pauta digital · ${cerradas} cerradas</p>
+        <div id="hoylista" ${d.ots.length>6?'class="colapsado"':''}>${d.ots.map(o=>tarjetaOT(o,SEMANA_ACTUAL,di)).join('')}</div>
+        ${d.ots.length>6?`<button class="bvolver" id="hoymas" style="width:100%;justify-content:center">Ver las ${d.ots.length} OT de hoy</button>`:''}
+      </div>`;
+    }
+  }
   $('#listado').innerHTML=`
+    ${hoyHtml}
+    <div class="buscar"><input id="qbuscar" placeholder="🔍 Buscar OT o TAG (ej: 843779, 0210-CRB)" autocomplete="off" inputmode="search"><div id="qres"></div></div>
     <div class="dayhdr">Plan semanal ${new Date().getFullYear()===2026?'2026':''}</div>
     <p class="daysub">Jornada 7×7 · semanas impares <b>Turno A</b>, pares <b>Turno B</b>. Estás en la <b>Semana ${SEMANA_ACTUAL} · Turno ${SEMANA_ACTUAL%2===1?'A':'B'}</b>.</p>
     <div class="wgrid">${cards}</div>`;
   document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'dias',week:+b.dataset.w}; render(); });
+  enlazarTarjetas();
+  const hm=$('#hoymas'); if(hm) hm.onclick=()=>{ $('#hoylista').classList.remove('colapsado'); hm.remove(); };
+  const qi=$('#qbuscar'), qr=$('#qres');
+  qi.addEventListener('input',()=>{
+    const res=buscarOT(qi.value);
+    if(!qi.value.trim()){ qr.innerHTML=''; return; }
+    if(qi.value.trim().length<3){ qr.innerHTML='<div class="hint" style="padding:10px">Escribe al menos 3 caracteres…</div>'; return; }
+    qr.innerHTML=res.length?res.map(r=>tarjetaOT(r.o,r.w,r.di,`Sem ${r.w} · ${r.dia} ${r.fecha}`)).join(''):'<div class="hint" style="padding:10px">Sin resultados en las semanas cargadas.</div>';
+    enlazarTarjetas();
+  });
 }
 
 function renderDias(){
@@ -491,34 +526,46 @@ function renderDias(){
   document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'dia',week:w,di:+b.dataset.i}; render(); });
 }
 
+function tarjetaOT(o,w,di,extra){
+  if(!o.pauta) return `<div class="otcard nop">
+    <div class="otinfo">
+      <div class="tag mono">${esc(o.tag)}</div>
+      <div class="otd">${esc(o.desc)}</div>
+      <div class="otmeta">OT ${o.ot} · ${esc(o.esp)}${extra?' · '+esc(extra):''}</div>
+    </div>
+    <div class="prog"><span class="ring sind">Sin pauta digital</span></div>
+  </div>`;
+  const pr=progress(o);
+  const dd=load(o.ot);
+  const cls=dd.cerrada?'done':(pr.done===0?'p0':(pr.done>=pr.total?'done':'part'));
+  const txt=dd.cerrada?'🔒 Cerrada':(pr.done===0?'Pendiente':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total));
+  return `<button class="otcard" data-ot="${o.ot}" data-w="${w}" data-di="${di}">
+    <div class="otinfo">
+      <div class="tag mono">${esc(o.tag)}</div>
+      <div class="otd">${esc(o.desc)}</div>
+      <div class="otmeta">OT ${o.ot} · ${esc(byId[o.pauta].titulo)} · ${esc(o.pauta)}${extra?' · '+esc(extra):''}</div>
+    </div>
+    <div class="prog"><span class="ring ${cls}">${txt}</span></div>
+  </button>`;
+}
+function enlazarTarjetas(){
+  document.querySelectorAll('.otcard[data-ot]').forEach(b=>b.onclick=()=>{ view={name:'formulario',week:+b.dataset.w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
+}
 function renderDia(){
   const plan=PLANES[view.week]; const d=plan.days[view.di];
   $('#listado').innerHTML=`
     <div class="dayhdr">${esc(d.nombre)} ${esc(d.fecha)} · Semana ${view.week}</div>
     <p class="daysub">${d.ots.length} órdenes de trabajo · toca una con pauta digital para llenarla.</p>
-    ${d.ots.map(o=>{
-      if(!o.pauta) return `<div class="otcard nop">
-        <div class="otinfo">
-          <div class="tag mono">${esc(o.tag)}</div>
-          <div class="otd">${esc(o.desc)}</div>
-          <div class="otmeta">OT ${o.ot} · ${esc(o.esp)}</div>
-        </div>
-        <div class="prog"><span class="ring sind">Sin pauta digital</span></div>
-      </div>`;
-      const pr=progress(o);
-      const dd=load(o.ot);
-      const cls=dd.cerrada?'done':(pr.done===0?'p0':(pr.done>=pr.total?'done':'part'));
-      const txt=dd.cerrada?'🔒 Cerrada':(pr.done===0?'Pendiente':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total));
-      return `<button class="otcard" data-ot="${o.ot}">
-        <div class="otinfo">
-          <div class="tag mono">${esc(o.tag)}</div>
-          <div class="otd">${esc(o.desc)}</div>
-          <div class="otmeta">OT ${o.ot} · ${esc(byId[o.pauta].titulo)} · ${esc(o.pauta)}</div>
-        </div>
-        <div class="prog"><span class="ring ${cls}">${txt}</span></div>
-      </button>`;
-    }).join('')}`;
-  document.querySelectorAll('.otcard[data-ot]').forEach(b=>b.onclick=()=>{ view={name:'formulario',week:view.week,di:view.di,ot:b.dataset.ot}; render(); });
+    ${d.ots.map(o=>tarjetaOT(o,view.week,view.di)).join('')}`;
+  enlazarTarjetas();
+}
+/* Búsqueda rápida por OT o TAG en todas las semanas cargadas */
+function buscarOT(q){
+  q=q.trim().toUpperCase(); if(q.length<3) return [];
+  const res=[];
+  for(const [w,plan] of Object.entries(PLANES)) plan.days.forEach((d,di)=>d.ots.forEach(o=>{ if(o.ot.includes(q)||o.tag.toUpperCase().includes(q)||(o.desc||'').toUpperCase().includes(q)) res.push({o,w:+w,di,dia:d.nombre,fecha:d.fecha}); }));
+  res.sort((a,b)=>b.w-a.w||a.di-b.di);
+  return res.slice(0,30);
 }
 
 let cur=null;

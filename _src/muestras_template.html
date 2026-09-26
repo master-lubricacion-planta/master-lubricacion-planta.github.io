@@ -361,6 +361,7 @@ function renderMeses(){
 }
 
 let filtro='todas';
+let areaSel=(()=>{ try{ return localStorage.getItem('mu_area')||''; }catch(e){ return ''; } })();
 function renderMes(){
   const m=view.mes, st=statsMes(m), sa=statsArea(m);
   if(escuchaM!==m || !escuchaFn) escuchar(m);
@@ -382,6 +383,7 @@ function renderMes(){
   const vals=load(m);
   let secs='';
   for(const a of Object.keys(areas)){
+    if(areaSel && a!==areaSel) continue; /* solo mi área */
     let filas=''; let visibles=0;
     const s=sa[a];
     for(const it of areas[a]){
@@ -429,13 +431,16 @@ function renderMes(){
       <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
       <button class="fchip ${filtro==='pend'?'on':''}" data-f="pend">Faltantes (sin R)</button>
       <button class="fchip ${filtro==='hechas'?'on':''}" data-f="hechas">Tomadas</button>
+      <select class="fchip" id="fsel" aria-label="Área"><option value="">Todas las áreas</option>${Object.keys(areas).map(a=>`<option value="${a}" ${areaSel===a?'selected':''}>${esc(AREA_NAMES[a]||('Área '+a))} (${sa[a].r}/${sa[a].tot})</option>`).join('')}</select>
       <button class="fchip" id="verres">📋 Resumen / imprimir</button>
     </div>
+    ${areaSel?`<p class="daysub" style="margin:0 0 8px">Mostrando solo <b>${esc(AREA_NAMES[areaSel]||areaSel)}</b> (la app recuerda tu área en este dispositivo).</p>`:''}
     ${secs||'<div class="hint">Nada que mostrar con este filtro.</div>'}
     <div class="fabspacer"></div>`;
 
   document.querySelectorAll('.fchip[data-f]').forEach(b=>b.onclick=()=>{ filtro=b.dataset.f; render(); });
   $('#verres').onclick=()=>{ view={name:'resumen',mes:m}; render(); };
+  $('#fsel').onchange=()=>{ areaSel=$('#fsel').value; try{ localStorage.setItem('mu_area',areaSel); }catch(e){} render(); };
   document.querySelectorAll('.abar').forEach(b=>b.onclick=()=>{
     const sec=document.querySelector('#sec-'+b.dataset.a);
     if(sec){ sec.open=true; sec.scrollIntoView({behavior:'smooth',block:'start'}); }

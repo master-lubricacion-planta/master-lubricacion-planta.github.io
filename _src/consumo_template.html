@@ -281,7 +281,10 @@ const chips=v=>`<div class="vistas">
 function renderStock(){
   const st=stockActual();
   let totL=0,totKg=0,bajo=0;
-  for(const m of MAESTRO){ const v=st[m.id]; if(m.uni==='L')totL+=v; else totKg+=v; if(v<m.min)bajo++; }
+  const bajos=[];
+  for(const m of MAESTRO){ const v=st[m.id]; if(m.uni==='L')totL+=v; else totKg+=v; if(v<m.min){ bajo++; bajos.push(m.prod); } }
+  try{ localStorage.setItem('cons_bajo',JSON.stringify({n:bajo,lista:bajos.slice(0,6),t:Date.now()})); }catch(e){}
+  if(window.lubBadgeConsumo) window.lubBadgeConsumo();
   const grupos={'ACEITE':[],'GRASA':[]};
   for(const m of MAESTRO) (grupos[m.tipo]=grupos[m.tipo]||[]).push(m);
   let html='';
