@@ -184,6 +184,15 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rep .fotosrep img{width:32%;border:1px solid #999}
 .rep .otbox{border:2px solid #b45309;background:#fdebd7;padding:4px 10px;border-radius:6px;font-weight:800}
 
+.hist{background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:13px}
+.hist[hidden]{display:none}
+.histh{font-weight:800;font-size:13.5px;color:var(--accent-ink);margin-bottom:6px}
+.histn{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:1px 8px;font-size:11px;margin-left:6px}
+.histi{border-top:1px solid var(--line);padding:7px 0 4px}
+.hist1{color:var(--ink-2)}
+.hist2{margin-top:3px;color:var(--bad);font-weight:600}
+.hist2.ok{color:var(--ok)}
+.hist3{margin-top:3px;color:var(--ink-2)}
 .cerradabox{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);border-radius:10px;padding:10px 12px;font-size:13.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .btn.mini{flex:0 0 auto;padding:6px 10px;font-size:12.5px}
 .btn.finalizar{background:var(--ok);color:#fff}
@@ -834,7 +843,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)}</div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=100" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=101" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
@@ -848,6 +857,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       </div>
       <button class="borrartop" id="blimpiar2">🗑 Borrar todos los datos ingresados en esta pauta</button>
     </div>
+    <div class="hist" id="hist" hidden></div>
     ${actsHtml}
     <div class="grp">Observaciones generales</div>
     <textarea class="obsg" id="fobsg" placeholder="Observaciones generales de la inspección…">${esc(d.obsg||'')}</textarea>
@@ -909,6 +919,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
   const breab=$('#breabrir');
   if(breab) breab.onclick=()=>{ if(!confirm('¿Reabrir esta pauta para edición?')) return; d.cerrada=false; save(ot,d,{cerrada:false}); render(); };
   renderFotos(o,d);
+  historialEquipo(o,ot);
 
   /* Guardado explícito: recoge TODO lo que haya en pantalla (incluso campos sin confirmar aún) y lo escribe en el dispositivo. No requiere internet: usa localStorage/IndexedDB del propio teléfono. */
   const fab=$('#fabsave'); const fabtxt=fab.querySelector('.fabtxt');
@@ -925,6 +936,37 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
     setTimeout(()=>{ fab.classList.remove('saved'); fabtxt.textContent='Guardar pauta'; },1800);
   }
   if(cerrada){ fab.classList.remove('show'); } else { fab.classList.add('show'); fab.onclick=saveAll; }
+}
+
+/* Historial del equipo: qué se registró las últimas veces en este mismo TAG
+   (misma pauta u otra), para que el técnico vea la evolución y las
+   observaciones anteriores. Lee los docs de las OT anteriores desde la nube
+   (quedan en caché offline). */
+async function historialEquipo(o,otActual){
+  const box=$('#hist'); if(!box||!cloudOk) return;
+  const cands=[];
+  for(const [w,plan] of Object.entries(PLANES)) plan.days.forEach((d,di)=>d.ots.forEach(x=>{ if(x.tag===o.tag && x.ot!==otActual && x.pauta) cands.push({w:+w,di,ot:x.ot,pauta:x.pauta,fecha:d.fecha,dia:d.nombre}); }));
+  if(!cands.length) return;
+  cands.sort((a,b)=> b.w-a.w || b.di-a.di);
+  const lista=[];
+  for(const c of cands.slice(0,8)){
+    try{ const snap=await cloudDb.collection('pautas').doc(c.ot).get(); if(!snap.exists) continue; const dd=snap.data(); if(!dd.acts||!Object.values(dd.acts).some(a=>a&&a.e)) continue; lista.push(Object.assign({},c,{d:dd})); }catch(e){}
+    if(lista.length>=3) break;
+  }
+  if(!lista.length || view.ot!==otActual) return;
+  box.hidden=false;
+  box.innerHTML=`<div class="histh">📜 Últimas veces en este equipo <span class="histn">${lista.length}</span></div>`+lista.map(h=>{
+    const p=byId[h.pauta]||{acts:[]}; const acts=h.d.acts||{};
+    const malos=p.acts.filter(a=>acts[a.n]&&acts[a.n].e==='M');
+    const medidos=p.acts.filter(a=>acts[a.n]&&String(acts[a.n].v||'').trim()).slice(0,4);
+    const tot=p.acts.length, hechos=p.acts.filter(a=>acts[a.n]&&acts[a.n].e).length;
+    return `<div class="histi">
+      <div class="hist1"><b>Semana ${h.w} · ${esc(h.dia)} ${esc(h.fecha)}</b> · OT ${h.ot} · ${esc(h.d.tecnico||'')} · ${hechos}/${tot}${h.d.cerrada?' · 🔒':''}</div>
+      ${malos.length?`<div class="hist2">⚠ Malo: ${malos.map(a=>a.n+'. '+esc(a.d)+(acts[a.n].o?' — "'+esc(acts[a.n].o)+'"':'')).join(' · ')}</div>`:'<div class="hist2 ok">Sin hallazgos "M"</div>'}
+      ${medidos.length?`<div class="hist3">Medidos: ${medidos.map(a=>a.n+': <b>'+esc(acts[a.n].v)+'</b>').join(' · ')}</div>`:''}
+      ${h.d.obsg?`<div class="hist3">"${esc(h.d.obsg)}"</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 async function renderFotos(o,d){
