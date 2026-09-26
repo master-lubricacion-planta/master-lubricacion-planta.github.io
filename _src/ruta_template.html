@@ -523,7 +523,7 @@ function renderRegistro(){
     if(av){ av.textContent=n+' / '+NITEMS; av.className='ring '+(n===0?'p0':(n>=NITEMS?'done':'part')); }
   }
   const cabecera=()=>{ recoger(); save(f,d,{noc:d.noc,noc2:d.noc2,hora:d.hora,obs:d.obs}); refrescarBadges(); };
-  const punto=(id)=>{ recoger(); save(f,d,{vals:{[id]:d.vals[id]}}); refrescarBadges(); };
+  const punto=(id)=>{ recoger(); const c={vals:{[id]:d.vals[id]}}; if(!d.hora){ const n=new Date(); d.hora=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); c.hora=d.hora; const h=$('#rhora'); if(h) h.value=d.hora; } save(f,d,c); refrescarBadges(); };
   ['#rnoc','#rnoc2','#rhora','#robs'].forEach(s=>$(s).addEventListener('change',cabecera));
   document.querySelectorAll('input.iv').forEach(i=>i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); }));
   document.querySelectorAll('select.ie').forEach(s=>s.addEventListener('change',e=>{ punto(s.dataset.id); s.classList.toggle('set',!!s.value); }));

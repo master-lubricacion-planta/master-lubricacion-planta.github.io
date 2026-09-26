@@ -251,7 +251,7 @@ function progress(o){
   return {done,total,has:!!c};
 }
 function statusClass(pr){ return pr.done===0?'p0':(pr.done>=pr.total?'done':'part'); }
-function statusTxt(pr){ return pr.done===0?'Sin datos aún':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total); }
+function statusTxt(pr,c){ if(c&&c.cerrada) return '🔒 Cerrada'; return pr.done===0?'Sin datos aún':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total); }
 
 function render(){
   $('#back').style.display = view.name==='semanas' ? 'none' : 'block';
@@ -399,7 +399,7 @@ function renderDia(){
           ${c&&c.tecnico?`<div class="tecmeta">👤 ${esc([c.tecnico,c.tecnico2].filter(Boolean).join(' / '))}</div>`:''}
         </div>
         <div class="prog">
-          <span class="ring ${cls}">${statusTxt(pr)}</span>
+          <span class="ring ${c&&c.cerrada?'done':cls}">${statusTxt(pr,c)}</span>
           ${c&&c.updatedAt?`<div class="updated">${relTime(c.updatedAt)}</div>`:''}
         </div>
       </button>`;
