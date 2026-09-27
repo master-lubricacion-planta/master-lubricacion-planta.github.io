@@ -117,6 +117,10 @@ details.sec>summary .badge{margin-left:auto}
 .itemrow .il .isub{display:block;font-size:11.5px;color:var(--ink-3);font-weight:600}
 .itemrow input.iv{width:110px;padding:9px 10px;font-size:16px;font-weight:700;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:right}
 .itemrow input.iv.filled{border-color:var(--ok);background:var(--ok-bg)}
+.cerradabox{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);border-radius:10px;padding:10px 12px;font-size:13.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn.mini{flex:0 0 auto;padding:6px 10px;font-size:12.5px} .btn.finalizar{background:var(--ok);color:#fff}
+#form.cerrada input,#form.cerrada select,#form.cerrada textarea{pointer-events:none;opacity:.8}
+#form.cerrada .secacc,#form.cerrada .solopend{display:none}
 td.dv15,.dv15{background:var(--orange-soft)!important;color:var(--orange-ink)}
 td.dv25,.dv25{background:var(--bad-bg)!important;color:var(--bad)}
 @media print{td.dv15,td.dv25{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
@@ -309,7 +313,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v136</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v137</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -456,7 +460,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='136';
+  window.LUB_VERSION='137';
   $('lubver').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
@@ -661,7 +665,7 @@ function syncCloud(f,d,cambios){
 const save=(f,d,cambios)=>{ if(window.LUB_VIEWER) return; localStorage.setItem(K(f),JSON.stringify(d)); syncCloud(f,d,cambios); flash(); };
 function fusionar(local,nube){
   const r=JSON.parse(JSON.stringify(local||{}));
-  for(const k of ['noc','noc2','hora','obs','registradoEn']) if(nube[k]!==undefined) r[k]=nube[k];
+  for(const k of ['noc','noc2','hora','obs','registradoEn','cerrada','cerradaPor','cerradaEn']) if(nube[k]!==undefined) r[k]=nube[k];
   r.vals=r.vals||{};
   for(const id in (nube.vals||{})) r.vals[id]=Object.assign({}, r.vals[id]||{}, nube.vals[id]);
   return r;
@@ -765,8 +769,9 @@ function renderDias(){
   for(let di=0;di<7;di++){
     const fecha=fechaDia(w,di), f=iso(fecha);
     const n=progreso(f);
-    const cls=n===0?'p0':(n>=NITEMS?'done':'part');
-    const txt=n===0?'Sin registro':(n>=NITEMS?'Completa ✓':n+' / '+NITEMS);
+    const cer=!!load(f).cerrada;
+    const cls=cer?'done':(n===0?'p0':(n>=NITEMS?'done':'part'));
+    const txt=cer?'🔒 Cerrada '+n+'/'+NITEMS:(n===0?'Sin registro':(n>=NITEMS?'Completa ✓':n+' / '+NITEMS));
     const esHoy=f===hoyIso;
     body+=`<button class="dcard ${esHoy?'now':''}" data-f="${f}">
       <span class="dn">${NOMBRES_DIA[di]}${esHoy?'<span class="hoytag">HOY</span>':''}</span><span class="df">${fmt(fecha)}</span>
@@ -804,6 +809,7 @@ function renderRegistro(){
   d.vals=d.vals||{};
   if(escuchaF!==f || !escuchaFn) escuchar(f);
   if(!d.noc && ME().nombre && !window.LUB_VIEWER) d.noc=ME().nombre; /* Nochero 1 = sesión */
+  const cerrada=!!d.cerrada, esAdmin=(window.LUB_USER&&window.LUB_USER.rol==='admin');
   const fecha=new Date(f+'T12:00:00');
   /* dia de la semana por comparación de fechas exactas (con aritmética de ms
      el mediodía daba 4.5 días y Math.round lo corría al día siguiente) */
@@ -836,7 +842,7 @@ function renderRegistro(){
     <div class="fhdr">
       <div class="tag">🌙 Ronda ${NOMBRES_DIA[di]||''} ${fmt(fecha)}</div>
       <div class="fd">Ruta crítica nocturna · Semana ${view.week} · registra la temperatura/presión de cada punto, o marca su estado (detenido / stand by / sin acceso).</div>
-      <div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div>
+      ${cerrada?`<div class="cerradabox">🔒 Ronda finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc((d.cerradaEn||'').slice(0,10))} ${esc(d.hfin||'')}${esAdmin?' <button class="btn ghost mini" id="rreabrir" type="button">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div>'}
       <div class="frow">
         <div><label>Nochero 1 (sesión)</label><input id="rnoc" value="${esc(d.noc||'')}" placeholder="Nombre y apellido" ${ME().nombre?'readonly':''}></div>
         <div><label>Nochero 2 (opcional)</label><input id="rnoc2" list="lnocheros" value="${esc(d.noc2||'')}" placeholder="Elige de la lista o escribe"><datalist id="lnocheros"></datalist></div>
@@ -848,10 +854,12 @@ function renderRegistro(){
     ${secs}
     <div class="grp">Observaciones de la ronda</div>
     <textarea class="obsg" id="robs" placeholder="Anomalías, ruidos, fugas, equipos con temperatura alta…">${esc(d.obs||'')}</textarea>
+    ${cerrada?'':'<div class="btnbar"><button class="btn primary finalizar" id="rfinalizar" type="button">✅ Finalizar ronda</button></div>'}
     <div class="btnbar">
       <button class="btn ghost" id="rborrar">Borrar registro</button>
     </div>
     <div class="fabspacer"></div>`;
+  if(cerrada) $('#form').classList.add('cerrada'); else $('#form').classList.remove('cerrada');
 
   function recoger(){
     d.noc=$('#rnoc').value; d.noc2=$('#rnoc2').value; d.hora=$('#rhora').value; d.obs=$('#robs').value;
@@ -894,7 +902,19 @@ function renderRegistro(){
   const aplicarSoloPend=()=>{ $('#form').classList.toggle('solopend',sp.checked); document.querySelectorAll('details.sec').forEach(sec=>{ if(sp.checked) sec.open=true; }); try{ sessionStorage.setItem('ruta_solopend',sp.checked?'1':''); }catch(e){} };
   try{ sp.checked=sessionStorage.getItem('ruta_solopend')==='1'; }catch(e){}
   sp.onchange=aplicarSoloPend; aplicarSoloPend();
-  const fab=$('#fabsave'); fab.classList.add('show');
+  const rf=$('#rfinalizar');
+  if(rf) rf.onclick=()=>{
+    recoger();
+    const pend=RUTA.reduce((a,s)=>a+s.items.filter(it=>!efectivoR(f,it[0],d.vals)).length,0);
+    if(pend && !confirm(`Quedan ${pend} puntos sin registrar. ¿Finalizar la ronda igual?`)) return;
+    if(!pend && !confirm('¿Finalizar la ronda? Queda bloqueada (solo el administrador puede reabrirla).')) return;
+    const n=new Date(); d.hfin=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+    d.cerrada=true; d.cerradaPor=ME().nombre||''; d.cerradaEn=n.toISOString();
+    save(f,d,{noc:d.noc,noc2:d.noc2,hora:d.hora,obs:d.obs,hfin:d.hfin,cerrada:true,cerradaPor:d.cerradaPor,cerradaEn:d.cerradaEn});
+    flash('🔒 Ronda finalizada'); render();
+  };
+  const rr=$('#rreabrir'); if(rr) rr.onclick=()=>{ if(!confirm('¿Reabrir esta ronda para edición?')) return; d.cerrada=false; save(f,d,{cerrada:false}); render(); };
+  const fab=$('#fabsave'); if(cerrada) fab.classList.remove('show'); else fab.classList.add('show');
   const fabtxt=fab.querySelector('.fabtxt'); fabtxt.textContent='Guardar ronda';
   fab.onclick=()=>{ recoger(); save(f,d); refrescarBadges(); fab.classList.add('saved'); fabtxt.textContent='✓ Guardada'; setTimeout(()=>{fab.classList.remove('saved'); fabtxt.textContent='Guardar ronda';},1500); };
 
