@@ -183,6 +183,7 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rep .fotosrep img{width:32%;border:1px solid #999}
 .rep .otbox{border:2px solid #b45309;background:#fdebd7;padding:4px 10px;border-radius:6px;font-weight:800}
 
+.alink{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:12px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);border-radius:999px;padding:3px 10px;text-decoration:none;margin-left:8px;vertical-align:2px}
 .pbar{position:sticky;top:var(--hh,96px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:0 0 10px;box-shadow:var(--shadow);font-size:13.5px}
 .pbar .pm{color:var(--bad);font-weight:800} .pbar .pok{color:var(--ok);font-weight:800}
 .pbar .bvolver{padding:7px 12px;font-size:13px}
@@ -632,7 +633,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
   const hasImg=IMGPLNS.includes(o.pauta);
   $('#form').innerHTML=`
     <div class="fhdr">
-      <div class="tag mono">${esc(o.tag)}</div>
+      <div class="tag mono">${esc(o.tag)} <a class="alink" href="tendencias.html?tag=${encodeURIComponent(o.tag)}" title="Ver análisis de aceite de este equipo">📈 Aceite</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
       ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=__IMGV__" alt="Equipo">`:''}

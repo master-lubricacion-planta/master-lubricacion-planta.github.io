@@ -680,6 +680,8 @@ function select(tag){
 
 // arranque: el peor equipo del ranking
 if(scored.length)select(scored[0].d[0]);
+/* ?tag=… (viene desde la pauta): abre ese equipo o deja el TAG en el buscador */
+try{ const tp=new URLSearchParams(location.search).get('tag'); if(tp){ const tt=DATA.find(x=>x[0]===tp)||DATA.find(x=>x[0].startsWith(tp+'-'))||DATA.find(x=>x[0].startsWith(tp)); if(tt){ select(tt[0]); setTimeout(()=>document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'}),200); } else { q.value=tp; refreshHits(); } } }catch(e){}
 
 });
 </script>
