@@ -524,7 +524,7 @@ function renderDetalle(){
   }
   $('#root').innerHTML=`
     <div class="dhdr">
-      <div class="tag mono">${esc(o.tag)}</div>
+      <div class="tag mono">${esc(o.tag)} <a class="bvolver" style="font-size:12px;padding:5px 10px;text-decoration:none" href="pautas.html?ot=${o.ot}">📋 Abrir en Pautas</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)}</div>
       <div class="frow">
         <div><b>Técnico(s)</b>${esc([c.tecnico,c.tecnico2].filter(Boolean).join(' / ')||'— sin datos —')}</div>

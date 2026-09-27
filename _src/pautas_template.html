@@ -1007,6 +1007,13 @@ async function descargarPdf(o,d){
 }
 
 render();
+/* enlaces directos: ?ot=843779 abre la pauta; ?q=0210-CRB deja el buscador listo */
+try{
+  const sp=new URLSearchParams(location.search);
+  const otp=sp.get('ot'), qp=sp.get('q');
+  if(otp){ let hit=null; for(const [w,plan] of Object.entries(PLANES)){ plan.days.forEach((d,di)=>d.ots.forEach(o=>{ if(o.ot===otp && o.pauta) hit={w:+w,di,ot:o.ot}; })); } if(hit){ view={name:'formulario',week:hit.w,di:hit.di,ot:hit.ot}; render(); } else if(qp||otp){ const qi=$('#qbuscar'); if(qi){ qi.value=otp; qi.dispatchEvent(new Event('input')); } } }
+  else if(qp){ const qi=$('#qbuscar'); if(qi){ qi.value=qp; qi.dispatchEvent(new Event('input')); qi.scrollIntoView({behavior:'smooth',block:'start'}); } }
+}catch(e){}
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
 </script>
 </body>
