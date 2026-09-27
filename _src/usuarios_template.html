@@ -220,6 +220,7 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
       <h3>🗄 Respaldo de la nube</h3>
       <p class="daysub" style="margin:0 0 6px">Descarga una copia completa de lo que hay en Firestore (pautas, ruta crítica, plan 52, muestras, consumibles y usuarios) en un archivo JSON. Recomendado: una vez por semana, guardarlo en SharePoint o en tu PC.</p>
       <button class="ubtn" id="urespaldo">⬇ Descargar respaldo</button>
+      <button class="ubtn ghost" id="ulistcsv" style="margin-left:8px">⬇ Lista de usuarios (Excel)</button>
       <div class="umsg" id="urmsg"></div>
     </div>
     <div class="ucard">
@@ -318,6 +319,11 @@ $('#urespaldo').onclick=async()=>{
   $('#urespaldo').disabled=false;
 };
 $('#urolf').onchange=cargar;
+$('#ulistcsv').onclick=async()=>{
+  try{ const snap=await db.collection('usuarios').get(); const filas=[['Nombre','Correo','Rol','Creado','Creado por']]; snap.forEach(d=>{ const x=d.data(); filas.push([x.nombre||'',x.email||'',ROL_TXT[x.rol]||x.rol||'',(x.creado||'').slice(0,10),x.creadoPor||'']); });
+    const celda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+    const b=new Blob(['\ufeff'+filas.map(f=>f.map(celda).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='usuarios_app_lubricacion.csv'; document.body.appendChild(a); a.click(); a.remove(); }catch(e){ alert('No se pudo exportar: '+(e.code||e.message)); }
+};
 /* esperar a que el candado resuelva el usuario */
 (function esperar(){ if(window.LUB_USER) cargar(); else setTimeout(esperar,200); })();
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
