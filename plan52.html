@@ -273,7 +273,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v123</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v124</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <script>
@@ -417,7 +417,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='123';
+  window.LUB_VERSION='124';
   $('lubver').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
@@ -659,6 +659,7 @@ function renderSemanas(){
 }
 
 let filtro='todas';
+let areaSel=(()=>{ try{ return localStorage.getItem('p52_area')||''; }catch(e){ return ''; } })();
 function renderSemana(){
   const w=view.week, r=rangoSemana(w), st=statsSemana(w);
   if(escuchaW!==w || !escuchaFn) escuchar(w);
@@ -667,6 +668,7 @@ function renderSemana(){
   const vals=load(w);
   let secs='';
   for(const a of Object.keys(areas)){
+    if(areaSel && a!==areaSel) continue; /* solo mi área */
     let filas=''; let done=0; let visibles=0;
     for(const it of areas[a]){
       const v=efectivo(w,it.n)||{};
@@ -708,13 +710,16 @@ function renderSemana(){
       <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
       <button class="fchip ${filtro==='pend'?'on':''}" data-f="pend">Pendientes (sin R)</button>
       <button class="fchip ${filtro==='hechas'?'on':''}" data-f="hechas">Realizadas</button>
+      <select class="fchip" id="fsel" aria-label="Área"><option value="">Todas las áreas</option>${Object.keys(areas).map(a=>`<option value="${a}" ${areaSel===a?'selected':''}>${esc(AREA_NAMES[a]||('Área '+a))}</option>`).join('')}</select>
       <button class="fchip" id="verres">📋 Resumen / imprimir</button>
     </div>
+    ${areaSel?`<p class="daysub" style="margin:0 0 8px">Mostrando solo <b>${esc(AREA_NAMES[areaSel]||areaSel)}</b> (la app recuerda tu área en este dispositivo).</p>`:''}
     ${secs||'<div class="hint">Nada que mostrar con este filtro.</div>'}
     <div class="fabspacer"></div>`;
 
   document.querySelectorAll('.fchip[data-f]').forEach(b=>b.onclick=()=>{ filtro=b.dataset.f; render(); });
   $('#verres').onclick=()=>{ view={name:'resumen',week:w}; render(); };
+  $('#fsel').onchange=()=>{ areaSel=$('#fsel').value; try{ localStorage.setItem('p52_area',areaSel); }catch(e){} render(); };
 
   function setVal(n,mut){
     const cur=load(w);

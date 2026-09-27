@@ -353,6 +353,7 @@ function renderSemanas(){
 }
 
 let filtro='todas';
+let areaSel=(()=>{ try{ return localStorage.getItem('p52_area')||''; }catch(e){ return ''; } })();
 function renderSemana(){
   const w=view.week, r=rangoSemana(w), st=statsSemana(w);
   if(escuchaW!==w || !escuchaFn) escuchar(w);
@@ -361,6 +362,7 @@ function renderSemana(){
   const vals=load(w);
   let secs='';
   for(const a of Object.keys(areas)){
+    if(areaSel && a!==areaSel) continue; /* solo mi área */
     let filas=''; let done=0; let visibles=0;
     for(const it of areas[a]){
       const v=efectivo(w,it.n)||{};
@@ -402,13 +404,16 @@ function renderSemana(){
       <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
       <button class="fchip ${filtro==='pend'?'on':''}" data-f="pend">Pendientes (sin R)</button>
       <button class="fchip ${filtro==='hechas'?'on':''}" data-f="hechas">Realizadas</button>
+      <select class="fchip" id="fsel" aria-label="Área"><option value="">Todas las áreas</option>${Object.keys(areas).map(a=>`<option value="${a}" ${areaSel===a?'selected':''}>${esc(AREA_NAMES[a]||('Área '+a))}</option>`).join('')}</select>
       <button class="fchip" id="verres">📋 Resumen / imprimir</button>
     </div>
+    ${areaSel?`<p class="daysub" style="margin:0 0 8px">Mostrando solo <b>${esc(AREA_NAMES[areaSel]||areaSel)}</b> (la app recuerda tu área en este dispositivo).</p>`:''}
     ${secs||'<div class="hint">Nada que mostrar con este filtro.</div>'}
     <div class="fabspacer"></div>`;
 
   document.querySelectorAll('.fchip[data-f]').forEach(b=>b.onclick=()=>{ filtro=b.dataset.f; render(); });
   $('#verres').onclick=()=>{ view={name:'resumen',week:w}; render(); };
+  $('#fsel').onchange=()=>{ areaSel=$('#fsel').value; try{ localStorage.setItem('p52_area',areaSel); }catch(e){} render(); };
 
   function setVal(n,mut){
     const cur=load(w);
