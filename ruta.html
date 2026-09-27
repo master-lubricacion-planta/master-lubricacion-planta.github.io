@@ -322,7 +322,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v149</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v150</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -470,7 +470,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='149';
+  window.LUB_VERSION='150';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -974,7 +974,7 @@ async function renderPlanilla(){
   $('#planilla').innerHTML=`
     <div class="dayhdr">📋 Planilla semanal · Semana ${w}</div>
     <p class="daysub">Monitoreo de equipos críticos · Jueves ${fmt(r.ini)} al Miércoles ${fmt(r.fin)} · vista para revisar o imprimir (así se traspasa igual que la planilla Excel). <span class="dv15" style="padding:1px 6px;border-radius:6px">naranjo ≥15%</span> · <span class="dv25" style="padding:1px 6px;border-radius:6px">rojo ≥25%</span> respecto al promedio histórico del punto.</p>
-    <div class="btnbar noprint"><button class="btn primary" id="plimp">🖨 Imprimir / PDF</button></div>
+    <div class="btnbar noprint"><button class="btn primary" id="plimp">🖨 Imprimir / PDF</button><button class="btn ghost" id="plcsv">⬇ Excel</button></div>
     <div class="plwrap"><table class="pl">
       <tr><th style="text-align:left">Equipo / Punto</th>${fechas.map((f,i)=>`<th>${NOMBRES_DIA[i].slice(0,3)}<br>${fmt(new Date(f+'T12:00:00'))}</th>`).join('')}</tr>
       <tr><td class="eq"><b>Nochero(s)</b></td>${nocs.map(n=>`<td style="font-size:10px">${esc(n)}</td>`).join('')}</tr>
@@ -982,6 +982,13 @@ async function renderPlanilla(){
     </table></div>
     <div style="height:30px"></div>`;
   $('#plimp').onclick=()=>window.print();
+  $('#plcsv').onclick=()=>{
+    const celda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+    const filas=[['Área','Sección','Punto','Detalle','Unidad'].concat(fechas.map((f,i)=>NOMBRES_DIA[i]+' '+f))];
+    filas.push(['','','Nochero(s)','',''].concat(nocs));
+    RUTA.forEach(s=>s.items.forEach(it=>{ const [id,l,sub,u]=it; filas.push([s.area,s.sec,l,sub,u].concat(datos.map((d,ix)=>{ const st=efectivoR(fechas[ix],id,d.vals)||{}; return String(st.v||'').trim()?String(st.v).replace('.',','):(st.e||''); }))); }));
+    const b=new Blob(['\ufeff'+filas.map(f=>f.map(celda).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='ruta_critica_semana'+w+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  };
 }
 
 function renderTendencias(){
