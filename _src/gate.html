@@ -267,6 +267,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     var email=$('lubgemail').value.trim().toLowerCase(), pass=$('lubgpass').value;
     if(!email||!pass){ fallo('Escribe tu correo y contraseña'); return; }
     btn.disabled=true; err.classList.remove('show');
+    try{ localStorage.setItem('lub_email',email); }catch(e){}
     auth.signInWithEmailAndPassword(email,pass).catch(function(e){ fallo(MSG[e.code]||('No se pudo entrar ('+e.code+')')); }).then(function(){ btn.disabled=false; });
   });
   $('lubgreset').onclick=function(){
@@ -280,7 +281,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     return;
   }
   auth.onAuthStateChanged(function(u){
-    if(!u){ mostrar('form'); return; }
+    if(!u){ mostrar('form'); try{ var le=localStorage.getItem('lub_email'); if(le && !$('lubgemail').value){ $('lubgemail').value=le; $('lubgpass').focus(); } }catch(e){} return; }
     mostrar('load');
     var ref=db.collection('usuarios').doc(u.uid);
     ref.get().then(function(snap){ return snap.exists?snap.data():null; }, function(){ return null; }).then(function(perfil){
