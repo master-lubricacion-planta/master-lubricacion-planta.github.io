@@ -283,7 +283,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v130</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v131</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <script>
@@ -427,7 +427,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='130';
+  window.LUB_VERSION='131';
   $('lubver').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
@@ -527,7 +527,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
       <div class="umsg" id="urmsg"></div>
     </div>
     <div class="ucard">
-      <h3>👥 Usuarios registrados</h3>
+      <h3 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">👥 Usuarios registrados <span id="ucount" style="font-size:12px;color:var(--ink-3);font-weight:600"></span><select id="urolf" class="ubtn ghost" style="margin-left:auto"><option value="">Todos los roles</option><option value="tecnico">Técnicos</option><option value="supervisor">Supervisores</option><option value="admin">Administradores</option><option value="inactivo">Desactivados</option></select></h3>
       <div class="ulist" id="ulist"><div class="hint">Cargando…</div></div>
     </div>
   </div>
@@ -587,7 +587,10 @@ async function cargar(){
     const snap=await db.collection('usuarios').get();
     const us=[]; snap.forEach(d=>us.push(Object.assign({uid:d.id},d.data())));
     us.sort((a,b)=>(a.rol==='inactivo')-(b.rol==='inactivo') || (a.nombre||'').localeCompare(b.nombre||''));
-    if(!us.length){ box.innerHTML='<div class="hint">Aún no hay usuarios.</div>'; return; }
+    const cnt={}; us.forEach(x=>{ cnt[x.rol]=(cnt[x.rol]||0)+1; });
+    $('#ucount').textContent=us.length+' en total · '+Object.entries(cnt).map(([r,n])=>n+' '+(ROL_TXT[r]||r).toLowerCase()+(n>1?'s':'')).join(' · ');
+    const rf=$('#urolf').value; if(rf) us=us.filter(x=>x.rol===rf);
+    if(!us.length){ box.innerHTML='<div class="hint">'+(rf?'Ningún usuario con ese rol.':'Aún no hay usuarios.')+'</div>'; return; }
     const yo=(window.LUB_USER&&window.LUB_USER.uid)||'';
     box.innerHTML=us.map(u=>`<div class="urow ${u.rol==='inactivo'?'inactivo':''}" data-uid="${esc(u.uid)}">
       <div><div class="un">${esc(u.nombre||'—')}${u.uid===yo?' <span style="color:var(--orange-ink);font-size:11px">(tú)</span>':''}</div><div class="ue">${esc(u.email||'')}</div></div>
@@ -618,6 +621,7 @@ $('#urespaldo').onclick=async()=>{
   }catch(e){ m.className='umsg bad'; m.textContent='No se pudo generar el respaldo: '+(e.code||e.message); }
   $('#urespaldo').disabled=false;
 };
+$('#urolf').onchange=cargar;
 /* esperar a que el candado resuelva el usuario */
 (function esperar(){ if(window.LUB_USER) cargar(); else setTimeout(esperar,200); })();
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')); }
