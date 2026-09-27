@@ -256,6 +256,8 @@ html[data-theme="dark"] #lubnov .nvcard{background:#111c3d;color:#e8edf8}
 #lubnov .nv{padding:7px 0;border-top:1px solid rgba(128,128,128,.25)} #lubnov .nv b{display:inline-block;min-width:44px;color:#f5822b}
 #lubnov .nvbtns{display:flex;gap:8px;margin-top:14px} #lubnov .nvbtns button{flex:1;padding:11px;border-radius:10px;border:0;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
 #nvact{background:#0c2a66;color:#fff} #nvcerrar{background:#e4ebf8;color:#0c2a66}
+#lubquien{position:fixed;left:50%;transform:translateX(-50%);bottom:64px;z-index:58;background:#0b1c47;color:#fff;font:14px/1.4 -apple-system,"Segoe UI",Roboto,sans-serif;padding:12px 16px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:92vw;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#lubquien button{border:0;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;font-family:inherit} #lubsoy{background:#1d7a4f;color:#fff} #lubotro{background:#f5822b;color:#fff}
 #lubtop{position:fixed;right:12px;bottom:56px;z-index:44;width:42px;height:42px;border-radius:50%;border:0;background:rgba(11,28,71,.75);color:#fff;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 #lubtop[hidden]{display:none}
 @media print{#lubtop{display:none!important}}
@@ -314,7 +316,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v151</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v152</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -456,13 +458,26 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     lubBadgeConsumo(); /* la barra de navegación ya existe en este punto */
     root.classList.toggle('lub-admin',perfil.rol==='admin');
     $('lubuserbar').classList.add('show');
+    /* tablet compartida: si la sesión lleva más de 12 h, confirmar identidad al entrar */
+    try{
+      var ini=parseInt(localStorage.getItem('lub_sesion_ini')||'0',10);
+      if(!ini){ localStorage.setItem('lub_sesion_ini',String(Date.now())); }
+      else if(Date.now()-ini>12*3600000 && !sessionStorage.getItem('lub_confirmado')){
+        var hrs=Math.round((Date.now()-ini)/3600000);
+        var av=document.createElement('div'); av.id='lubquien';
+        av.innerHTML='👤 Esta tablet tiene la sesión de <b>'+(perfil.nombre||u.email)+'</b> desde hace '+hrs+' h. ¿Eres tú? <button id="lubsoy">Sí, soy yo</button><button id="lubotro">Cambiar de técnico</button>';
+        document.body.appendChild(av);
+        av.querySelector('#lubsoy').onclick=function(){ sessionStorage.setItem('lub_confirmado','1'); localStorage.setItem('lub_sesion_ini',String(Date.now())); av.remove(); };
+        av.querySelector('#lubotro').onclick=function(){ localStorage.removeItem('lub_sesion_ini'); salir(); };
+      }
+    }catch(e){}
     /* recién ahora se cargan los datos que pidió la página; el candado se quita al terminar */
     mostrar('load'); load.textContent='Cargando datos…';
     _listo=true; procesar();
   }
-  function salir(){ auth.signOut().then(function(){ location.reload(); }); }
+  function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='151';
+  window.LUB_VERSION='152';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
