@@ -370,7 +370,19 @@ function renderDias(){
       <button class="${subvista==='hallazgos'?'on':''}" data-v="hallazgos">⚠ Hallazgos (${hallazgos.length})</button>
       <button class="${subvista==='dias'?'on':''}" data-v="dias">Por día</button>
       <button id="binforme" style="margin-left:auto;background:var(--accent);color:#fff;border-color:var(--accent)">📄 Informe semanal</button>
+      <button id="bexcel" title="Descarga 3 archivos CSV (se abren en Excel): por técnico, hallazgos y avance por día">⬇ Excel</button>
     </div>`;
+    /* exportación CSV para Excel (UTF-8 con BOM y ';' como separador, formato es-CL) */
+    const csvCelda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+    const csv=(filas)=>'\ufeff'+filas.map(f=>f.map(csvCelda).join(';')).join('\r\n');
+    const descargar=(nombre,texto)=>{ const b=new Blob([texto],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); };
+    window.__exportarExcel=()=>{
+      const tag='S'+w+'_'+fmt(r.ini).replace('.','-');
+      descargar('tecnicos_'+tag+'.csv', csv([['Semana','Técnico','Completas','En progreso','Hallazgos M'],...Object.entries(porTec).map(([n,t])=>[w,n,t.done,t.part,t.m])]));
+      descargar('hallazgos_'+tag+'.csv', csv([['Semana','Día','OT','TAG','Equipo','N°','Actividad','Valor','Observación','Técnico','Actualizado'],...hallazgos.map(h=>[w,h.dia,h.ot,h.tag,h.desc,h.n,h.ad,h.v,h.o,h.tec,h.upd])]));
+      const filasDia=[]; plan.days.forEach(d=>d.ots.forEach(o=>{ const c=CLOUD[o.ot]||{}; const pr=o.pauta?progress(o):null; const est=!o.pauta?'Sin pauta digital':(c.cerrada?'Cerrada':(pr.done===0?'Pendiente':(pr.done>=pr.total?'Completa':'En progreso'))); filasDia.push([w,d.nombre,d.fecha,o.ot,o.tag,o.desc,o.pauta||'',est,pr?pr.done+'/'+pr.total:'',c.tecnico||'',c.tecnico2||'',c.fecha||'',c.hini||'',c.hter||'']); }));
+      descargar('avance_'+tag+'.csv', csv([['Semana','Día','Fecha','OT','TAG','Equipo','Pauta','Estado','Avance','Técnico 1','Técnico 2','Fecha reg.','Inicio','Término'],...filasDia]));
+    };
     /* informe imprimible (PDF desde el diálogo de impresión) con los datos de la semana */
     const hoy=new Date();
     const gen=hoy.toLocaleDateString('es-CL')+' '+String(hoy.getHours()).padStart(2,'0')+':'+String(hoy.getMinutes()).padStart(2,'0');
@@ -409,6 +421,7 @@ function renderDias(){
     ${body}`;
   document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'dia',week:w,di:+b.dataset.i}; render(); });
   document.querySelectorAll('.vw button[data-v]').forEach(b=>b.onclick=()=>{ subvista=b.dataset.v; render(); });
+  const bx=$('#bexcel'); if(bx) bx.onclick=()=>window.__exportarExcel();
   const bi=$('#binforme'); if(bi) bi.onclick=()=>{ $('#informe').innerHTML=window.__informeHtml||''; document.body.classList.add('imprimiendo'); window.print(); setTimeout(()=>document.body.classList.remove('imprimiendo'),1500); };
   document.querySelectorAll('.hall').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
 }

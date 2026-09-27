@@ -314,7 +314,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <script>
 (function(){
@@ -323,6 +323,11 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
   var ROL_TXT={admin:'Administrador',tecnico:'Técnico',supervisor:'Supervisor'};
   var firebaseConfig={apiKey:"AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",authDomain:"lubricacion-teck-qb.firebaseapp.com",projectId:"lubricacion-teck-qb",storageBucket:"lubricacion-teck-qb.firebasestorage.app",messagingSenderId:"697204585611",appId:"1:697204585611:web:824c3cf28291bdf1ec108e"};
   var root=document.documentElement;
+  /* tema: 'auto' (según el sistema), 'dark' (noche/terreno) o 'light'; recordado por dispositivo */
+  var TEMAS=['auto','dark','light'], TEMA_TXT={auto:'🌗 Auto',dark:'🌙 Oscuro',light:'☀️ Claro'};
+  function leerTema(){ try{ var t=localStorage.getItem('lub_tema'); return TEMAS.indexOf(t)>=0?t:'auto'; }catch(e){ return 'auto'; } }
+  function aplicarTema(t){ if(t==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',t); var b=document.getElementById('lubtema'); if(b) b.textContent=TEMA_TXT[t]; }
+  aplicarTema(leerTema());
   root.classList.add('lub-locked');
   window.LUB_VIEWER=true; root.classList.add('lub-viewer');
   window.LUB_USER=null; window.LUB_ROL=null;
@@ -439,6 +444,8 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
+  $('lubtema').onclick=function(){ var t=TEMAS[(TEMAS.indexOf(leerTema())+1)%TEMAS.length]; try{ localStorage.setItem('lub_tema',t); }catch(e){} aplicarTema(t); };
+  aplicarTema(leerTema());
 
   var MSG={'auth/invalid-credential':'Correo o contraseña incorrectos','auth/wrong-password':'Correo o contraseña incorrectos','auth/user-not-found':'Correo o contraseña incorrectos','auth/invalid-email':'El correo no es válido','auth/too-many-requests':'Demasiados intentos. Espera unos minutos e inténtalo de nuevo','auth/network-request-failed':'Sin conexión a internet. Para entrar por primera vez en este dispositivo necesitas señal','auth/user-disabled':'Esta cuenta está deshabilitada','auth/configuration-not-found':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/operation-not-allowed':'El acceso por correo aún no está habilitado en el servidor (avisa al administrador)','auth/missing-password':'Escribe tu contraseña'};
 
@@ -901,7 +908,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)}</div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=107" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=109" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
