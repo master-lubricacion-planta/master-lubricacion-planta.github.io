@@ -189,6 +189,7 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .night.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)} .night.no{background:var(--na-bg);color:var(--na)}
 .vw{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
 .vw button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink-2)}
+.vw .tsel{border:1.5px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:7px 10px;font-size:13px;font-weight:700}
 .vw button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
 </style>
 </head>
@@ -300,7 +301,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v128</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v129</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <script>
@@ -444,7 +445,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='128';
+  window.LUB_VERSION='129';
   $('lubver').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
@@ -618,7 +619,7 @@ const firebaseConfig = {
   messagingSenderId: "697204585611",
   appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
 };
-let CLOUD={}; let RUTA_CLOUD={}; let cloudReady=false; let cloudErr=false; let subvista='resumen';
+let CLOUD={}; let RUTA_CLOUD={}; let cloudReady=false; let cloudErr=false; let subvista='resumen'; let tecSel='';
 try{
   if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); /* el candado (gate.html) ya la inicializa */
   const db=firebase.firestore();
@@ -750,6 +751,7 @@ function renderDias(){
       <button class="${subvista==='resumen'?'on':''}" data-v="resumen">Resumen</button>
       <button class="${subvista==='hallazgos'?'on':''}" data-v="hallazgos">⚠ Hallazgos (${hallazgos.length})</button>
       <button class="${subvista==='dias'?'on':''}" data-v="dias">Por día</button>
+      <select id="tsel2" class="tsel"><option value="">👤 Por técnico…</option>${Object.keys(porTec).sort().map(n=>`<option value="${esc(n)}" ${tecSel===n?'selected':''}>${esc(n)}</option>`).join('')}</select>
       <button id="binforme" style="margin-left:auto;background:var(--accent);color:#fff;border-color:var(--accent)">📄 Informe semanal</button>
       <button id="bexcel" title="Descarga 3 archivos CSV (se abren en Excel): por técnico, hallazgos y avance por día">⬇ Excel</button>
     </div>`;
@@ -787,6 +789,11 @@ function renderDias(){
       ${(()=>{ const al=alertasRuta(fechasSem); return al.length?`<h3 style="margin-top:12px">🌡 Desviaciones ≥25% esta semana (${al.length})</h3><table class="tbl"><tr><th>Noche</th><th>Punto</th><th>Valor</th><th>Prom.</th><th>Desv.</th></tr>${al.slice(0,15).map(a=>`<tr><td>${a.f.slice(8,10)}-${a.f.slice(5,7)}</td><td>${esc(a.meta.l)}${a.meta.sub?' · '+esc(a.meta.sub):''}<br><span style="color:var(--ink-3);font-size:11px">${esc(a.meta.sec)}</span></td><td class="num" style="color:${Math.abs(a.pct)>=25?'var(--bad)':'inherit'}">${String(a.v).replace('.',',')} ${esc(a.meta.u)}</td><td class="num">${a.prom.toFixed(1).replace('.',',')}</td><td class="num" style="color:var(--bad)">${a.pct>0?'+':''}${a.pct.toFixed(0)}%</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:8px 0 0">Sin desviaciones ≥25% respecto al histórico en las rondas de esta semana.</p>'; })()}</div>
       <div class="sec2"><h3>🛢 Lubricantes bajo stock mínimo</h3>${(()=>{ const b=stockBajo(); return b.length?`<table class="tbl"><tr><th>Producto</th><th>Ubicación</th><th>Stock</th><th>Mínimo</th></tr>${b.map(x=>`<tr><td>${esc(x.prod)}</td><td>${esc(x.ubi||'')}</td><td class="num" style="color:var(--bad)">${x.stock.toLocaleString('es-CL',{maximumFractionDigits:1})} ${esc(x.uni)}</td><td class="num">${x.min.toLocaleString('es-CL')} ${esc(x.uni)}</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:0">Todos los lubricantes están sobre su stock mínimo. 👍</p>'; })()}</div>
       <div class="sec2"><h3>📭 Sin pauta digital</h3><p class="daysub" style="margin:0">${tot.sind} OT de la semana no tienen pauta xlsx en Máximo (PDF escaneado o sin adjunto); se ejecutan en papel.</p></div>`;
+    } else if(subvista==='tecnico' && tecSel){
+      const cards=[]; let cer=0,com=0,prog=0,mm=0;
+      plan.days.forEach((d,di)=>d.ots.forEach(o=>{ if(!o.pauta) return; const c=CLOUD[o.ot]; if(!c) return; const nombre=(c.tecnico||(c.actualizadoPor&&c.actualizadoPor.nombre)||'').trim(); if(nombre!==tecSel) return; const pr=progress(o); const cls=statusClass(pr); if(c.cerrada) cer++; else if(cls==='done') com++; else prog++; const p2=byId[o.pauta]; const m=p2.acts.filter(a=>c.acts&&c.acts[a.n]&&c.acts[a.n].e==='M').length; mm+=m;
+        cards.push(`<button class="otcard" data-ot="${o.ot}" data-di="${di}"><div class="otinfo"><div class="tag mono">${esc(o.tag)}</div><div class="otd">${esc(o.desc)}</div><div class="otmeta">OT ${o.ot} · ${esc(d.nombre)} ${esc(d.fecha)} · ${esc(p2.titulo)}${m?` · <span style="color:var(--bad)">${m} M</span>`:''}</div></div><div class="prog"><span class="ring ${c.cerrada?'done':cls}">${statusTxt(pr,c)}</span>${c.updatedAt?`<div class="updated">${relTime(c.updatedAt)}</div>`:''}</div></button>`); }));
+      body=`<div class="sec2"><h3>👤 ${esc(tecSel)} · semana ${w}</h3><p class="daysub" style="margin:0">${cards.length} OT registradas · ${cer} cerradas · ${com} completas · ${prog} en progreso · ${mm} hallazgos M</p></div>`+(cards.join('')||'<div class="hint">Este técnico no registró pautas esta semana.</div>');
     } else if(subvista==='hallazgos'){
       body=hallazgos.length?hallazgos.map(h=>`<button class="hall" data-ot="${h.ot}" data-di="${h.di}">
         <div class="h1"><span class="mono">${esc(h.tag)}</span> · OT ${h.ot} · ${esc(h.dia)}</div>
@@ -803,7 +810,9 @@ function renderDias(){
     ${summHtml}
     ${body}`;
   document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'dia',week:w,di:+b.dataset.i}; render(); });
-  document.querySelectorAll('.vw button[data-v]').forEach(b=>b.onclick=()=>{ subvista=b.dataset.v; render(); });
+  document.querySelectorAll('.vw button[data-v]').forEach(b=>b.onclick=()=>{ subvista=b.dataset.v; tecSel=''; render(); });
+  const ts2=$('#tsel2'); if(ts2) ts2.onchange=()=>{ tecSel=ts2.value; subvista=tecSel?'tecnico':'resumen'; render(); };
+  document.querySelectorAll('.otcard[data-ot][data-di]').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
   const bx=$('#bexcel'); if(bx) bx.onclick=()=>window.__exportarExcel();
   const bi=$('#binforme'); if(bi) bi.onclick=()=>{ $('#informe').innerHTML=window.__informeHtml||''; document.body.classList.add('imprimiendo'); window.print(); setTimeout(()=>document.body.classList.remove('imprimiendo'),1500); };
   document.querySelectorAll('.hall').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
