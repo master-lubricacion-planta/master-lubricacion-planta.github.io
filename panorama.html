@@ -316,7 +316,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v158</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v159</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -477,7 +477,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='158';
+  window.LUB_VERSION='159';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -812,6 +812,7 @@ function renderDias(){
       <select id="tsel2" class="tsel"><option value="">👤 Por técnico…</option>${Object.keys(porTec).sort().map(n=>`<option value="${esc(n)}" ${tecSel===n?'selected':''}>${esc(n)}</option>`).join('')}</select>
       <button id="binforme" style="margin-left:auto;background:var(--accent);color:#fff;border-color:var(--accent)">📄 Informe semanal</button>
       <button id="bexcel" title="Descarga 3 archivos CSV (se abren en Excel): por técnico, hallazgos y avance por día">⬇ Excel</button>
+      <button id="bshare" title="Resumen en texto para WhatsApp o correo">📤 Compartir</button>
     </div>`;
     /* exportación CSV para Excel (UTF-8 con BOM y ';' como separador, formato es-CL) */
     const csvCelda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
@@ -881,6 +882,12 @@ function renderDias(){
   const ts2=$('#tsel2'); if(ts2) ts2.onchange=()=>{ tecSel=ts2.value; subvista=tecSel?'tecnico':'resumen'; render(); };
   document.querySelectorAll('.otcard[data-ot][data-di]').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
   const bx=$('#bexcel'); if(bx) bx.onclick=()=>window.__exportarExcel();
+  const bs=$('#bshare'); if(bs) bs.onclick=async()=>{
+    const tec=Object.entries(porTec).sort((a,b)=>(b[1].done+b[1].part)-(a[1].done+a[1].part)).map(([n,t2])=>`• ${n}: ${t2.done} completas, ${t2.part} en progreso${t2.m?', '+t2.m+' M':''}`);
+    const txt=[`*Lubricación · Semana ${w} · Turno ${t}* (${fmt(r.ini)} – ${fmt(r.fin)})`,`Cumplimiento ${pct}% · ${tot.done} completas · ${tot.part} en progreso · ${tot.p0} pendientes · ${tot.sind} sin pauta digital`,`Hallazgos M: ${hallazgos.length} · Ronda nocturna: ${noches}/7 noches`,tec.length?'Por técnico:':'',...tec,hallazgos.length?'Hallazgos:':'',...hallazgos.slice(0,10).map(h=>`⚠ ${h.tag} OT ${h.ot} · ${h.n}. ${h.ad}${h.o?' — '+h.o:''}`),hallazgos.length>10?`… y ${hallazgos.length-10} más`:'',`(${location.origin}${location.pathname})`].filter(Boolean).join('\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<');
+    try{ if(navigator.share){ await navigator.share({title:'Lubricación semana '+w,text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+    try{ await navigator.clipboard.writeText(txt); alert('Resumen copiado — pégalo en WhatsApp o correo.'); }catch(e){ alert(txt); }
+  };
   const bi=$('#binforme'); if(bi) bi.onclick=()=>{ $('#informe').innerHTML=window.__informeHtml||''; document.body.classList.add('imprimiendo'); window.print(); setTimeout(()=>document.body.classList.remove('imprimiendo'),1500); };
   document.querySelectorAll('.hall').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
 }
