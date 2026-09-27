@@ -316,7 +316,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v156</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v157</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -477,7 +477,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='156';
+  window.LUB_VERSION='157';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -795,7 +795,7 @@ function renderDias(){
     const NOM=['Jue','Vie','Sáb','Dom','Lun','Mar','Mié'];
     let noches=0; const nochesHtml=[];
     const fechasSem=[];
-    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); fechasSem.push(k); const rd=RUTA_CLOUD[k]; const nreg=rd&&rd.vals?Object.values(rd.vals).filter(x=>x&&(String(x.v||'').trim()||x.e)).length:0; const lleno=nreg>0; if(lleno) noches++; const pctN=Math.round(100*nreg/RUTA_N); nochesHtml.push(`<span class="night ${rd&&rd.cerrada?'ok':(lleno?'part':'no')}" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}${rd&&rd.cerrada?' · cerrada '+esc(rd.hfin||''):''}">${NOM[i]} ${fmt(f)}${rd&&rd.cerrada?' 🔒':(lleno?' '+pctN+'%':'')}</span>`); }
+    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); fechasSem.push(k); const rd=RUTA_CLOUD[k]; const nreg=rd&&rd.vals?Object.values(rd.vals).filter(x=>x&&(String(x.v||'').trim()||x.e)).length:0; const lleno=nreg>0; if(lleno) noches++; const pctN=Math.round(100*nreg/RUTA_N); nochesHtml.push(`<a class="night ${rd&&rd.cerrada?'ok':(lleno?'part':'no')}" href="ruta.html?f=${k}" style="text-decoration:none" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}${rd&&rd.cerrada?' · cerrada '+esc(rd.hfin||''):''} · abrir en Ruta Crítica">${NOM[i]} ${fmt(f)}${rd&&rd.cerrada?' 🔒':(lleno?' '+pctN+'%':'')}</a>`); }
     summHtml=`
     <div class="kp">
       <div class="k ${pct>=90?'ok':(pct>=60?'warn':'bad')}"><b>${pct}%</b><span>Cumplimiento</span></div>

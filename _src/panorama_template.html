@@ -394,7 +394,7 @@ function renderDias(){
     const NOM=['Jue','Vie','Sáb','Dom','Lun','Mar','Mié'];
     let noches=0; const nochesHtml=[];
     const fechasSem=[];
-    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); fechasSem.push(k); const rd=RUTA_CLOUD[k]; const nreg=rd&&rd.vals?Object.values(rd.vals).filter(x=>x&&(String(x.v||'').trim()||x.e)).length:0; const lleno=nreg>0; if(lleno) noches++; const pctN=Math.round(100*nreg/RUTA_N); nochesHtml.push(`<span class="night ${rd&&rd.cerrada?'ok':(lleno?'part':'no')}" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}${rd&&rd.cerrada?' · cerrada '+esc(rd.hfin||''):''}">${NOM[i]} ${fmt(f)}${rd&&rd.cerrada?' 🔒':(lleno?' '+pctN+'%':'')}</span>`); }
+    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); fechasSem.push(k); const rd=RUTA_CLOUD[k]; const nreg=rd&&rd.vals?Object.values(rd.vals).filter(x=>x&&(String(x.v||'').trim()||x.e)).length:0; const lleno=nreg>0; if(lleno) noches++; const pctN=Math.round(100*nreg/RUTA_N); nochesHtml.push(`<a class="night ${rd&&rd.cerrada?'ok':(lleno?'part':'no')}" href="ruta.html?f=${k}" style="text-decoration:none" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}${rd&&rd.cerrada?' · cerrada '+esc(rd.hfin||''):''} · abrir en Ruta Crítica">${NOM[i]} ${fmt(f)}${rd&&rd.cerrada?' 🔒':(lleno?' '+pctN+'%':'')}</a>`); }
     summHtml=`
     <div class="kp">
       <div class="k ${pct>=90?'ok':(pct>=60?'warn':'bad')}"><b>${pct}%</b><span>Cumplimiento</span></div>
