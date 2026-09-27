@@ -177,6 +177,7 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rep table{width:100%;border-collapse:collapse;margin-top:6px}
 .rep th,.rep td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top;font-size:11px}
 .rep th{background:#e8ecf5}
+.rep tr.malo td{background:#fde2e0;font-weight:700}
 .rep .gr td{background:#f0f2f8;font-weight:700;text-transform:uppercase;font-size:10px}
 .rep .foot{margin-top:10px;font-size:10px;color:#444;display:flex;justify-content:space-between}
 .rep .fotosrep{display:flex;gap:8px;margin-top:10px}
@@ -842,7 +843,7 @@ async function renderInforme(ot){
     if(a.g!==lastG){ rows+=`<tr class="gr"><td colspan="5">${esc(a.g||'Actividades')}</td></tr>`; lastG=a.g; }
     const st=d.acts[a.n]||{};
     const L=limFor(o,a);
-    rows+=`<tr><td>${a.n}</td><td>${esc(a.d)}${L.custom?' ⭐':''}</td><td>${esc(st.v||'')}</td><td style="text-align:center;font-weight:700">${esc(st.e||'')}</td><td>${esc(st.o||'')}</td></tr>`;
+    rows+=`<tr${st.e==='M'?' class="malo"':''}><td>${a.n}</td><td>${esc(a.d)}${L.custom?' ⭐':''}</td><td>${esc(st.v||'')}</td><td style="text-align:center;font-weight:700">${esc(st.e||'')}</td><td>${esc(st.o||'')}</td></tr>`;
   }
   /* Las fotos NO van en informes ni PDFs: quedan solo guardadas en la app
      (dispositivo + nube), como respaldo interno de la inspección. */
@@ -853,7 +854,8 @@ async function renderInforme(ot){
         <div><b>${esc(o.tag)}</b> · ${esc(o.desc)} · Semana ${view.week} · ${esc(dia.nombre)} ${esc(dia.fecha)}</div></div>
       <div style="text-align:right"><span class="otbox">OT ${esc(d.ot||o.ot)}</span><br>${esc(o.pauta)}</div>
     </div>
-    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b></div>
+    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b>${d.cerrada?` &nbsp; <span class="otbox">🔒 Finalizada por ${esc(d.cerradaPor||'')} · ${esc((d.cerradaEn||'').slice(0,10))}</span>`:' &nbsp; <i>(pauta abierta)</i>'}</div>
+    ${(()=>{ const malos=p.acts.filter(a=>(d.acts[a.n]||{}).e==='M'); return malos.length?`<div style="margin:6px 0;padding:6px 8px;border:2px solid #b3261e;border-radius:6px"><b>⚠ ${malos.length} hallazgo(s) "M":</b> ${malos.map(a=>a.n+'. '+esc(a.d)+((d.acts[a.n]||{}).o?' — '+esc(d.acts[a.n].o):'')).join(' · ')}</div>`:''; })()}
     <table>
       <tr><th style="width:24px">N°</th><th>Actividad</th><th style="width:90px">Valor</th><th style="width:52px">Estado</th><th style="width:170px">Observación</th></tr>
       ${rows}

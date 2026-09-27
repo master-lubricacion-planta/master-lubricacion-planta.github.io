@@ -178,6 +178,7 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rep table{width:100%;border-collapse:collapse;margin-top:6px}
 .rep th,.rep td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top;font-size:11px}
 .rep th{background:#e8ecf5}
+.rep tr.malo td{background:#fde2e0;font-weight:700}
 .rep .gr td{background:#f0f2f8;font-weight:700;text-transform:uppercase;font-size:10px}
 .rep .foot{margin-top:10px;font-size:10px;color:#444;display:flex;justify-content:space-between}
 .rep .fotosrep{display:flex;gap:8px;margin-top:10px}
@@ -345,7 +346,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v141</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v142</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -493,7 +494,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='141';
+  window.LUB_VERSION='142';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -994,7 +995,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)} <a class="alink" href="tendencias.html?tag=${encodeURIComponent(o.tag)}" title="Ver análisis de aceite de este equipo">📈 Aceite</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=141" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=142" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
@@ -1179,7 +1180,7 @@ async function renderInforme(ot){
     if(a.g!==lastG){ rows+=`<tr class="gr"><td colspan="5">${esc(a.g||'Actividades')}</td></tr>`; lastG=a.g; }
     const st=d.acts[a.n]||{};
     const L=limFor(o,a);
-    rows+=`<tr><td>${a.n}</td><td>${esc(a.d)}${L.custom?' ⭐':''}</td><td>${esc(st.v||'')}</td><td style="text-align:center;font-weight:700">${esc(st.e||'')}</td><td>${esc(st.o||'')}</td></tr>`;
+    rows+=`<tr${st.e==='M'?' class="malo"':''}><td>${a.n}</td><td>${esc(a.d)}${L.custom?' ⭐':''}</td><td>${esc(st.v||'')}</td><td style="text-align:center;font-weight:700">${esc(st.e||'')}</td><td>${esc(st.o||'')}</td></tr>`;
   }
   /* Las fotos NO van en informes ni PDFs: quedan solo guardadas en la app
      (dispositivo + nube), como respaldo interno de la inspección. */
@@ -1190,7 +1191,8 @@ async function renderInforme(ot){
         <div><b>${esc(o.tag)}</b> · ${esc(o.desc)} · Semana ${view.week} · ${esc(dia.nombre)} ${esc(dia.fecha)}</div></div>
       <div style="text-align:right"><span class="otbox">OT ${esc(d.ot||o.ot)}</span><br>${esc(o.pauta)}</div>
     </div>
-    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b></div>
+    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b>${d.cerrada?` &nbsp; <span class="otbox">🔒 Finalizada por ${esc(d.cerradaPor||'')} · ${esc((d.cerradaEn||'').slice(0,10))}</span>`:' &nbsp; <i>(pauta abierta)</i>'}</div>
+    ${(()=>{ const malos=p.acts.filter(a=>(d.acts[a.n]||{}).e==='M'); return malos.length?`<div style="margin:6px 0;padding:6px 8px;border:2px solid #b3261e;border-radius:6px"><b>⚠ ${malos.length} hallazgo(s) "M":</b> ${malos.map(a=>a.n+'. '+esc(a.d)+((d.acts[a.n]||{}).o?' — '+esc(d.acts[a.n].o):'')).join(' · ')}</div>`:''; })()}
     <table>
       <tr><th style="width:24px">N°</th><th>Actividad</th><th style="width:90px">Valor</th><th style="width:52px">Estado</th><th style="width:170px">Observación</th></tr>
       ${rows}
