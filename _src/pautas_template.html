@@ -183,6 +183,11 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rep .fotosrep img{width:32%;border:1px solid #999}
 .rep .otbox{border:2px solid #b45309;background:#fdebd7;padding:4px 10px;border-radius:6px;font-weight:800}
 
+.pbar{position:sticky;top:var(--hh,96px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:0 0 10px;box-shadow:var(--shadow);font-size:13.5px}
+.pbar .pm{color:var(--bad);font-weight:800} .pbar .pok{color:var(--ok);font-weight:800}
+.pbar .bvolver{padding:7px 12px;font-size:13px}
+.act.resalta{outline:3px solid var(--orange);outline-offset:2px}
+#form.cerrada .pbar .bvolver{display:none}
 .hoybox{background:var(--surface);border:2px solid var(--orange);border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow)}
 .hoybox .otcard{margin-bottom:8px}
 #hoylista.colapsado{max-height:330px;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}
@@ -644,6 +649,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       </div>
       <button class="borrartop" id="blimpiar2">🗑 Borrar todos los datos ingresados en esta pauta</button>
     </div>
+    <div class="pbar" id="pbar"><span id="pbartxt"></span><button class="bvolver" id="bsig" type="button">↓ Siguiente pendiente</button></div>
     <div class="hist" id="hist" hidden></div>
     ${actsHtml}
     <div class="grp">Observaciones generales</div>
@@ -707,6 +713,9 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
   if(breab) breab.onclick=()=>{ if(!confirm('¿Reabrir esta pauta para edición?')) return; d.cerrada=false; save(ot,d,{cerrada:false}); render(); };
   renderFotos(o,d);
   historialEquipo(o,ot);
+  const hdr=document.querySelector('header'); if(hdr) document.documentElement.style.setProperty('--hh',hdr.offsetHeight+'px');
+  const bs=$('#bsig'); if(bs) bs.onclick=()=>{ const pend=[...document.querySelectorAll('.act')].find(el=>!el.querySelector('.chip.on')); if(!pend){ flash('✓ No quedan actividades pendientes'); return; } pend.scrollIntoView({behavior:'smooth',block:'center'}); pend.classList.add('resalta'); setTimeout(()=>pend.classList.remove('resalta'),1200); };
+  actualizarBarra(o,d);
 
   /* Guardado explícito: recoge TODO lo que haya en pantalla (incluso campos sin confirmar aún) y lo escribe en el dispositivo. No requiere internet: usa localStorage/IndexedDB del propio teléfono. */
   const fab=$('#fabsave'); const fabtxt=fab.querySelector('.fabtxt');
@@ -756,7 +765,17 @@ async function historialEquipo(o,otActual){
   }).join('');
 }
 
+function actualizarBarra(o,d){
+  const t=$('#pbartxt'); if(!t) return;
+  const p=byId[o.pauta]; const acts=d.acts||{};
+  const hechas=p.acts.filter(a=>acts[a.n]&&acts[a.n].e).length, malos=p.acts.filter(a=>acts[a.n]&&acts[a.n].e==='M').length;
+  const pend=p.acts.length-hechas;
+  t.innerHTML=`<b>${hechas}/${p.acts.length}</b> actividades${malos?` · <span class="pm">${malos} M</span>`:''}${pend?` · ${pend} pendiente${pend>1?'s':''}`:' · <span class="pok">completa</span>'}`;
+  const bs=$('#bsig'); if(bs) bs.style.display=pend?'':'none';
+}
+
 async function renderFotos(o,d){
+  actualizarBarra(o,d);
   const bemail=$('#bemail'), lockmsg=$('#femaillock');
   if(bemail){ const ok2=reqComplete(o,d); bemail.disabled=!ok2; if(lockmsg) lockmsg.style.display=ok2?'none':''; }
   const box=$('#fotos'); if(!box) return;
