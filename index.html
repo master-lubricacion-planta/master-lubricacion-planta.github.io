@@ -66,6 +66,9 @@ html.lub-viewer #lubviewerchip{display:block}
 #lubconn.pend{background:#f5822b;color:#fff}
 #lubconn.ok{background:#1d7a4f;color:#fff}
 @media print{#lubconn{display:none!important}}
+#lubtop{position:fixed;right:12px;bottom:56px;z-index:44;width:42px;height:42px;border-radius:50%;border:0;background:rgba(11,28,71,.75);color:#fff;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#lubtop[hidden]{display:none}
+@media print{#lubtop{display:none!important}}
 #lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
 #lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
 .lubbadge{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;margin-left:5px;border-radius:999px;background:#b3261e;color:#fff;font-size:11px;font-weight:800;text-align:center;vertical-align:1px}
@@ -121,9 +124,10 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v135</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v136</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
+<button id="lubtop" title="Volver arriba" hidden>↑</button>
 <script>
 (function(){
   var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
@@ -227,6 +231,8 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     conn.hidden=true;
     try{ db.waitForPendingWrites().then(function(){ if(navigator.onLine) estadoConn('ok','☁ Sincronizado',2500); }); }catch(e){}
   }
+  var topb=$('lubtop'); topb.onclick=function(){ window.scrollTo({top:0,behavior:'smooth'}); };
+  window.addEventListener('scroll',function(){ topb.hidden=window.scrollY<600; },{passive:true});
   window.addEventListener('online',function(){ estadoConn('pend','☁ Conectado — subiendo cambios…'); revisarConn(); });
   window.addEventListener('offline',revisarConn);
   setTimeout(revisarConn,1500);
@@ -265,7 +271,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='135';
+  window.LUB_VERSION='136';
   $('lubver').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
@@ -473,6 +479,8 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .recientes .rl{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;margin-right:2px}
 .rchip{border:1.5px solid var(--line);background:var(--surface);color:var(--accent-ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:ui-monospace,Consolas,monospace}
 .rchip.x{color:var(--ink-3);font-family:inherit}
+.xl{font-size:13px;text-decoration:none;margin-left:6px;opacity:.8;vertical-align:1px}
+.xl:hover{opacity:1}
 </style>
 
 <header>
@@ -750,7 +758,7 @@ function render(){
     <div class="equip${autoOpen?' open':''}">
       <button class="ehead" aria-expanded="${autoOpen}">
         <div class="meta">
-          <div class="tag mono">${hi(e.tag,terms)}</div>
+          <div class="tag mono">${hi(e.tag,terms)} <a class="xl" href="pautas.html?q=${encodeURIComponent(e.tag)}" title="Pautas de este equipo" onclick="event.stopPropagation()">📋</a><a class="xl" href="tendencias.html?tag=${encodeURIComponent(e.tag)}" title="Análisis de aceite" onclick="event.stopPropagation()">📈</a></div>
           <div class="desc">${e.equipo?`<span class="eqname">${hi(e.equipo,terms)}</span>`:''}${e.equipo&&e.desc?' — ':''}${hi(e.desc,terms)}</div>
           <div class="arealbl">${esc((AREAS[e.hoja]||{}).name||e.hoja)} · ${esc(e.hoja.replace('Area ','Área '))}</div>
         </div>
@@ -771,6 +779,8 @@ clearBtn.onclick=()=>{q.value=''; clearBtn.style.display='none'; render(); q.foc
 const goHome=()=>{areaFilter=null; q.value=''; clearBtn.style.display='none'; render(); window.scrollTo(0,0);};
 backBtn.onclick=goHome;
 document.getElementById('homebtn').onclick=goHome;
+/* ?q=… (viene de otra página): busca directo */
+try{ const qp=new URLSearchParams(location.search).get('q'); if(qp){ q.value=qp; clearBtn.style.display=''; } }catch(e){}
 render();
 
 });

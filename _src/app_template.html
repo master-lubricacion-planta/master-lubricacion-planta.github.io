@@ -153,6 +153,8 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .recientes .rl{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;margin-right:2px}
 .rchip{border:1.5px solid var(--line);background:var(--surface);color:var(--accent-ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:ui-monospace,Consolas,monospace}
 .rchip.x{color:var(--ink-3);font-family:inherit}
+.xl{font-size:13px;text-decoration:none;margin-left:6px;opacity:.8;vertical-align:1px}
+.xl:hover{opacity:1}
 </style>
 
 <header>
@@ -428,7 +430,7 @@ function render(){
     <div class="equip${autoOpen?' open':''}">
       <button class="ehead" aria-expanded="${autoOpen}">
         <div class="meta">
-          <div class="tag mono">${hi(e.tag,terms)}</div>
+          <div class="tag mono">${hi(e.tag,terms)} <a class="xl" href="pautas.html?q=${encodeURIComponent(e.tag)}" title="Pautas de este equipo" onclick="event.stopPropagation()">📋</a><a class="xl" href="tendencias.html?tag=${encodeURIComponent(e.tag)}" title="Análisis de aceite" onclick="event.stopPropagation()">📈</a></div>
           <div class="desc">${e.equipo?`<span class="eqname">${hi(e.equipo,terms)}</span>`:''}${e.equipo&&e.desc?' — ':''}${hi(e.desc,terms)}</div>
           <div class="arealbl">${esc((AREAS[e.hoja]||{}).name||e.hoja)} · ${esc(e.hoja.replace('Area ','Área '))}</div>
         </div>
@@ -449,5 +451,7 @@ clearBtn.onclick=()=>{q.value=''; clearBtn.style.display='none'; render(); q.foc
 const goHome=()=>{areaFilter=null; q.value=''; clearBtn.style.display='none'; render(); window.scrollTo(0,0);};
 backBtn.onclick=goHome;
 document.getElementById('homebtn').onclick=goHome;
+/* ?q=… (viene de otra página): busca directo */
+try{ const qp=new URLSearchParams(location.search).get('q'); if(qp){ q.value=qp; clearBtn.style.display=''; } }catch(e){}
 render();
 </script>

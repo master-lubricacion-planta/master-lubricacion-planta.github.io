@@ -247,6 +247,9 @@ html.lub-viewer #lubviewerchip{display:block}
 #lubconn.pend{background:#f5822b;color:#fff}
 #lubconn.ok{background:#1d7a4f;color:#fff}
 @media print{#lubconn{display:none!important}}
+#lubtop{position:fixed;right:12px;bottom:56px;z-index:44;width:42px;height:42px;border-radius:50%;border:0;background:rgba(11,28,71,.75);color:#fff;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#lubtop[hidden]{display:none}
+@media print{#lubtop{display:none!important}}
 #lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
 #lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
 .lubbadge{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;margin-left:5px;border-radius:999px;background:#b3261e;color:#fff;font-size:11px;font-weight:800;text-align:center;vertical-align:1px}
@@ -302,9 +305,10 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v135</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v136</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
+<button id="lubtop" title="Volver arriba" hidden>↑</button>
 <script>
 (function(){
   var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
@@ -408,6 +412,8 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     conn.hidden=true;
     try{ db.waitForPendingWrites().then(function(){ if(navigator.onLine) estadoConn('ok','☁ Sincronizado',2500); }); }catch(e){}
   }
+  var topb=$('lubtop'); topb.onclick=function(){ window.scrollTo({top:0,behavior:'smooth'}); };
+  window.addEventListener('scroll',function(){ topb.hidden=window.scrollY<600; },{passive:true});
   window.addEventListener('online',function(){ estadoConn('pend','☁ Conectado — subiendo cambios…'); revisarConn(); });
   window.addEventListener('offline',revisarConn);
   setTimeout(revisarConn,1500);
@@ -446,7 +452,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='135';
+  window.LUB_VERSION='136';
   $('lubver').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
