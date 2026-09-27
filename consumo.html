@@ -151,6 +151,7 @@ main{padding:14px;max-width:920px;margin:0 auto}
 .savemsg{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
 .savemsg.show{opacity:.95}
 footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
+.psal{border:1.5px solid var(--bad);background:var(--surface);color:var(--bad);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;cursor:pointer;margin-left:6px}
 </style>
 </head>
 <body>
@@ -236,7 +237,7 @@ html.lub-viewer #rnoc,html.lub-viewer #rnoc2,html.lub-viewer #rhora,html.lub-vie
 html.lub-viewer .echip,html.lub-viewer .idia,html.lub-viewer .iot,html.lub-viewer .iobs,
 html.lub-viewer .irc,html.lub-viewer .irep,html.lub-viewer .iest{pointer-events:none;opacity:.75}
 /* consumibles: sin formulario de movimientos ni eliminar */
-html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
+html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!important}
 </style>
 <div id="lubgate">
   <div class="gcard">
@@ -561,13 +562,16 @@ function todasSalidas(){
   return res;
 }
 
-let view='stock';
+let view='stock'; let preProd=null;
 function render(){
   $('#back').style.display='none';
   if(view==='stock') renderStock();
   else if(view==='movs') renderMovs();
   else renderTend();
   document.querySelectorAll('.vchip').forEach(c=>c.onclick=()=>{ view=c.dataset.v; render(); });
+  /* "− Salida" desde el stock: abre el registro con el producto ya elegido */
+  document.querySelectorAll('.psal').forEach(b=>b.onclick=()=>{ preProd=b.dataset.id; view='movs'; render(); });
+  if(view==='movs' && preProd){ const sel=$('#mprod'); if(sel){ sel.value=preProd; } preProd=null; const q=$('#mcant'); if(q){ q.focus(); q.scrollIntoView({behavior:'smooth',block:'center'}); } }
   window.scrollTo(0,0);
 }
 const chips=v=>`<div class="vistas">
@@ -608,6 +612,7 @@ function renderStock(){
           <span class="pubi">${esc(m.ubi)}</span>
           <span class="balo ${estado}">${estado==='bajo'?'BAJO MÍNIMO':(estado==='justo'?'JUSTO':'OK')}</span>
           <span class="ptot">${nf(v)} <small>${esc(m.uni)}</small></span>
+          <button class="psal" data-id="${m.id}" title="Registrar salida de ${esc(m.prod)}">− Salida</button>
         </div>
         <div class="pbar"><i style="width:${pct}%;background:${color}"></i><span class="minmark" style="left:${minPct}%" title="Stock mínimo ${nf(m.min)}"></span></div>
         <div class="pdet">${env.join(' · ')||'sin desglose de envases'} · mínimo <b>${nf(m.min)} ${esc(m.uni)}</b></div>
