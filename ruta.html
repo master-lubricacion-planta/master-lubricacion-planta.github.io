@@ -117,6 +117,7 @@ details.sec>summary .badge{margin-left:auto}
 .itemrow .il .isub{display:block;font-size:11.5px;color:var(--ink-3);font-weight:600}
 .itemrow input.iv{width:110px;padding:9px 10px;font-size:16px;font-weight:700;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:right}
 .itemrow input.iv.filled{border-color:var(--ok);background:var(--ok-bg)}
+.obsant{background:var(--accent-soft);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--ink-2);margin:0 0 8px}
 .cerradabox{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);border-radius:10px;padding:10px 12px;font-size:13.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .btn.mini{flex:0 0 auto;padding:6px 10px;font-size:12.5px} .btn.finalizar{background:var(--ok);color:#fff}
 #form.cerrada input,#form.cerrada select,#form.cerrada textarea{pointer-events:none;opacity:.8}
@@ -321,7 +322,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v142</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v143</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -469,7 +470,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='142';
+  window.LUB_VERSION='143';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -779,6 +780,7 @@ function renderSemanas(){
   }
   $('#listado').innerHTML=`
     <div class="dayhdr">Ruta crítica nocturna</div>
+    ${(()=>{ const hoy=new Date(); const mes=hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0'); let noches=0,pts=0,cerr=0; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(!k||!k.startsWith('ruta_'+mes)) continue; let dd; try{ dd=JSON.parse(localStorage.getItem(k)); }catch(e){ continue; } if(!dd||!datosLlenos(dd)) continue; noches++; pts+=Object.values(dd.vals||{}).filter(x=>x&&(String(x.v||'').trim()||x.e)).length; if(dd.cerrada) cerr++; } for(const f in RPREV){ if(f.startsWith(mes) && !localStorage.getItem('ruta_'+f)){ noches++; pts+=Object.keys(RPREV[f]).length; } } const dias=hoy.getDate(); const prom=noches?Math.round(100*pts/(noches*NITEMS)):0; return `<div class="kpis" style="margin:8px 0 12px"><div class="kpi ${noches>=dias-1?'ok':'bad'}"><div class="v">${noches}/${dias}</div><div class="l">Noches registradas este mes</div></div><div class="kpi ${prom>=90?'ok':(prom>=60?'re':'bad')}"><div class="v">${prom}%</div><div class="l">Puntos promedio por noche</div></div><div class="kpi ok"><div class="v">${cerr}</div><div class="l">Rondas cerradas</div></div></div>`; })()}
     <p class="daysub">Ronda de los nocheros por la planta: temperaturas y presiones de los <b>equipos críticos</b> (${NITEMS} puntos). Elige la semana — estás en la <b>Semana ${SEMANA_ACTUAL} · Turno ${SEMANA_ACTUAL%2===1?'A':'B'}</b>.</p>
     <div class="btnbar" style="margin-top:0"><button class="btn primary" id="vertend">📈 Tendencias de temperatura por equipo</button></div>
     <div class="wgrid">${cards}</div>`;
@@ -877,6 +879,7 @@ function renderRegistro(){
     </div>
     ${secs}
     <div class="grp">Observaciones de la ronda</div>
+    ${(()=>{ const ant=new Date(f+'T12:00:00'); ant.setDate(ant.getDate()-1); const fa=iso(ant); const da=load(fa); return da.obs?`<div class="obsant">📝 Noche anterior (${fmt(ant)}${da.noc?', '+esc(da.noc):''}): <i>"${esc(da.obs)}"</i></div>`:''; })()}
     <textarea class="obsg" id="robs" placeholder="Anomalías, ruidos, fugas, equipos con temperatura alta…">${esc(d.obs||'')}</textarea>
     ${cerrada?'':'<div class="btnbar"><button class="btn primary finalizar" id="rfinalizar" type="button">✅ Finalizar ronda</button></div>'}
     <div class="btnbar">
