@@ -153,7 +153,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v153</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v154</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -314,7 +314,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='153';
+  window.LUB_VERSION='154';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -522,6 +522,7 @@ tr:last-child td{border-bottom:0}
 footer{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 @media (max-width:640px){.charts{grid-template-columns:1fr 1fr}}
 .xl2{font-size:11px;font-weight:800;text-decoration:none;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+@media print{ body.imp-eq header,body.imp-eq #lubuserbar,body.imp-eq #lubviewerchip,body.imp-eq .noprint{display:none!important} body.imp-eq main>*:not(#detail){display:none!important} body.imp-eq #detail{display:block!important} }
 </style>
 
 <div class="wrap">
@@ -723,7 +724,7 @@ function select(tag){
   }).join('');
   det.innerHTML=`
     <div class="det-head">
-      <div><div class="tagline">${t} · ${AREA_NAMES[area]||('Área '+area)} <a class="xl2" href="index.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Ver en el Maestro">🔎 Maestro</a><a class="xl2" href="pautas.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Pautas de este equipo">📋 Pautas</a></div><h3>${cmpn}</h3>
+      <div><div class="tagline">${t} · ${AREA_NAMES[area]||('Área '+area)} <a class="xl2" href="index.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Ver en el Maestro">🔎 Maestro</a><a class="xl2" href="pautas.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Pautas de este equipo">📋 Pautas</a><a class="xl2 noprint" href="#" onclick="document.body.classList.add('imp-eq');window.print();setTimeout(()=>document.body.classList.remove('imp-eq'),1500);return false" title="Imprimir o guardar en PDF este equipo">🖨 PDF</a></div><h3>${cmpn}</h3>
       <div class="meta">${ss.length} muestras en 2026 · puntos coloreados según el estado del informe de esa muestra</div></div>
     </div>
     <div class="timeline">${tl}</div>

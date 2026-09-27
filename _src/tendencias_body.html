@@ -113,6 +113,7 @@ tr:last-child td{border-bottom:0}
 footer{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 @media (max-width:640px){.charts{grid-template-columns:1fr 1fr}}
 .xl2{font-size:11px;font-weight:800;text-decoration:none;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+@media print{ body.imp-eq header,body.imp-eq #lubuserbar,body.imp-eq #lubviewerchip,body.imp-eq .noprint{display:none!important} body.imp-eq main>*:not(#detail){display:none!important} body.imp-eq #detail{display:block!important} }
 </style>
 
 <div class="wrap">
@@ -312,7 +313,7 @@ function select(tag){
   }).join('');
   det.innerHTML=`
     <div class="det-head">
-      <div><div class="tagline">${t} · ${AREA_NAMES[area]||('Área '+area)} <a class="xl2" href="index.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Ver en el Maestro">🔎 Maestro</a><a class="xl2" href="pautas.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Pautas de este equipo">📋 Pautas</a></div><h3>${cmpn}</h3>
+      <div><div class="tagline">${t} · ${AREA_NAMES[area]||('Área '+area)} <a class="xl2" href="index.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Ver en el Maestro">🔎 Maestro</a><a class="xl2" href="pautas.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Pautas de este equipo">📋 Pautas</a><a class="xl2 noprint" href="#" onclick="document.body.classList.add('imp-eq');window.print();setTimeout(()=>document.body.classList.remove('imp-eq'),1500);return false" title="Imprimir o guardar en PDF este equipo">🖨 PDF</a></div><h3>${cmpn}</h3>
       <div class="meta">${ss.length} muestras en 2026 · puntos coloreados según el estado del informe de esa muestra</div></div>
     </div>
     <div class="timeline">${tl}</div>
