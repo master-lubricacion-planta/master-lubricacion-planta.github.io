@@ -188,6 +188,8 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .pbar{position:sticky;top:var(--hh,96px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:0 0 10px;box-shadow:var(--shadow);font-size:13.5px}
 .pbar .pm{color:var(--bad);font-weight:800} .pbar .pok{color:var(--ok);font-weight:800}
 .pbar .bvolver{padding:7px 12px;font-size:13px}
+.val.fuera{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.limwarn{margin-top:6px;font-size:12.5px;font-weight:700;color:var(--bad)}
 .act.need-obs{border-color:var(--bad);box-shadow:0 0 0 2px var(--bad-bg)}
 .act.need-obs .obs{border-color:var(--bad)}
 .act.resalta{outline:3px solid var(--orange);outline-offset:2px}
@@ -343,7 +345,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v140</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v141</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -491,7 +493,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='140';
+  window.LUB_VERSION='141';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -941,6 +943,18 @@ function syncFromCloudIfNeeded(ot){
   }).catch(()=>{});
 }
 
+/* Límite numérico a partir del texto de la pauta ("no mayor a 60 °C", "menor a 8 PSI",
+   "mayor a 1900 m³/h", "entre 40 y 60"): devuelve {min,max} o null si no se entiende. */
+function limiteDe(txt){
+  const t=(txt||'').split('\n')[0].toLowerCase().replace(/,(\d)/g,'.$1');
+  const num=s=>{ const m=/(-?\d+(?:\.\d+)?)/.exec(s); return m?parseFloat(m[1]):null; };
+  let m;
+  if((m=/entre\s+(-?\d+(?:\.\d+)?)\s*(?:y|a|-)\s*(-?\d+(?:\.\d+)?)/.exec(t))) return {min:parseFloat(m[1]),max:parseFloat(m[2])};
+  if((m=/(no\s+(?:mayor|superior)\s+a|menor\s+(?:a|que|de)|m[aá]x(?:imo)?\.?|hasta|≤|<=|<)\s*(-?\d+(?:\.\d+)?)/.exec(t))) return {max:parseFloat(m[2])};
+  if((m=/(no\s+(?:menor|inferior)\s+a|mayor\s+(?:a|que|de)|m[ií]n(?:imo)?\.?|desde|≥|>=|>)\s*(-?\d+(?:\.\d+)?)/.exec(t))) return {min:parseFloat(m[2])};
+  return null;
+}
+function fueraDeLimite(lim,valor){ const L=limiteDe(lim); const v=parseFloat(String(valor||'').replace(',','.')); if(!L||isNaN(v)) return null; if(L.max!==undefined&&v>L.max) return 'supera el máximo ('+L.max+')'; if(L.min!==undefined&&v<L.min) return 'bajo el mínimo ('+L.min+')'; return false; }
 function renderForm(){
   const ot=view.ot; cur=ot;
   const o=otObj(ot); const p=byId[o.pauta]; const d=load(ot);
@@ -980,7 +994,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)} <a class="alink" href="tendencias.html?tag=${encodeURIComponent(o.tag)}" title="Ver análisis de aceite de este equipo">📈 Aceite</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=140" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=141" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
@@ -1024,7 +1038,8 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
     const n=el.dataset.n;
     const st=()=> d.acts[n]=d.acts[n]||{};
     const v=el.querySelector('.val');
-    if(v) v.addEventListener('change',()=>{ st().v=v.value; save(ot,d,{acts:{[n]:{v:v.value}}}); renderFotos(o,d); });
+    const revisarLim=()=>{ if(!v) return; const a=p.acts.find(x=>String(x.n)===String(n)); const L=limFor(o,a); const r=fueraDeLimite(L.lim,v.value); v.classList.toggle('fuera',!!r); v.title=r?('⚠ Valor '+r+' — marca M y describe'):''; let w=el.querySelector('.limwarn'); if(r){ if(!w){ w=document.createElement('div'); w.className='limwarn'; el.querySelector('.actrow').insertAdjacentElement('afterend',w); } w.textContent='⚠ Valor '+r+' según la pauta'; } else if(w) w.remove(); };
+    if(v){ revisarLim(); v.addEventListener('change',()=>{ st().v=v.value; save(ot,d,{acts:{[n]:{v:v.value}}}); renderFotos(o,d); revisarLim(); }); }
     el.querySelector('.obs').addEventListener('change',()=>{ st().o=el.querySelector('.obs').value; save(ot,d,{acts:{[n]:{o:st().o}}}); });
     el.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
       const val=c.classList.contains('B')?'B':(c.classList.contains('M')?'M':'NA');
