@@ -14,13 +14,17 @@ _FB='https://www.gstatic.com/firebasejs/10.14.1/'
 _SDK_APP='<script src="'+_FB+'firebase-app-compat.js"></script>'
 _SDK_AUTH='<script src="'+_FB+'firebase-auth-compat.js"></script>'
 _SDK_FS='<script src="'+_FB+'firebase-firestore-compat.js"></script>'
+def _buildv():
+    _s=open(os.path.join(pwa,'sw.js'),encoding='utf-8').read()
+    return str(int(re.search(r'lubricacion-v(\d+)',_s).group(1))+1)
 def gate(html):
+    html=html.replace('__BUILDV__',_buildv()) if '__BUILDV__' in html else html
     # el candado necesita firebase-app + auth + firestore antes del <body>
     if _SDK_APP in html:
         if _SDK_AUTH not in html: html=html.replace(_SDK_APP,_SDK_APP+'\n'+_SDK_AUTH,1)
     else:
         html=html.replace('</head>',_SDK_APP+'\n'+_SDK_AUTH+'\n'+_SDK_FS+'\n</head>',1)
-    return re.sub(r'<body[^>]*>', lambda m: m.group(0)+'\n'+_gate, html, count=1)
+    return re.sub(r'<body[^>]*>', lambda m: m.group(0)+'\n'+_gate.replace('__BUILDV__',_buildv()), html, count=1)
 fold=lambda s: re.sub(r'\s+',' ',unicodedata.normalize('NFD',s).encode('ascii','ignore').decode().lower()).strip()
 RULES=[
  (r'gadus s3 t ?100( 2)?$','gadus-s3-t100-2.pdf','gadus-s3-t100-2.pdf'),
