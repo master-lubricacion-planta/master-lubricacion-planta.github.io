@@ -310,6 +310,15 @@ function renderSemanas(){
     <div class="dayhdr">📊 Supervisión</div>
     <p class="daysub">Avance en vivo del equipo: cumplimiento de pautas por técnico, hallazgos que requieren acción y ronda nocturna. Elige la semana (la actual viene destacada).</p>
     ${connBadge()}
+    ${(()=>{ /* tendencia de cumplimiento por semana cargada */
+      const filas=Object.keys(PLANES).map(Number).sort((a,b)=>a-b).map(w=>{
+        const plan=PLANES[w]; let conp=0,done=0,cerr=0,m=0;
+        plan.days.forEach(d=>d.ots.forEach(o=>{ if(!o.pauta) return; conp++; const c=CLOUD[o.ot]; const pr=progress(o); if(pr.done>=pr.total&&pr.total) done++; if(c&&c.cerrada) cerr++; if(c&&c.acts){ const pp=byId[o.pauta]; pp.acts.forEach(a=>{ if(c.acts[a.n]&&c.acts[a.n].e==='M') m++; }); } }));
+        const pct=conp?Math.round(100*done/conp):0;
+        return `<tr><td>Semana ${w}${w===SEMANA_ACTUAL?' <span class="hoytag">ACTUAL</span>':''}</td><td class="num">${conp}</td><td class="num">${done}</td><td class="num">${cerr}</td><td class="num" style="color:${pct>=90?'var(--ok)':(pct>=60?'var(--orange-ink)':'var(--bad)')}">${pct}%</td><td class="num" style="color:${m?'var(--bad)':'inherit'}">${m}</td></tr>`;
+      }).join('');
+      return `<div class="sec2"><h3>📈 Cumplimiento por semana</h3><table class="tbl"><tr><th>Semana</th><th>Con pauta</th><th>Completas</th><th>Cerradas</th><th>%</th><th>Hallazgos M</th></tr>${filas}</table></div>`;
+    })()}
     <div class="wgrid">${cards}</div>`;
   document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'dias',week:+b.dataset.w}; render(); });
 }
