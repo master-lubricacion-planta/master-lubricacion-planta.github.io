@@ -1,26 +1,22 @@
 {
   "name": "Maestro de Lubricación Concentradora",
   "short_name": "Lubricación",
-  "description": "Buscador del maestro de lubricación: TAG, lubricante, cantidades y frecuencias.",
+  "description": "App de lubricación Concentradora Teck QB2: maestro de equipos, pautas digitales, ruta crítica, plan 52, muestras, consumibles y tendencias.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#f4f6fa",
   "theme_color": "#0b1c47",
   "lang": "es",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Pautas de hoy", "short_name": "Pautas", "url": "./pautas.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Ruta Crítica nocturna", "short_name": "Ruta", "url": "./ruta.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Toma de muestras", "short_name": "Muestras", "url": "./muestras.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Supervisión", "short_name": "Supervisión", "url": "./panorama.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
   ]
 }

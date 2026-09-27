@@ -79,6 +79,12 @@ html.lub-locked body>*:not(#lubgate){display:none!important}
 #lubviewerchip{display:none;position:fixed;bottom:10px;right:10px;z-index:45;background:rgba(11,28,71,.85);color:#fff;font:11.5px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;padding:7px 12px;border-radius:999px;pointer-events:none}
 html.lub-viewer #lubviewerchip{display:block}
 @media print{#lubviewerchip,#lubuserbar,#lubnuevo{display:none!important}}
+#lubconn{position:fixed;top:10px;right:10px;z-index:55;font:12px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:8px 12px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none;transition:opacity .4s}
+#lubconn[hidden]{display:none}
+#lubconn.off{background:#b3261e;color:#fff}
+#lubconn.pend{background:#f5822b;color:#fff}
+#lubconn.ok{background:#1d7a4f;color:#fff}
+@media print{#lubconn{display:none!important}}
 #lubnuevo{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:60;background:#f5822b;color:#fff;font:13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;font-weight:800;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
 #lubnuevo a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:6px}
 .lubbadge{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;margin-left:5px;border-radius:999px;background:#b3261e;color:#fff;font-size:11px;font-weight:800;text-align:center;vertical-align:1px}
@@ -136,6 +142,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
 </div>
 <div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
+<div id="lubconn" hidden></div>
 <script>
 (function(){
   var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
@@ -229,6 +236,19 @@ html.lub-viewer .mform,html.lub-viewer .mdel{display:none!important}
     lista.forEach(function(e){ try{ e.fn(); }catch(err){ console.error(err); } });
     if(document.body.contains(gate)){ root.classList.remove('lub-locked'); gate.remove(); }
   }
+
+  /* conectividad: avisa sin conexión (los datos quedan en el dispositivo y suben solos),
+     y "pendiente de subir" / "sincronizado" según Firestore */
+  var conn=$('lubconn'), _connT=null;
+  function estadoConn(cls,txt,auto){ conn.className=cls; conn.textContent=txt; conn.hidden=false; conn.style.opacity='1'; clearTimeout(_connT); if(auto) _connT=setTimeout(function(){ conn.style.opacity='0'; setTimeout(function(){ if(conn.style.opacity==='0') conn.hidden=true; },450); },auto); }
+  function revisarConn(){
+    if(!navigator.onLine){ estadoConn('off','📴 Sin conexión — se guarda en este dispositivo y sube solo'); return; }
+    conn.hidden=true;
+    try{ db.waitForPendingWrites().then(function(){ if(navigator.onLine) estadoConn('ok','☁ Sincronizado',2500); }); }catch(e){}
+  }
+  window.addEventListener('online',function(){ estadoConn('pend','☁ Conectado — subiendo cambios…'); revisarConn(); });
+  window.addEventListener('offline',revisarConn);
+  setTimeout(revisarConn,1500);
 
   function mostrar(cual){ load.hidden=cual!=='load'; form.hidden=cual!=='form'; noacc.hidden=cual!=='noacc'; }
   function fallo(msg){ err.textContent=msg; err.classList.add('show'); ok.classList.remove('show'); var c=gate.querySelector('.gcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
