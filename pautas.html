@@ -348,7 +348,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v159</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v160</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -509,9 +509,13 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='159';
+  window.LUB_VERSION='160';
   var NOVEDADES=[
-    ['v140','Panel de novedades al tocar la versión (este).'],
+    ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
+    ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
+    ['v146–151','Consumibles: días de stock estimados y grasa por mes; Supervisión: resumen de hoy, pautas a medio hacer y un informe más completo; Excel en ruta, muestras, plan 52 y usuarios.'],
+    ['v141–145','Pautas: el valor medido se marca en rojo si sale del límite de la pauta; informe con cierre y hallazgos; Ruta: indicadores del mes y nota de la noche anterior; Muestras y Plan 52: resumen por área.'],
+    ['v140','Panel de novedades al tocar la versión.'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
     ['v137–138','Ruta Crítica: "Finalizar ronda" (hora de fin, bloqueo, reabrir solo admin); Supervisión muestra % y cierre por noche.'],
     ['v133–136','Enlaces cruzados: Maestro → Pautas/Aceite, Pautas ?ot=/?q=, Supervisión → pauta; planilla semanal de ruta con colores de desviación; botón "volver arriba".'],
@@ -1012,7 +1016,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)} <a class="alink" href="tendencias.html?tag=${encodeURIComponent(o.tag)}" title="Ver análisis de aceite de este equipo">📈 Aceite</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=159" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=160" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
