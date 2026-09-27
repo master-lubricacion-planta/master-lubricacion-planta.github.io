@@ -822,6 +822,12 @@ function renderDias(){
     const csvCelda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
     const csv=(filas)=>'\ufeff'+filas.map(f=>f.map(csvCelda).join(';')).join('\r\n');
     const descargar=(nombre,texto)=>{ const b=new Blob([texto],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); };
+    window.__compartirSemana=async()=>{
+      const tec=Object.entries(porTec).sort((a,b)=>(b[1].done+b[1].part)-(a[1].done+a[1].part)).map(([n,t2])=>`• ${n}: ${t2.done} completas, ${t2.part} en progreso${t2.m?', '+t2.m+' M':''}`);
+      const txt=[`*Lubricación · Semana ${w} · Turno ${t}* (${fmt(r.ini)} – ${fmt(r.fin)})`,`Cumplimiento ${pct}% · ${tot.done} completas · ${tot.part} en progreso · ${tot.p0} pendientes · ${tot.sind} sin pauta digital`,`Hallazgos M: ${hallazgos.length} · Ronda nocturna: ${noches}/7 noches`,tec.length?'Por técnico:':'',...tec,hallazgos.length?'Hallazgos:':'',...hallazgos.slice(0,10).map(h=>`⚠ ${h.tag} OT ${h.ot} · ${h.n}. ${h.ad}${h.o?' — '+h.o:''}`),hallazgos.length>10?`… y ${hallazgos.length-10} más`:'',`(${location.origin}${location.pathname})`].filter(Boolean).join('\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<');
+      try{ if(navigator.share){ await navigator.share({title:'Lubricación semana '+w,text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+      try{ await navigator.clipboard.writeText(txt); alert('Resumen copiado — pégalo en WhatsApp o correo.'); }catch(e){ alert(txt); }
+    };
     window.__exportarExcel=()=>{
       const tag='S'+w+'_'+fmt(r.ini).replace('.','-');
       descargar('tecnicos_'+tag+'.csv', csv([['Semana','Técnico','Completas','En progreso','Hallazgos M'],...Object.entries(porTec).map(([n,t])=>[w,n,t.done,t.part,t.m])]));
@@ -886,12 +892,7 @@ function renderDias(){
   const ts2=$('#tsel2'); if(ts2) ts2.onchange=()=>{ tecSel=ts2.value; subvista=tecSel?'tecnico':'resumen'; render(); };
   document.querySelectorAll('.otcard[data-ot][data-di]').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
   const bx=$('#bexcel'); if(bx) bx.onclick=()=>window.__exportarExcel();
-  const bs=$('#bshare'); if(bs) bs.onclick=async()=>{
-    const tec=Object.entries(porTec).sort((a,b)=>(b[1].done+b[1].part)-(a[1].done+a[1].part)).map(([n,t2])=>`• ${n}: ${t2.done} completas, ${t2.part} en progreso${t2.m?', '+t2.m+' M':''}`);
-    const txt=[`*Lubricación · Semana ${w} · Turno ${t}* (${fmt(r.ini)} – ${fmt(r.fin)})`,`Cumplimiento ${pct}% · ${tot.done} completas · ${tot.part} en progreso · ${tot.p0} pendientes · ${tot.sind} sin pauta digital`,`Hallazgos M: ${hallazgos.length} · Ronda nocturna: ${noches}/7 noches`,tec.length?'Por técnico:':'',...tec,hallazgos.length?'Hallazgos:':'',...hallazgos.slice(0,10).map(h=>`⚠ ${h.tag} OT ${h.ot} · ${h.n}. ${h.ad}${h.o?' — '+h.o:''}`),hallazgos.length>10?`… y ${hallazgos.length-10} más`:'',`(${location.origin}${location.pathname})`].filter(Boolean).join('\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<');
-    try{ if(navigator.share){ await navigator.share({title:'Lubricación semana '+w,text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
-    try{ await navigator.clipboard.writeText(txt); alert('Resumen copiado — pégalo en WhatsApp o correo.'); }catch(e){ alert(txt); }
-  };
+  const bs=$('#bshare'); if(bs) bs.onclick=()=>window.__compartirSemana&&window.__compartirSemana();
   const bi=$('#binforme'); if(bi) bi.onclick=()=>{ $('#informe').innerHTML=window.__informeHtml||''; document.body.classList.add('imprimiendo'); window.print(); setTimeout(()=>document.body.classList.remove('imprimiendo'),1500); };
   document.querySelectorAll('.hall').forEach(b=>b.onclick=()=>{ view={name:'detalle',week:w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
 }
