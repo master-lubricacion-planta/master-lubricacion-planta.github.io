@@ -188,6 +188,8 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .pbar{position:sticky;top:var(--hh,96px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:0 0 10px;box-shadow:var(--shadow);font-size:13.5px}
 .pbar .pm{color:var(--bad);font-weight:800} .pbar .pok{color:var(--ok);font-weight:800}
 .pbar .bvolver{padding:7px 12px;font-size:13px}
+.act.need-obs{border-color:var(--bad);box-shadow:0 0 0 2px var(--bad-bg)}
+.act.need-obs .obs{border-color:var(--bad)}
 .act.resalta{outline:3px solid var(--orange);outline-offset:2px}
 #form.cerrada .pbar .bvolver{display:none}
 .hoybox{background:var(--surface);border:2px solid var(--orange);border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow)}
@@ -326,7 +328,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v120</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v121</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <script>
@@ -470,7 +472,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='120';
+  window.LUB_VERSION='121';
   $('lubver').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
@@ -942,7 +944,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)} <a class="alink" href="tendencias.html?tag=${encodeURIComponent(o.tag)}" title="Ver análisis de aceite de este equipo">📈 Aceite</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=120" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=121" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
@@ -994,7 +996,13 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       el.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
       if(st().e) c.classList.add('on');
       save(ot,d,{acts:{[n]:{e:st().e}}}); renderFotos(o,d);
+      /* un "M" sin observación no sirve para actuar: se pide al momento */
+      const ob=el.querySelector('.obs');
+      if(st().e==='M' && !ob.value.trim()){ el.classList.add('need-obs'); ob.placeholder='⚠ Describe el problema (obligatorio para M)'; ob.focus(); }
+      else el.classList.remove('need-obs');
     });
+    el.querySelector('.obs').addEventListener('input',()=>{ if(el.querySelector('.obs').value.trim()) el.classList.remove('need-obs'); });
+    if((d.acts[n]||{}).e==='M' && !(d.acts[n]||{}).o) el.classList.add('need-obs');
   });
   const borrarTodo=async()=>{ if(confirm('¿Borrar TODOS los datos y fotos ingresados en esta pauta? Esta acción no se puede deshacer.')){
     localStorage.removeItem(K(ot)); for(let i=0;i<3;i++) await fotoDel(ot+'_'+i);
