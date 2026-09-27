@@ -338,7 +338,7 @@ function renderStock(){
     ${chips('stock')}
     <input id="qprod" class="qprod" placeholder="🔍 Filtrar producto (ej: Omala 220, Gadus)" autocomplete="off">
     ${html}`;
-  const qp=$('#qprod'); qp.oninput=()=>{ const t=qp.value.trim().toLowerCase(); document.querySelectorAll('.prod').forEach(p=>{ p.style.display=(!t||p.querySelector('.pn').textContent.toLowerCase().includes(t)||(p.querySelector('.pv')||{textContent:''}).textContent.toLowerCase().includes(t))?'':'none'; }); };
+  const qp=$('#qprod'); qp.oninput=()=>{ const ts=qp.value.trim().toLowerCase().split(/\s+/).filter(Boolean); document.querySelectorAll('.prod').forEach(p=>{ const txt=(p.querySelector('.pn').textContent+' '+(p.querySelector('.pv')||{textContent:''}).textContent+' '+(p.querySelector('.pubi')||{textContent:''}).textContent).toLowerCase(); p.style.display=ts.every(t=>txt.includes(t))?'':'none'; }); };
 }
 
 function renderMovs(){
