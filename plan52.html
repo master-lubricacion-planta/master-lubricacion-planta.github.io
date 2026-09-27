@@ -632,8 +632,19 @@ function renderSemanas(){
       <div class="wpct">${st.r?Math.round(100*st.r/ITEMS.length)+'% cumplimiento':'—'}</div>
     </button>`;
   }
+  /* resumen del año: semanas con registros */
+  let acR=0, acSem=0, acRe=0, acC=0;
+  for(let w2=1;w2<=52;w2++){ const s2=statsSemana(w2); if(s2.r){ acR+=s2.r; acSem++; acRe+=s2.re; acC+=s2.c; } }
+  const prom=acSem?Math.round(100*acR/(acSem*ITEMS.length)):0;
+  const stAct=statsSemana(SEMANA_ACTUAL), pctAct=Math.round(100*stAct.r/ITEMS.length);
   $('#listado').innerHTML=`
     <div class="dayhdr">Plan 52 semanas · Lubricación</div>
+    <div class="kpis" style="margin:8px 0 12px">
+      <div class="kpi ok"><div class="v">${prom}%</div><div class="l">Cumplimiento año (${acSem} sem.)</div></div>
+      <div class="kpi ${pctAct>=90?'ok':(pctAct>=60?'re':'bad')}"><div class="v">${pctAct}%</div><div class="l">Semana ${SEMANA_ACTUAL} (actual)</div></div>
+      <div class="kpi"><div class="v">${acR.toLocaleString('es-CL')}</div><div class="l">Inspecciones realizadas</div></div>
+      <div class="kpi re"><div class="v">${acRe}</div><div class="l">Reprogramadas</div></div>
+    </div>
     <p class="daysub">Seguimiento interno de las <b>${ITEMS.length} inspecciones generales de lubricación</b> del maestro (frecuencia semanal). Marca R / C / RE, día, OT y observación por equipo — igual que la planilla Excel. Estás en la <b>Semana ${SEMANA_ACTUAL}</b>.</p>
     <div class="wgrid">${cards}</div>`;
   document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'semana',week:+b.dataset.w}; render(); });
