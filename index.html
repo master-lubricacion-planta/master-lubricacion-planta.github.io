@@ -66,6 +66,14 @@ html.lub-viewer #lubviewerchip{display:block}
 #lubconn.pend{background:#f5822b;color:#fff}
 #lubconn.ok{background:#1d7a4f;color:#fff}
 @media print{#lubconn{display:none!important}}
+#lubnov{position:fixed;inset:0;z-index:70;background:rgba(5,10,30,.6);display:flex;align-items:center;justify-content:center;padding:18px}
+#lubnov[hidden]{display:none}
+#lubnov .nvcard{background:#fff;color:#101a33;border-radius:16px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:18px 20px;font:14px/1.45 -apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+html[data-theme="dark"] #lubnov .nvcard{background:#111c3d;color:#e8edf8}
+#lubnov h3{margin:0 0 10px;font-size:17px} #lubnov h3 span{font-size:12px;color:#8391ad;font-weight:700;margin-left:6px}
+#lubnov .nv{padding:7px 0;border-top:1px solid rgba(128,128,128,.25)} #lubnov .nv b{display:inline-block;min-width:44px;color:#f5822b}
+#lubnov .nvbtns{display:flex;gap:8px;margin-top:14px} #lubnov .nvbtns button{flex:1;padding:11px;border-radius:10px;border:0;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+#nvact{background:#0c2a66;color:#fff} #nvcerrar{background:#e4ebf8;color:#0c2a66}
 #lubtop{position:fixed;right:12px;bottom:56px;z-index:44;width:42px;height:42px;border-radius:50%;border:0;background:rgba(11,28,71,.75);color:#fff;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 #lubtop[hidden]{display:none}
 @media print{#lubtop{display:none!important}}
@@ -124,10 +132,11 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v139</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v140</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
+<div id="lubnov" hidden><div class="nvcard"><h3>Novedades de la app <span id="nvver"></span></h3><div id="nvlista"></div><div class="nvbtns"><button type="button" id="nvact">🔄 Buscar actualización</button><button type="button" id="nvcerrar">Cerrar</button></div></div></div>
 <script>
 (function(){
   var ADMIN_EMAILS=['nicolassaraviaalegria@gmail.com']; /* siempre administradores (respaldo si falta el doc de rol) */
@@ -271,8 +280,23 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='139';
-  $('lubver').onclick=function(){
+  window.LUB_VERSION='140';
+  var NOVEDADES=[
+    ['v140','Panel de novedades al tocar la versión (este).'],
+    ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
+    ['v137–138','Ruta Crítica: "Finalizar ronda" (hora de fin, bloqueo, reabrir solo admin); Supervisión muestra % y cierre por noche.'],
+    ['v133–136','Enlaces cruzados: Maestro → Pautas/Aceite, Pautas ?ot=/?q=, Supervisión → pauta; planilla semanal de ruta con colores de desviación; botón "volver arriba".'],
+    ['v127–132','Consumibles: filtro de producto e historial por producto; Supervisión: vista por técnico y Excel de cumplimiento por semana; Usuarios: filtro por rol; el login recuerda el correo.'],
+    ['v121–126','Pautas: observación obligatoria al marcar M e indicadores de la semana; Ruta: acciones por sección y filtro de pendientes; Plan 52: filtro de área e indicadores anuales; Muestras/Plan 52: día automático al marcar R.'],
+    ['v110–120','Atajos de tablet, indicador de conexión, barra de avance y "siguiente pendiente", "− Salida" por producto, búsquedas recientes, enlace Aceite, Supervisión con stock bajo mínimo y desviaciones de ruta, etiqueta de versión.'],
+    ['v101–109','Historial por equipo en cada pauta, informe semanal PDF y Excel en Supervisión, alertas automáticas de temperatura, sección "Hoy" y buscador de OT, badge de bajo stock, tema oscuro/claro.'],
+    ['v93–100','Login individual con roles, datos fuera del sitio público, semanas 37 y 39 cargadas, cierre de pauta con horas automáticas, vista de Supervisión.']
+  ];
+  function abrirNovedades(){ $('nvver').textContent='v'+window.LUB_VERSION; $('nvlista').innerHTML=NOVEDADES.map(function(n){ return '<div class="nv"><b>'+n[0]+'</b> '+n[1]+'</div>'; }).join(''); $('lubnov').hidden=false; }
+  $('nvcerrar').onclick=function(){ $('lubnov').hidden=true; };
+  $('lubnov').onclick=function(ev){ if(ev.target===$('lubnov')) $('lubnov').hidden=true; };
+  $('lubver').onclick=abrirNovedades;
+  $('nvact').onclick=function(){
     if(!confirm('Versión instalada: v'+window.LUB_VERSION+'\n\n¿Buscar una versión nueva de la app? (se recarga la página; tus datos no se pierden)')) return;
     var p=[];
     if(navigator.serviceWorker) p.push(navigator.serviceWorker.getRegistrations().then(function(rs){ return Promise.all(rs.map(function(r){ return r.unregister(); })); }));
