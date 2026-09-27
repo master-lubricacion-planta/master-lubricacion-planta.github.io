@@ -515,10 +515,17 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
 </main>
 <footer>Supervisión en vivo del equipo de lubricación · Requiere internet · Admin: Nicolás Saravia</footer>
 <script>
-lubCuandoListo(["pautas", "planes"], function(){
+lubCuandoListo(["cons_maestro", "cons_stock", "pautas", "planes"], function(){
 
 const PAUTAS = LUB.datos.pautas;
 const PLANES = LUB.datos.planes;
+const CMAESTRO = LUB.datos.cons_maestro, CSTOCK = LUB.datos.cons_stock; /* stock de lubricantes (bajo mínimo) */
+function stockBajo(){
+  const st={}; for(const m of CMAESTRO){ st[m.id]=(CSTOCK[String(m.id)]||{total:0}).total; }
+  const movs=(CLOUD['CONS-MOVS']&&CLOUD['CONS-MOVS'].m)||{};
+  for(const k in movs){ const mv=movs[k]; if(st[mv.id]===undefined) continue; st[mv.id]+=(mv.mov==='ENTRADA'?1:-1)*Number(mv.cant||0); }
+  return CMAESTRO.filter(m=>st[m.id]<m.min).map(m=>({prod:m.prod,ubi:m.ubi,uni:m.uni,stock:st[m.id],min:m.min})).sort((a,b)=>(a.stock/(a.min||1))-(b.stock/(b.min||1)));
+}
 /* la semana actual se calcula sola desde el ancla (jueves 13.08.2026 = semana 33) */
 const SEMANA_ACTUAL = Math.min(52, Math.max(1, 33 + Math.floor((Date.now()-new Date(2026,7,13).getTime())/(7*24*3600*1000))));
 const byId = Object.fromEntries(PAUTAS.map(p=>[p.id,p]));
@@ -710,6 +717,7 @@ function renderDias(){
     if(subvista==='resumen'){
       body=`<div class="sec2"><h3>👤 Por técnico</h3>${tecRows?`<table class="tbl"><tr><th>Técnico</th><th>Completas</th><th>En progreso</th><th>Hallazgos M</th></tr>${tecRows}</table>`:'<div class="hint" style="padding:12px">Aún no hay pautas registradas esta semana.</div>'}</div>
       <div class="sec2"><h3>🌙 Ronda nocturna (Ruta Crítica)</h3>${nochesHtml.join('')}<p class="daysub" style="margin:8px 0 0">Pasa el cursor sobre una noche para ver el nochero. Tendencias y detalle en la pestaña Ruta Crítica.</p></div>
+      <div class="sec2"><h3>🛢 Lubricantes bajo stock mínimo</h3>${(()=>{ const b=stockBajo(); return b.length?`<table class="tbl"><tr><th>Producto</th><th>Ubicación</th><th>Stock</th><th>Mínimo</th></tr>${b.map(x=>`<tr><td>${esc(x.prod)}</td><td>${esc(x.ubi||'')}</td><td class="num" style="color:var(--bad)">${x.stock.toLocaleString('es-CL',{maximumFractionDigits:1})} ${esc(x.uni)}</td><td class="num">${x.min.toLocaleString('es-CL')} ${esc(x.uni)}</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:0">Todos los lubricantes están sobre su stock mínimo. 👍</p>'; })()}</div>
       <div class="sec2"><h3>📭 Sin pauta digital</h3><p class="daysub" style="margin:0">${tot.sind} OT de la semana no tienen pauta xlsx en Máximo (PDF escaneado o sin adjunto); se ejecutan en papel.</p></div>`;
     } else if(subvista==='hallazgos'){
       body=hallazgos.length?hallazgos.map(h=>`<button class="hall" data-ot="${h.ot}" data-di="${h.di}">
