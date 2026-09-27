@@ -430,7 +430,7 @@ function render(){
     <div class="equip${autoOpen?' open':''}">
       <button class="ehead" aria-expanded="${autoOpen}">
         <div class="meta">
-          <div class="tag mono">${hi(e.tag,terms)} <a class="xl" href="pautas.html?q=${encodeURIComponent(e.tag)}" title="Pautas de este equipo" onclick="event.stopPropagation()">📋</a><a class="xl" href="tendencias.html?tag=${encodeURIComponent(e.tag)}" title="Análisis de aceite" onclick="event.stopPropagation()">📈</a></div>
+          <div class="tag mono">${hi(e.tag,terms)} <a class="xl" href="pautas.html?q=${encodeURIComponent(e.tag)}" title="Pautas de este equipo" onclick="event.stopPropagation()">📋</a><a class="xl" href="tendencias.html?tag=${encodeURIComponent(e.tag)}" title="Análisis de aceite" onclick="event.stopPropagation()">📈</a><a class="xl" href="#" title="Copiar TAG" onclick="event.stopPropagation();event.preventDefault();navigator.clipboard&&navigator.clipboard.writeText('${esc(e.tag)}').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='📋',900)})">📋</a></div>
           <div class="desc">${e.equipo?`<span class="eqname">${hi(e.equipo,terms)}</span>`:''}${e.equipo&&e.desc?' — ':''}${hi(e.desc,terms)}</div>
           <div class="arealbl">${esc((AREAS[e.hoja]||{}).name||e.hoja)} · ${esc(e.hoja.replace('Area ','Área '))}</div>
         </div>

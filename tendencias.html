@@ -153,7 +153,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v154</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v155</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -314,7 +314,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='154';
+  window.LUB_VERSION='155';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -522,7 +522,7 @@ tr:last-child td{border-bottom:0}
 footer{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 @media (max-width:640px){.charts{grid-template-columns:1fr 1fr}}
 .xl2{font-size:11px;font-weight:800;text-decoration:none;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
-@media print{ body.imp-eq header,body.imp-eq #lubuserbar,body.imp-eq #lubviewerchip,body.imp-eq .noprint{display:none!important} body.imp-eq main>*:not(#detail){display:none!important} body.imp-eq #detail{display:block!important} }
+@media print{ body.imp-eq *{visibility:hidden} body.imp-eq #detail,body.imp-eq #detail *{visibility:visible} body.imp-eq #detail{position:absolute;left:0;top:0;width:100%;box-shadow:none;border:0} body.imp-eq .noprint{display:none!important} }
 </style>
 
 <div class="wrap">

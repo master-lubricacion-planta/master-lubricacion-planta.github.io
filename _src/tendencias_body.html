@@ -113,7 +113,7 @@ tr:last-child td{border-bottom:0}
 footer{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
 @media (max-width:640px){.charts{grid-template-columns:1fr 1fr}}
 .xl2{font-size:11px;font-weight:800;text-decoration:none;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
-@media print{ body.imp-eq header,body.imp-eq #lubuserbar,body.imp-eq #lubviewerchip,body.imp-eq .noprint{display:none!important} body.imp-eq main>*:not(#detail){display:none!important} body.imp-eq #detail{display:block!important} }
+@media print{ body.imp-eq *{visibility:hidden} body.imp-eq #detail,body.imp-eq #detail *{visibility:visible} body.imp-eq #detail{position:absolute;left:0;top:0;width:100%;box-shadow:none;border:0} body.imp-eq .noprint{display:none!important} }
 </style>
 
 <div class="wrap">
