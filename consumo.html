@@ -276,7 +276,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v145</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v146</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -424,7 +424,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='145';
+  window.LUB_VERSION='146';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -622,8 +622,15 @@ const chips=v=>`<div class="vistas">
   <button class="vchip ${v==='tend'?'on':''}" data-v="tend">📈 Tendencias de consumo</button>
 </div>`;
 
+function ritmoDiario(){ /* salida promedio por día de cada producto en los últimos 90 días */
+  const desde=new Date(Date.now()-90*86400000).toISOString().slice(0,10);
+  const acc={};
+  for(const s of todasSalidas()){ if((s.f||'')<desde) continue; acc[s.id]=(acc[s.id]||0)+Number(s.cant||0); }
+  const r={}; for(const id in acc) r[id]=acc[id]/90; return r;
+}
 function renderStock(){
   const st=stockActual();
+  const ritmo=ritmoDiario();
   let totL=0,totKg=0,bajo=0;
   const bajos=[];
   for(const m of MAESTRO){ const v=st[m.id]; if(m.uni==='L')totL+=v; else totKg+=v; if(v<m.min){ bajo++; bajos.push(m.prod); } }
@@ -657,7 +664,7 @@ function renderStock(){
           <button class="psal" data-id="${m.id}" title="Registrar salida de ${esc(m.prod)}">− Salida</button>
         </div>
         <div class="pbar"><i style="width:${pct}%;background:${color}"></i><span class="minmark" style="left:${minPct}%" title="Stock mínimo ${nf(m.min)}"></span></div>
-        <div class="pdet">${env.join(' · ')||'sin desglose de envases'} · mínimo <b>${nf(m.min)} ${esc(m.uni)}</b></div>
+        <div class="pdet">${env.join(' · ')||'sin desglose de envases'} · mínimo <b>${nf(m.min)} ${esc(m.uni)}</b>${ritmo[m.id]?` · ≈ <b style="color:${v/ritmo[m.id]<15?'var(--bad)':(v/ritmo[m.id]<30?'var(--orange-ink)':'inherit')}">${Math.round(v/ritmo[m.id])} días</b> de stock al ritmo de los últimos 90 días (${nf(ritmo[m.id]*30)} ${esc(m.uni)}/mes)`:''}</div>
       </div>`;
     }
     html+=`<div class="grp">${tipo==='ACEITE'?'🛢 Aceites (L)':'🧴 Grasas (kg)'}</div><div class="plist">${items}</div>`;
