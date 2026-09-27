@@ -448,6 +448,8 @@ function renderTend(){
       const v=porMes[k].L; const nm=MESES[+k.slice(5,7)-1]||k;
       return `<div class="abar"><span class="an">${esc(nm)} ${k.slice(0,4)}</span><span class="atrack"><i style="width:${mx?Math.max(3,v/mx*100):0}%"></i></span><span class="av">${nf(v)} L</span></div>`;
     }).join('')+'</div>';
+    const mxk=Math.max(...meses.map(k=>porMes[k].kg));
+    if(mxk>0) serieHtml+='<div class="dash"><h3>Grasa consumida por mes (kg)</h3>'+meses.map(k=>{ const v=porMes[k].kg; const nm=MESES[+k.slice(5,7)-1]||k; return `<div class="abar"><span class="an">${esc(nm)} ${k.slice(0,4)}</span><span class="atrack"><i style="width:${Math.max(3,v/mxk*100)}%"></i></span><span class="av">${nf(v)} kg</span></div>`; }).join('')+'</div>';
   }
   $('#cont').innerHTML=`
     <div class="dayhdr">Tendencias de consumo</div>
