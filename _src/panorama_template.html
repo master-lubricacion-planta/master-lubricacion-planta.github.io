@@ -438,6 +438,9 @@ function renderDias(){
       ${hallazgos.length?`<table><tr><th>TAG</th><th>OT</th><th>Día</th><th>Actividad</th><th>Valor</th><th>Observación</th><th>Técnico</th></tr>${hallazgos.map(h=>`<tr><td class="mono">${esc(h.tag)}</td><td>${h.ot}</td><td>${esc(h.dia)}</td><td>${h.n}. ${esc(h.ad)}</td><td>${esc(h.v)}</td><td>${esc(h.o)}</td><td>${esc(h.tec)}</td></tr>`).join('')}</table>`:'<p>Sin hallazgos "M" registrados.</p>'}
       <h3>Ronda nocturna (Ruta Crítica)</h3>
       <p>${noches} de 7 noches registradas: ${nochesHtml.map(x=>x.replace(/<[^>]+>/g,'')).join(' · ')}</p>
+      ${(()=>{ const al=alertasRuta(fechasSem); return al.length?`<table><tr><th>Noche</th><th>Punto</th><th>Valor</th><th>Promedio</th><th>Desviación</th></tr>${al.slice(0,20).map(a=>`<tr><td>${a.f.slice(8,10)}-${a.f.slice(5,7)}</td><td>${esc(a.meta.l)}${a.meta.sub?' · '+esc(a.meta.sub):''} (${esc(a.meta.sec)})</td><td>${String(a.v).replace('.',',')} ${esc(a.meta.u)}</td><td>${a.prom.toFixed(1).replace('.',',')}</td><td>${a.pct>0?'+':''}${a.pct.toFixed(0)}%</td></tr>`).join('')}</table>`:'<p>Sin desviaciones ≥25% respecto al histórico.</p>'; })()}
+      <h3>Lubricantes bajo stock mínimo</h3>
+      ${(()=>{ const b=stockBajo(); return b.length?`<table><tr><th>Producto</th><th>Ubicación</th><th>Stock</th><th>Mínimo</th></tr>${b.map(x=>`<tr><td>${esc(x.prod)}</td><td>${esc(x.ubi||'')}</td><td>${x.stock.toLocaleString('es-CL',{maximumFractionDigits:1})} ${esc(x.uni)}</td><td>${x.min.toLocaleString('es-CL')} ${esc(x.uni)}</td></tr>`).join('')}</table>`:'<p>Todos los lubricantes sobre su stock mínimo.</p>'; })()}
       <p style="font-size:10px;color:#444;margin-top:14px">Informe generado desde la app Maestro de Lubricación · ${tot.sind} OT de la semana sin pauta digital (se ejecutan en papel) · Admin: Nicolás Saravia</p>
     </div>`;
     if(subvista==='resumen'){
