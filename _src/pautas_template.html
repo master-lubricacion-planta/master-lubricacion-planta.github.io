@@ -191,6 +191,10 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .act.need-obs .obs{border-color:var(--bad)}
 .act.resalta{outline:3px solid var(--orange);outline-offset:2px}
 #form.cerrada .pbar .bvolver{display:none}
+.wk{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px;margin:0 0 12px}
+.wk .k{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 6px;text-align:center;box-shadow:var(--shadow)}
+.wk .k b{display:block;font-size:18px;line-height:1.1} .wk .k span{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
+.wk .k.ok b{color:var(--ok)} .wk .k.warn b{color:var(--orange-ink)} .wk .k.bad b{color:var(--bad)}
 .hoybox{background:var(--surface);border:2px solid var(--orange);border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow)}
 .hoybox .otcard{margin-bottom:8px}
 #hoylista.colapsado{max-height:330px;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(#000 75%,transparent);mask-image:linear-gradient(#000 75%,transparent)}
@@ -530,6 +534,7 @@ function renderDias(){
   $('#listado').innerHTML=`
     <div class="dayhdr">Semana ${w} · Turno ${t}</div>
     <p class="daysub">Jueves ${fmt(r.ini)} al Miércoles ${fmt(r.fin)} (jornada 7×7)</p>
+    ${(()=>{ if(!plan) return ''; let cer=0,com=0,prog=0,pen=0,sin=0; plan.days.forEach(d=>d.ots.forEach(o=>{ if(!o.pauta){sin++;return;} const dd=load(o.ot); const pr=progress(o); if(dd.cerrada) cer++; else if(pr.done>=pr.total) com++; else if(pr.done>0) prog++; else pen++; })); const tot=cer+com+prog+pen; const pct=tot?Math.round(100*(cer+com)/tot):0; return `<div class="wk"><div class="k ${pct>=90?'ok':(pct>=60?'warn':'bad')}"><b>${pct}%</b><span>cumplimiento</span></div><div class="k ok"><b>${cer}</b><span>cerradas</span></div><div class="k"><b>${com}</b><span>completas</span></div><div class="k warn"><b>${prog}</b><span>en progreso</span></div><div class="k"><b>${pen}</b><span>pendientes</span></div><div class="k"><b>${sin}</b><span>sin pauta</span></div></div>`; })()}
     ${body}`;
   document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'dia',week:w,di:+b.dataset.i}; render(); });
 }
