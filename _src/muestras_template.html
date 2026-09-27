@@ -458,7 +458,8 @@ function renderMes(){
     const n=el.dataset.n;
     el.querySelectorAll('.echip').forEach(ch=>ch.onclick=()=>{
       const ya=ch.classList.contains('on');
-      setVal(n,b=>{ b.m=ya?'':ch.dataset.e; });
+      setVal(n,b=>{ b.m=ya?'':ch.dataset.e; if(b.m==='R' && (b.d==null||b.d==='')) b.d=(new Date().getDay()+3)%7; /* día de hoy: J=0 … Mi=6 */ });
+      const dsel=el.querySelector('.idia'); const vv=(load(m)[n]||{}); if(dsel && vv.d!=null) dsel.value=String(vv.d);
       el.querySelectorAll('.echip').forEach(c2=>c2.classList.toggle('on', !ya && c2===ch));
       refrescar();
     });
