@@ -515,11 +515,69 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
 </main>
 <footer>Supervisión en vivo del equipo de lubricación · Requiere internet · Admin: Nicolás Saravia</footer>
 <script>
-lubCuandoListo(["cons_maestro", "cons_stock", "pautas", "planes"], function(){
+lubCuandoListo(["cons_maestro", "cons_stock", "pautas", "planes", "rprev"], function(){
 
 const PAUTAS = LUB.datos.pautas;
 const PLANES = LUB.datos.planes;
 const CMAESTRO = LUB.datos.cons_maestro, CSTOCK = LUB.datos.cons_stock; /* stock de lubricantes (bajo mínimo) */
+const RPREV = LUB.datos.rprev; /* historial de la ruta crítica (para el promedio por punto) */
+function motoresLAL(pref,nombres){ return nombres.flatMap((n,i)=>[[pref+(i+1)+'a',n,'L. acople','°C'],[pref+(i+1)+'l',n,'L. libre','°C']]); }
+function espesador(pref,motores){ return motores.flatMap(m=>[[pref+'m'+m+'r1','M '+m,'R 1','°C'],[pref+'m'+m+'r2','M '+m,'R 2','°C']]); }
+function warman(n){ return [['w'+n+'ml','Motor '+n,'L. libre','°C'],['w'+n+'ma','Motor '+n,'L. acople','°C'],['w'+n+'ac','Acoplamiento '+n,'','°C'],['w'+n+'ba','Bomba '+n,'L. acople','°C'],['w'+n+'bb','Bomba '+n,'L. bomba','°C']]; }
+const RUTA=[
+ {area:'Chancado', sec:'Temperatura Contraeje', items:[
+   ['chxce','Contraeje','','°C'],['chxkg','Kilos de grasa','','kg'],['chxmc','Manta calefactora','','°C']]},
+ {area:'Chancado', sec:'Presión batería filtros sist. lubricación', items:[
+   ['chxpres','Sist. Lubricación','','kPa']]},
+ {area:'Correas', sec:'Correa 1 · Temperatura motores', items:motoresLAL('c1m',['Motor N°1','Motor N°2'])},
+ {area:'Correas', sec:'Correa 2 · Temperatura motores', items:motoresLAL('c2m',['Motor N°1','Motor N°2','Motor N°3','Motor N°4'])},
+ {area:'Correas', sec:'Correa 2 · Polea tensora', items:[
+   ['c2pd','Polea derecha sentido carga','','°C'],['c2cd','Carga de la correa','lado derecho','TPH'],['c2td','Tensión de la correa','lado derecho','N'],
+   ['c2pi','Polea izquierda sentido carga','','°C'],['c2ci','Carga de la correa','lado izquierdo','TPH'],['c2ti','Tensión de la correa','lado izquierdo','N']]},
+ {area:'Correas', sec:'Correa 6 · Temperatura motor', items:[
+   ['c6ma','Motor','L. acople','°C'],['c6ml','Motor','L. libre','°C']]},
+ {area:'Correas', sec:'Correa 7 · Temperatura motor', items:[
+   ['c7ma','Motor','L. acople','°C'],['c7ml','Motor','L. libre','°C']]},
+ {area:'Molinos', sec:'Presión filtros sist. lubricación de los Molinos', items:[
+   ['fs1a','SAG 1','Batería A','kPa'],['fs1b','SAG 1','Batería B','kPa'],
+   ['fs2a','SAG 2','Batería A','kPa'],['fs2b','SAG 2','Batería B','kPa'],
+   ['fb1a','Bolas 1','Batería A','kPa'],['fb1b','Bolas 1','Batería B','kPa'],
+   ['fb2a','Bolas 2','Batería A','kPa'],['fb2b','Bolas 2','Batería B','kPa'],
+   ['fb3a','Bolas 3','Batería A','kPa'],['fb3b','Bolas 3','Batería B','kPa'],
+   ['fb4a','Bolas 4','Batería A','kPa'],['fb4b','Bolas 4','Batería B','kPa']]},
+ {area:'Molinos', sec:'Bombas bajo molinos SAG · Temperatura', items:[
+   ['b40b','Bomba 40','L. bomba','°C'],['b40t','Bomba 40','L. transmisión','°C'],
+   ['b41a','Bomba 41','L. acople','°C'],['b41l','Bomba 41','L. libre','°C'],
+   ['b42a','Bomba 42','L. acople','°C'],['b42l','Bomba 42','L. libre','°C']]},
+ {area:'Molinos', sec:'Blowers · Nivel de aceite', items:[
+   ['bl11','Blower 11','','%'],['bl12','Blower 12','','%'],['bl13','Blower 13','','%']]},
+ {area:'Bombas Warman', sec:'Bombas Warman · Temperatura', items:[].concat(warman(11),warman(12),warman(13),warman(14))},
+ {area:'Planta de Cal', sec:'Temperatura reductor Planta de Cal', items:[
+   ['k243mc','Motor 243','L. carga','°C'],['k243ml','Motor 243','L. libre','°C'],
+   ['k243el','Elastómero 243','','°C'],['k243re','Reductor 243','','°C'],
+   ['k244mc','Motor 244','L. carga','°C'],['k244ml','Motor 244','L. libre','°C'],
+   ['k244el','Elastómero 244','','°C'],['k244re','Reductor 244','','°C']]},
+ {area:'Planta de Cal', sec:'Cuerpos de rodamiento en Cal', items:[
+   ['cal241','Cuerpo de rodamiento 241','','%'],['cal242','Cuerpo de rodamiento 242','','%']]},
+ {area:'Espesadores', sec:'Espesador 141 · Reductor planetario', items:espesador('e141',[1,2,3,4])},
+ {area:'Espesadores', sec:'Espesador 146 · Reductor planetario', items:espesador('e146',[1,2,3,4])},
+ {area:'Espesadores', sec:'Espesador 281 · Reductor planetario', items:espesador('e281',[1,2,3,5,6])},
+ {area:'Espesadores', sec:'Espesador 283 · Reductor planetario', items:espesador('e283',[1,2,3,5,6])},
+ {area:'Scrubber', sec:'Ventilador scrubber · T° rodamientos y amperaje', items:[
+   ['scrllm','LL motor','','°C'],['scrlcm','LC motor','','°C'],
+   ['scrltv','LT ventilador','','°C'],['scrlv','L ventilador','','°C'],
+   ['scramp','Amperaje','nominal 29 AMP','AMP']]}
+];
+
+const META_RUTA={}; RUTA.forEach(s=>s.items.forEach(it=>{ META_RUTA[it[0]]={l:it[1],sub:it[2],u:it[3],sec:s.sec}; }));
+let _promRuta=null;
+function promRuta(){ if(_promRuta) return _promRuta; const acc={}; for(const f in RPREV){ const d=RPREV[f]; for(const id in d){ if(typeof d[id]==='number'){ (acc[id]=acc[id]||[]).push(d[id]); } } } _promRuta={}; for(const id in acc){ if(acc[id].length>=3) _promRuta[id]=acc[id].reduce((a,b)=>a+b,0)/acc[id].length; } return _promRuta; }
+function alertasRuta(fechas){ /* valores de la semana con desviación ≥25% respecto al promedio histórico */
+  const P=promRuta(), out=[];
+  fechas.forEach(f=>{ const rd=RUTA_DOCS()[f]; if(!rd||!rd.vals) return; for(const id in rd.vals){ const v=parseFloat(String(rd.vals[id].v||'').replace(',','.')); if(isNaN(v)||P[id]===undefined||Math.abs(P[id])<0.5) continue; const pct=(v-P[id])/Math.abs(P[id])*100; if(Math.abs(pct)>=25) out.push({f,id,v,prom:P[id],pct,meta:META_RUTA[id]||{l:id,sub:'',u:'',sec:''}}); } });
+  return out.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+}
+function RUTA_DOCS(){ return RUTA_CLOUD; }
 function stockBajo(){
   const st={}; for(const m of CMAESTRO){ st[m.id]=(CSTOCK[String(m.id)]||{total:0}).total; }
   const movs=(CLOUD['CONS-MOVS']&&CLOUD['CONS-MOVS'].m)||{};
@@ -552,7 +610,7 @@ const firebaseConfig = {
   messagingSenderId: "697204585611",
   appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
 };
-let CLOUD={}; let RUTA={}; let cloudReady=false; let cloudErr=false; let subvista='resumen';
+let CLOUD={}; let RUTA_CLOUD={}; let cloudReady=false; let cloudErr=false; let subvista='resumen';
 try{
   if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); /* el candado (gate.html) ya la inicializa */
   const db=firebase.firestore();
@@ -564,7 +622,7 @@ try{
   db.collection('ruta').onSnapshot(snap=>{
     const next={};
     snap.forEach(doc=>{ next[doc.id]=doc.data(); });
-    RUTA=next; render();
+    RUTA_CLOUD=next; render();
   }, ()=>{});
 }catch(e){ cloudErr=true; }
 
@@ -669,7 +727,8 @@ function renderDias(){
     const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     const NOM=['Jue','Vie','Sáb','Dom','Lun','Mar','Mié'];
     let noches=0; const nochesHtml=[];
-    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); const rd=RUTA[k]; const lleno=!!(rd&&rd.vals&&Object.values(rd.vals).some(x=>x&&(String(x.v||'').trim()||x.e))); if(lleno) noches++; nochesHtml.push(`<span class="night ${lleno?'ok':'no'}" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}">${NOM[i]} ${fmt(f)}${lleno?' ✓':''}</span>`); }
+    const fechasSem=[];
+    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); fechasSem.push(k); const rd=RUTA_CLOUD[k]; const lleno=!!(rd&&rd.vals&&Object.values(rd.vals).some(x=>x&&(String(x.v||'').trim()||x.e))); if(lleno) noches++; nochesHtml.push(`<span class="night ${lleno?'ok':'no'}" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}">${NOM[i]} ${fmt(f)}${lleno?' ✓':''}</span>`); }
     summHtml=`
     <div class="kp">
       <div class="k ${pct>=90?'ok':(pct>=60?'warn':'bad')}"><b>${pct}%</b><span>Cumplimiento</span></div>
@@ -716,7 +775,8 @@ function renderDias(){
     </div>`;
     if(subvista==='resumen'){
       body=`<div class="sec2"><h3>👤 Por técnico</h3>${tecRows?`<table class="tbl"><tr><th>Técnico</th><th>Completas</th><th>En progreso</th><th>Hallazgos M</th></tr>${tecRows}</table>`:'<div class="hint" style="padding:12px">Aún no hay pautas registradas esta semana.</div>'}</div>
-      <div class="sec2"><h3>🌙 Ronda nocturna (Ruta Crítica)</h3>${nochesHtml.join('')}<p class="daysub" style="margin:8px 0 0">Pasa el cursor sobre una noche para ver el nochero. Tendencias y detalle en la pestaña Ruta Crítica.</p></div>
+      <div class="sec2"><h3>🌙 Ronda nocturna (Ruta Crítica)</h3>${nochesHtml.join('')}<p class="daysub" style="margin:8px 0 0">Pasa el cursor sobre una noche para ver el nochero. Tendencias y detalle en la pestaña Ruta Crítica.</p>
+      ${(()=>{ const al=alertasRuta(fechasSem); return al.length?`<h3 style="margin-top:12px">🌡 Desviaciones ≥25% esta semana (${al.length})</h3><table class="tbl"><tr><th>Noche</th><th>Punto</th><th>Valor</th><th>Prom.</th><th>Desv.</th></tr>${al.slice(0,15).map(a=>`<tr><td>${a.f.slice(8,10)}-${a.f.slice(5,7)}</td><td>${esc(a.meta.l)}${a.meta.sub?' · '+esc(a.meta.sub):''}<br><span style="color:var(--ink-3);font-size:11px">${esc(a.meta.sec)}</span></td><td class="num" style="color:${Math.abs(a.pct)>=25?'var(--bad)':'inherit'}">${String(a.v).replace('.',',')} ${esc(a.meta.u)}</td><td class="num">${a.prom.toFixed(1).replace('.',',')}</td><td class="num" style="color:var(--bad)">${a.pct>0?'+':''}${a.pct.toFixed(0)}%</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:8px 0 0">Sin desviaciones ≥25% respecto al histórico en las rondas de esta semana.</p>'; })()}</div>
       <div class="sec2"><h3>🛢 Lubricantes bajo stock mínimo</h3>${(()=>{ const b=stockBajo(); return b.length?`<table class="tbl"><tr><th>Producto</th><th>Ubicación</th><th>Stock</th><th>Mínimo</th></tr>${b.map(x=>`<tr><td>${esc(x.prod)}</td><td>${esc(x.ubi||'')}</td><td class="num" style="color:var(--bad)">${x.stock.toLocaleString('es-CL',{maximumFractionDigits:1})} ${esc(x.uni)}</td><td class="num">${x.min.toLocaleString('es-CL')} ${esc(x.uni)}</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:0">Todos los lubricantes están sobre su stock mínimo. 👍</p>'; })()}</div>
       <div class="sec2"><h3>📭 Sin pauta digital</h3><p class="daysub" style="margin:0">${tot.sind} OT de la semana no tienen pauta xlsx en Máximo (PDF escaneado o sin adjunto); se ejecutan en papel.</p></div>`;
     } else if(subvista==='hallazgos'){

@@ -169,8 +169,11 @@ pout=(nube(ptpl,MAPA_PAUTAS).replace('__IMGV__',BUILDV)
 open(os.path.join(pwa,'pautas.html'),'w',encoding='utf-8').write(gate(pout))
 
 ntpl=open(base+'/panorama_template.html',encoding='utf-8').read()
+# catálogo de puntos de la ruta crítica (misma fuente que ruta.html)
+_rt=open(base+'/ruta_template.html',encoding='utf-8').read()
+_cat=_rt[_rt.index('function motoresLAL('):_rt.index('const NITEMS')]
 open(os.path.join(pwa,'panorama.html'),'w',encoding='utf-8').write(gate(
-    nube(ntpl,MAPA_PAUTAS).replace('__TECKLOGO__',tecklogo)))
+    nube(ntpl.replace('__RUTA_CATALOGO__',_cat),MAPA_PAUTAS).replace('__TECKLOGO__',tecklogo)))
 
 DATOS['rprev']=json.load(open(base+'/rprev.json',encoding='utf-8'))
 rtpl=open(base+'/ruta_template.html',encoding='utf-8').read()

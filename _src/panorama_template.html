@@ -222,6 +222,17 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 const PAUTAS = __PAUTAS__;
 const PLANES = __PLANES__;
 const CMAESTRO = LUB.datos.cons_maestro, CSTOCK = LUB.datos.cons_stock; /* stock de lubricantes (bajo mínimo) */
+const RPREV = LUB.datos.rprev; /* historial de la ruta crítica (para el promedio por punto) */
+__RUTA_CATALOGO__
+const META_RUTA={}; RUTA.forEach(s=>s.items.forEach(it=>{ META_RUTA[it[0]]={l:it[1],sub:it[2],u:it[3],sec:s.sec}; }));
+let _promRuta=null;
+function promRuta(){ if(_promRuta) return _promRuta; const acc={}; for(const f in RPREV){ const d=RPREV[f]; for(const id in d){ if(typeof d[id]==='number'){ (acc[id]=acc[id]||[]).push(d[id]); } } } _promRuta={}; for(const id in acc){ if(acc[id].length>=3) _promRuta[id]=acc[id].reduce((a,b)=>a+b,0)/acc[id].length; } return _promRuta; }
+function alertasRuta(fechas){ /* valores de la semana con desviación ≥25% respecto al promedio histórico */
+  const P=promRuta(), out=[];
+  fechas.forEach(f=>{ const rd=RUTA_DOCS()[f]; if(!rd||!rd.vals) return; for(const id in rd.vals){ const v=parseFloat(String(rd.vals[id].v||'').replace(',','.')); if(isNaN(v)||P[id]===undefined||Math.abs(P[id])<0.5) continue; const pct=(v-P[id])/Math.abs(P[id])*100; if(Math.abs(pct)>=25) out.push({f,id,v,prom:P[id],pct,meta:META_RUTA[id]||{l:id,sub:'',u:'',sec:''}}); } });
+  return out.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+}
+function RUTA_DOCS(){ return RUTA_CLOUD; }
 function stockBajo(){
   const st={}; for(const m of CMAESTRO){ st[m.id]=(CSTOCK[String(m.id)]||{total:0}).total; }
   const movs=(CLOUD['CONS-MOVS']&&CLOUD['CONS-MOVS'].m)||{};
@@ -254,7 +265,7 @@ const firebaseConfig = {
   messagingSenderId: "697204585611",
   appId: "1:697204585611:web:824c3cf28291bdf1ec108e"
 };
-let CLOUD={}; let RUTA={}; let cloudReady=false; let cloudErr=false; let subvista='resumen';
+let CLOUD={}; let RUTA_CLOUD={}; let cloudReady=false; let cloudErr=false; let subvista='resumen';
 try{
   if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); /* el candado (gate.html) ya la inicializa */
   const db=firebase.firestore();
@@ -266,7 +277,7 @@ try{
   db.collection('ruta').onSnapshot(snap=>{
     const next={};
     snap.forEach(doc=>{ next[doc.id]=doc.data(); });
-    RUTA=next; render();
+    RUTA_CLOUD=next; render();
   }, ()=>{});
 }catch(e){ cloudErr=true; }
 
@@ -371,7 +382,8 @@ function renderDias(){
     const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     const NOM=['Jue','Vie','Sáb','Dom','Lun','Mar','Mié'];
     let noches=0; const nochesHtml=[];
-    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); const rd=RUTA[k]; const lleno=!!(rd&&rd.vals&&Object.values(rd.vals).some(x=>x&&(String(x.v||'').trim()||x.e))); if(lleno) noches++; nochesHtml.push(`<span class="night ${lleno?'ok':'no'}" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}">${NOM[i]} ${fmt(f)}${lleno?' ✓':''}</span>`); }
+    const fechasSem=[];
+    for(let i=0;i<7;i++){ const f=new Date(r.ini); f.setDate(f.getDate()+i); const k=iso(f); fechasSem.push(k); const rd=RUTA_CLOUD[k]; const lleno=!!(rd&&rd.vals&&Object.values(rd.vals).some(x=>x&&(String(x.v||'').trim()||x.e))); if(lleno) noches++; nochesHtml.push(`<span class="night ${lleno?'ok':'no'}" title="${esc((rd&&[rd.noc,rd.noc2].filter(Boolean).join(' / '))||'')}">${NOM[i]} ${fmt(f)}${lleno?' ✓':''}</span>`); }
     summHtml=`
     <div class="kp">
       <div class="k ${pct>=90?'ok':(pct>=60?'warn':'bad')}"><b>${pct}%</b><span>Cumplimiento</span></div>
@@ -418,7 +430,8 @@ function renderDias(){
     </div>`;
     if(subvista==='resumen'){
       body=`<div class="sec2"><h3>👤 Por técnico</h3>${tecRows?`<table class="tbl"><tr><th>Técnico</th><th>Completas</th><th>En progreso</th><th>Hallazgos M</th></tr>${tecRows}</table>`:'<div class="hint" style="padding:12px">Aún no hay pautas registradas esta semana.</div>'}</div>
-      <div class="sec2"><h3>🌙 Ronda nocturna (Ruta Crítica)</h3>${nochesHtml.join('')}<p class="daysub" style="margin:8px 0 0">Pasa el cursor sobre una noche para ver el nochero. Tendencias y detalle en la pestaña Ruta Crítica.</p></div>
+      <div class="sec2"><h3>🌙 Ronda nocturna (Ruta Crítica)</h3>${nochesHtml.join('')}<p class="daysub" style="margin:8px 0 0">Pasa el cursor sobre una noche para ver el nochero. Tendencias y detalle en la pestaña Ruta Crítica.</p>
+      ${(()=>{ const al=alertasRuta(fechasSem); return al.length?`<h3 style="margin-top:12px">🌡 Desviaciones ≥25% esta semana (${al.length})</h3><table class="tbl"><tr><th>Noche</th><th>Punto</th><th>Valor</th><th>Prom.</th><th>Desv.</th></tr>${al.slice(0,15).map(a=>`<tr><td>${a.f.slice(8,10)}-${a.f.slice(5,7)}</td><td>${esc(a.meta.l)}${a.meta.sub?' · '+esc(a.meta.sub):''}<br><span style="color:var(--ink-3);font-size:11px">${esc(a.meta.sec)}</span></td><td class="num" style="color:${Math.abs(a.pct)>=25?'var(--bad)':'inherit'}">${String(a.v).replace('.',',')} ${esc(a.meta.u)}</td><td class="num">${a.prom.toFixed(1).replace('.',',')}</td><td class="num" style="color:var(--bad)">${a.pct>0?'+':''}${a.pct.toFixed(0)}%</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:8px 0 0">Sin desviaciones ≥25% respecto al histórico en las rondas de esta semana.</p>'; })()}</div>
       <div class="sec2"><h3>🛢 Lubricantes bajo stock mínimo</h3>${(()=>{ const b=stockBajo(); return b.length?`<table class="tbl"><tr><th>Producto</th><th>Ubicación</th><th>Stock</th><th>Mínimo</th></tr>${b.map(x=>`<tr><td>${esc(x.prod)}</td><td>${esc(x.ubi||'')}</td><td class="num" style="color:var(--bad)">${x.stock.toLocaleString('es-CL',{maximumFractionDigits:1})} ${esc(x.uni)}</td><td class="num">${x.min.toLocaleString('es-CL')} ${esc(x.uni)}</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:0">Todos los lubricantes están sobre su stock mínimo. 👍</p>'; })()}</div>
       <div class="sec2"><h3>📭 Sin pauta digital</h3><p class="daysub" style="margin:0">${tot.sind} OT de la semana no tienen pauta xlsx en Máximo (PDF escaneado o sin adjunto); se ejecutan en papel.</p></div>`;
     } else if(subvista==='hallazgos'){
