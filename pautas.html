@@ -348,7 +348,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v157</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v158</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -509,7 +509,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='157';
+  window.LUB_VERSION='158';
   var NOVEDADES=[
     ['v140','Panel de novedades al tocar la versión (este).'],
     ['v139','Consumibles filtra por palabras; Tendencias enlaza al Maestro y a las Pautas del equipo.'],
@@ -1012,7 +1012,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)} <a class="alink" href="tendencias.html?tag=${encodeURIComponent(o.tag)}" title="Ver análisis de aceite de este equipo">📈 Aceite</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=157" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=158" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
@@ -1036,6 +1036,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
     <div class="btnbar">
       <button class="btn ghost" id="blimpiar">Borrar datos</button>
       <button class="btn primary" id="bimprimir">📄 Informe / Imprimir</button>
+      <button class="btn ghost" id="bcompartir" title="Copia un resumen de la pauta para WhatsApp o correo">📤 Compartir</button>
     </div>
     <div class="btnbar">
       <button class="btn primary" id="bemail" disabled>⬇ Descargar PDF (formato Máximo)</button>
@@ -1083,6 +1084,14 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
   $('#blimpiar').onclick=borrarTodo;
   if($('#blimpiar2')) $('#blimpiar2').onclick=borrarTodo;
   $('#bimprimir').onclick=async()=>{ await renderInforme(ot); window.print(); };
+  $('#bcompartir').onclick=async()=>{
+    const acts=d.acts||{}; const hechas=p.acts.filter(a=>acts[a.n]&&acts[a.n].e).length; const malos=p.acts.filter(a=>(acts[a.n]||{}).e==='M');
+    const txt=[`*Pauta ${esc(o.tag)}* · OT ${d.ot||o.ot}`,`${o.desc} · ${p.titulo}`,`${dia.nombre} ${dia.fecha} · Técnico(s): ${[d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'—'}`,`Avance: ${hechas}/${p.acts.length}${d.cerrada?' · 🔒 Finalizada '+(d.hter||''):''}`,
+      malos.length?`⚠ Hallazgos M (${malos.length}):`:'✅ Sin hallazgos M',...malos.map(a=>`• ${a.n}. ${a.d}${acts[a.n].v?' = '+acts[a.n].v:''}${acts[a.n].o?' — '+acts[a.n].o:''}`),
+      d.obsg?`Obs: ${d.obsg}`:'',`(Maestro de Lubricación · ${location.origin}${location.pathname}?ot=${o.ot})`].filter(Boolean).join('\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<');
+    try{ if(navigator.share){ await navigator.share({title:'Pauta '+o.tag,text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+    try{ await navigator.clipboard.writeText(txt); flash('📋 Resumen copiado — pégalo en WhatsApp o correo'); }catch(e){ alert(txt); }
+  };
   if(cerrada) $('#form').classList.add('cerrada'); else $('#form').classList.remove('cerrada');
   const bfin=$('#bfinalizar');
   if(bfin) bfin.onclick=()=>{

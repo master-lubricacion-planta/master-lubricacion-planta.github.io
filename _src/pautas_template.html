@@ -682,6 +682,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
     <div class="btnbar">
       <button class="btn ghost" id="blimpiar">Borrar datos</button>
       <button class="btn primary" id="bimprimir">📄 Informe / Imprimir</button>
+      <button class="btn ghost" id="bcompartir" title="Copia un resumen de la pauta para WhatsApp o correo">📤 Compartir</button>
     </div>
     <div class="btnbar">
       <button class="btn primary" id="bemail" disabled>⬇ Descargar PDF (formato Máximo)</button>
@@ -729,6 +730,14 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
   $('#blimpiar').onclick=borrarTodo;
   if($('#blimpiar2')) $('#blimpiar2').onclick=borrarTodo;
   $('#bimprimir').onclick=async()=>{ await renderInforme(ot); window.print(); };
+  $('#bcompartir').onclick=async()=>{
+    const acts=d.acts||{}; const hechas=p.acts.filter(a=>acts[a.n]&&acts[a.n].e).length; const malos=p.acts.filter(a=>(acts[a.n]||{}).e==='M');
+    const txt=[`*Pauta ${esc(o.tag)}* · OT ${d.ot||o.ot}`,`${o.desc} · ${p.titulo}`,`${dia.nombre} ${dia.fecha} · Técnico(s): ${[d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'—'}`,`Avance: ${hechas}/${p.acts.length}${d.cerrada?' · 🔒 Finalizada '+(d.hter||''):''}`,
+      malos.length?`⚠ Hallazgos M (${malos.length}):`:'✅ Sin hallazgos M',...malos.map(a=>`• ${a.n}. ${a.d}${acts[a.n].v?' = '+acts[a.n].v:''}${acts[a.n].o?' — '+acts[a.n].o:''}`),
+      d.obsg?`Obs: ${d.obsg}`:'',`(Maestro de Lubricación · ${location.origin}${location.pathname}?ot=${o.ot})`].filter(Boolean).join('\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<');
+    try{ if(navigator.share){ await navigator.share({title:'Pauta '+o.tag,text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+    try{ await navigator.clipboard.writeText(txt); flash('📋 Resumen copiado — pégalo en WhatsApp o correo'); }catch(e){ alert(txt); }
+  };
   if(cerrada) $('#form').classList.add('cerrada'); else $('#form').classList.remove('cerrada');
   const bfin=$('#bfinalizar');
   if(bfin) bfin.onclick=()=>{
