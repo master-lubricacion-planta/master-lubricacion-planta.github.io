@@ -153,6 +153,7 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .psal{border:1.5px solid var(--bad);background:var(--surface);color:var(--bad);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;cursor:pointer;margin-left:6px}
 .qprod{width:100%;padding:11px 14px;font-size:15px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);margin:0 0 12px;box-shadow:var(--shadow)}
 .qprod:focus{outline:none;border-color:var(--accent)}
+.fchipsel{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700;text-transform:none;letter-spacing:0}
 </style>
 </head>
 <body>
@@ -266,7 +267,7 @@ function todasSalidas(){
   return res;
 }
 
-let view='stock'; let preProd=null;
+let view='stock'; let preProd=null; let movProd='';
 function render(){
   $('#back').style.display='none';
   if(view==='stock') renderStock();
@@ -346,10 +347,11 @@ function renderMovs(){
   for(const k in movs) lista.push(Object.assign({mid:k,app:true},movs[k]));
   for(const h of HIST) lista.push(Object.assign({app:false},h));
   lista.sort((a,b)=> (b.f||'').localeCompare(a.f||''));
+  const listaF=movProd?lista.filter(x=>String(x.id)===movProd):lista;
   const optsProd=MAESTRO.map(m=>`<option value="${m.id}">${esc(m.prod)} (${esc(m.uni)})</option>`).join('');
   const hoy=new Date(); const hoyIso=hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-'+String(hoy.getDate()).padStart(2,'0');
   let filas='';
-  for(const mv of lista.slice(0,80)){
+  for(const mv of listaF.slice(0,80)){
     const m=byId[mv.id]||{};
     filas+=`<div class="mov">
       <span class="mf">${esc((mv.f||'').slice(8,10))}-${esc((mv.f||'').slice(5,7))}-${esc((mv.f||'').slice(2,4))}</span>
@@ -380,9 +382,10 @@ function renderMovs(){
       <div style="margin-bottom:10px"><label style="font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px">Observación</label><input id="mobs" style="width:100%;padding:9px 10px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)" placeholder="Ej: se deja nivel óptimo…"></div>
       <button class="btn" id="mguardar">💾 Guardar movimiento</button>
     </div>
-    <div class="grp">Historial (últimos 80)</div>
+    <div class="grp" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Historial (últimos 80)<select id="fprod" class="fchipsel"><option value="">Todos los productos</option>${MAESTRO.map(m=>`<option value="${m.id}" ${movProd===String(m.id)?'selected':''}>${esc(m.prod)}</option>`).join('')}</select>${movProd?`<span style="font-weight:600;text-transform:none;letter-spacing:0">${listaF.length} movimiento${listaF.length!==1?'s':''}</span>`:''}</div>
     <div class="plist">${filas||'<div class="hint">Sin movimientos aún.</div>'}</div>`;
   let tipoMov='SALIDA';
+  $('#fprod').onchange=()=>{ movProd=$('#fprod').value; render(); };
   $('#msal').onclick=()=>{ tipoMov='SALIDA'; $('#msal').classList.add('on'); $('#ment').classList.remove('on'); };
   $('#ment').onclick=()=>{ tipoMov='ENTRADA'; $('#ment').classList.add('on'); $('#msal').classList.remove('on'); };
   $('#mguardar').onclick=()=>{
