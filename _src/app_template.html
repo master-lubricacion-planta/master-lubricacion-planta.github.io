@@ -149,6 +149,10 @@ mark{background:var(--hit);color:inherit;border-radius:2px;padding:0 1px}
 .kv.wide{grid-column:1 / -1}
 footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-3)}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+.recientes{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px}
+.recientes .rl{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;margin-right:2px}
+.rchip{border:1.5px solid var(--line);background:var(--surface);color:var(--accent-ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:ui-monospace,Consolas,monospace}
+.rchip.x{color:var(--ink-3);font-family:inherit}
 </style>
 
 <header>
@@ -361,6 +365,14 @@ function renderHome(){
       <div class="stat"><div class="v">${hojas.length}</div><div class="l">Áreas</div></div>
     </div>
     <div class="areagrid">${hojas.map(areaCard).join('')}</div>`;
+  /* búsquedas recientes (por dispositivo) */
+  let rec=[]; try{ rec=JSON.parse(localStorage.getItem('mx_recientes')||'[]'); }catch(e){}
+  if(rec.length){
+    const st=homeEl.querySelector('.statsrow');
+    if(st) st.insertAdjacentHTML('afterend',`<div class="recientes"><span class="rl">Recientes:</span>${rec.map(t=>`<button class="rchip" data-q="${esc(t)}">${esc(t)}</button>`).join('')}<button class="rchip x" id="rborrar" title="Limpiar">✕</button></div>`);
+    homeEl.querySelectorAll('.rchip[data-q]').forEach(b=>b.onclick=()=>{ q.value=b.dataset.q; clearBtn.style.display=''; render(); window.scrollTo(0,0); });
+    const rb=homeEl.querySelector('#rborrar'); if(rb) rb.onclick=()=>{ try{ localStorage.removeItem('mx_recientes'); }catch(e){} renderHome(); };
+  }
   homeEl.querySelectorAll('.acard').forEach(b=>{ b.onclick=()=>{ areaFilter=b.dataset.area; render(); window.scrollTo(0,0); }; });
 }
 
@@ -407,6 +419,7 @@ function render(){
   if(areaFilter) list=list.filter(e=>e.hoja===areaFilter);
   if(terms.length) list=list.filter(e=>terms.every(t=>e.search.includes(t)));
   const shown=list.slice(0,80);
+  if(terms.length && list.length && q.value.trim().length>=3){ try{ const t=q.value.trim(); let rec=JSON.parse(localStorage.getItem('mx_recientes')||'[]'); rec=[t].concat(rec.filter(x=>x.toLowerCase()!==t.toLowerCase())).slice(0,6); localStorage.setItem('mx_recientes',JSON.stringify(rec)); }catch(e){} }
   const a=areaFilter?(AREAS[areaFilter]||{name:areaFilter}):null;
   const manualLink = a&&a.manual ? ` <a class="mlink" href="${a.manual}" target="_blank" rel="noopener">Manual Interactivo ↗</a>` : '';
   countEl.innerHTML=esc((a?`${a.name} (${areaFilter.replace('Area ','Área ')}) · `:'')+`${list.length} equipo${list.length!==1?'s':''}`+(list.length>80?' — mostrando 80, afina la búsqueda':''))+manualLink;
