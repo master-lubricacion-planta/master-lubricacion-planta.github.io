@@ -162,6 +162,8 @@ table.pl{border-collapse:collapse;width:100%;font-size:11.5px;min-width:640px}
 .bvolver{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
 .bvolver.cal{background:var(--accent-soft)}
 .bvolver svg{width:15px;height:15px;fill:currentColor}
+.item.need-obs{outline:2px solid var(--bad);outline-offset:2px;border-radius:10px}
+.item.need-obs .iobs{border-color:var(--bad)}
 </style>
 </head>
 <body>
@@ -433,7 +435,11 @@ function renderSemana(){
       const dsel=el.querySelector('.idia'); const vv=(load(w)[n]||{}); if(dsel && vv.d!=null) dsel.value=String(vv.d);
       el.querySelectorAll('.echip').forEach(c2=>c2.classList.toggle('on', !ya && c2===ch));
       refrescarKpis();
+      const est=(load(w)[n]||{}).e, ob=el.querySelector('.iobs');
+      if((est==='RE'||est==='C') && !ob.value.trim()){ el.classList.add('need-obs'); ob.placeholder=est==='RE'?'⚠ ¿Por qué se reprograma?':'⚠ ¿Por qué se cancela?'; ob.focus(); } else el.classList.remove('need-obs');
     });
+    el.querySelector('.iobs').addEventListener('input',()=>{ if(el.querySelector('.iobs').value.trim()) el.classList.remove('need-obs'); });
+    { const v0=efectivo(w,n)||{}; if((v0.e==='RE'||v0.e==='C') && !v0.obs) el.classList.add('need-obs'); }
     el.querySelector('.idia').addEventListener('change',e=>{ setVal(n,b=>{ b.d=e.target.value===''?null:+e.target.value; }); });
     el.querySelector('.iot').addEventListener('change',e=>{ setVal(n,b=>{ b.ot=e.target.value.trim(); }); refrescarKpis(); });
     el.querySelector('.iobs').addEventListener('change',e=>{ setVal(n,b=>{ b.obs=e.target.value.trim(); }); refrescarKpis(); });
