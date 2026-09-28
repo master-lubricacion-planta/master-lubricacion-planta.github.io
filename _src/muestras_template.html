@@ -422,6 +422,7 @@ function renderMes(){
       <div class="kpi ok"><div class="v">${pct}%</div><div class="l">Cumplimiento</div></div>
       <div class="kpi bad"><div class="v">${st.nt}</div><div class="l">No tomadas (NT)</div></div>
       <div class="kpi"><div class="v">${st.sin}</div><div class="l">Sin registro</div></div>
+      ${(()=>{ let n=0; for(const it of ITEMS){ const v=efectivo(m,it.n); if(v&&v.m==='R'&&!v.rep) n++; } return `<div class="kpi ${n?'re':'ok'}"><div class="v">${n}</div><div class="l">Tomadas sin n° reporte</div></div>`; })()}
     </div>
     <div class="dash">
       <h3>¿Dónde faltan muestras? — por área, ordenado por faltantes</h3>
