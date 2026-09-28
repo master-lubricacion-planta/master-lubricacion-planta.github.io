@@ -678,7 +678,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
     <div class="grp">Observaciones generales</div>
     <textarea class="obsg" id="fobsg" placeholder="Observaciones generales de la inspección…">${esc(d.obsg||'')}</textarea>
     <div class="fotos" id="fotos"></div>
-    ${cerrada?'':'<div class="btnbar"><button class="btn primary finalizar" id="bfinalizar">✅ Finalizar pauta</button></div>'}
+    ${cerrada?'':'<div class="btnbar"><button class="btn ghost" id="bnaresto" title="Marca N/A en todas las actividades que aún no tienen estado">N/A al resto</button><button class="btn primary finalizar" id="bfinalizar">✅ Finalizar pauta</button></div>'}
     <div class="btnbar">
       <button class="btn ghost" id="blimpiar">Borrar datos</button>
       <button class="btn primary" id="bimprimir">📄 Informe / Imprimir</button>
@@ -739,6 +739,8 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
     try{ await navigator.clipboard.writeText(txt); flash('📋 Resumen copiado — pégalo en WhatsApp o correo'); }catch(e){ alert(txt); }
   };
   if(cerrada) $('#form').classList.add('cerrada'); else $('#form').classList.remove('cerrada');
+  const bna=$('#bnaresto');
+  if(bna) bna.onclick=()=>{ const pend=p.acts.filter(a=>!(d.acts[a.n]||{}).e); if(!pend.length){ flash('No quedan actividades sin estado'); return; } if(!confirm(`¿Marcar N/A en las ${pend.length} actividades sin estado? (úsalo cuando el equipo está detenido o la actividad no aplica)`)) return; const cambios={}; pend.forEach(a=>{ d.acts[a.n]=d.acts[a.n]||{}; d.acts[a.n].e='NA'; cambios[a.n]={e:'NA'}; }); save(ot,d,{acts:cambios}); render(); };
   const bfin=$('#bfinalizar');
   if(bfin) bfin.onclick=()=>{
     d.ot=$('#fot').value; d.tecnico=$('#ftec').value; d.tecnico2=$('#ftec2').value; d.obsg=$('#fobsg').value;
