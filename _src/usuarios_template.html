@@ -291,12 +291,13 @@ async function cargar(){
     const yo=(window.LUB_USER&&window.LUB_USER.uid)||'';
     box.innerHTML=us.map(u=>`<div class="urow ${u.rol==='inactivo'?'inactivo':''}" data-uid="${esc(u.uid)}">
       <div><div class="un">${esc(u.nombre||'—')}${u.uid===yo?' <span style="color:var(--orange-ink);font-size:11px">(tú)</span>':''}</div><div class="ue">${esc(u.email||'')}</div></div>
-      <div class="ue">${u.creado?'Creado '+esc(u.creado.slice(0,10)):''}${u.creadoPor?' · por '+esc(u.creadoPor):''}</div>
+      <div><input class="unota" value="${esc(u.nota||'')}" placeholder="Área / turno (ej: Molienda · Turno A)" style="width:100%;padding:7px 9px;font-size:13px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><div class="ue">${u.creado?'Creado '+esc(u.creado.slice(0,10)):''}${u.creadoPor?' · por '+esc(u.creadoPor):''}</div></div>
       <div><select class="usel" ${u.uid===yo?'disabled':''}>${['tecnico','supervisor','admin','inactivo'].map(r=>`<option value="${r}" ${u.rol===r?'selected':''}>${ROL_TXT[r]}</option>`).join('')}</select></div>
       <div class="uacts"><button class="ubtn ghost ureset" data-email="${esc(u.email||'')}">🔑 Restablecer clave</button><a class="ubtn ghost" style="text-decoration:none" href="mailto:${esc(u.email||'')}?subject=${encodeURIComponent('Acceso a la app Maestro de Lubricación')}&body=${encodeURIComponent('Hola '+(u.nombre||'')+',\n\nYa tienes acceso a la app de lubricación de la Concentradora:\n'+location.origin+'/\n\nTu usuario es este correo ('+(u.email||'')+'). Si no tienes tu contraseña o la olvidaste, en la pantalla de entrada toca "¿Olvidaste tu contraseña?" y te llegará un correo para crear una nueva.\n\nEn el teléfono o tablet puedes instalarla como app desde el aviso "Instala la app".\n\nSaludos,\n'+((window.LUB_USER&&window.LUB_USER.nombre)||'Administración de lubricación'))}" title="Abre tu correo con las instrucciones de acceso listas">✉ Instrucciones</a></div>
     </div>`).join('');
     box.querySelectorAll('.usel').forEach(s=>s.onchange=()=>{ const uid=s.closest('.urow').dataset.uid; if(s.value==='inactivo'&&!confirm('¿Desactivar este usuario? No podrá entrar a la app.')){ cargar(); return; } cambiarRol(uid,s.value); });
     box.querySelectorAll('.ureset').forEach(b=>b.onclick=()=>resetClave(b.dataset.email));
+    box.querySelectorAll('.unota').forEach(i=>i.onchange=async()=>{ const uid=i.closest('.urow').dataset.uid; try{ await db.collection('usuarios').doc(uid).set({nota:i.value.trim(),modificado:new Date().toISOString()},{merge:true}); i.style.borderColor='var(--ok)'; setTimeout(()=>i.style.borderColor='',1200); }catch(e){ alert('No se pudo guardar: '+(e.code||e.message)); } });
   }catch(e){ box.innerHTML='<div class="hint">No se pudo cargar la lista ('+esc(e.code||e.message)+').</div>'; }
 }
 
