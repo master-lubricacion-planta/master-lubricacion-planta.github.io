@@ -231,6 +231,14 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   window.addEventListener('online',function(){ estadoConn('pend','☁ Conectado — subiendo cambios…'); revisarConn(); });
   window.addEventListener('offline',revisarConn);
   setTimeout(revisarConn,1500);
+  /* versión nueva publicada: el service worker nuevo queda instalado → avisar para recargar */
+  if(navigator.serviceWorker){
+    var avisarSW=function(){ if($('lubnuevo')) return; var d=document.createElement('div'); d.id='lubnuevo'; d.innerHTML='🆕 Hay una versión nueva de la app<a>Actualizar</a>'; d.querySelector('a').onclick=function(){ location.reload(); }; document.body.appendChild(d); };
+    navigator.serviceWorker.ready.then(function(reg){
+      if(reg.waiting && navigator.serviceWorker.controller) avisarSW();
+      reg.addEventListener('updatefound',function(){ var nw=reg.installing; if(!nw) return; nw.addEventListener('statechange',function(){ if(nw.state==='installed' && navigator.serviceWorker.controller) avisarSW(); }); });
+    }).catch(function(){});
+  }
 
   function mostrar(cual){ load.hidden=cual!=='load'; form.hidden=cual!=='form'; noacc.hidden=cual!=='noacc'; }
   function fallo(msg){ err.textContent=msg; err.classList.add('show'); ok.classList.remove('show'); var c=gate.querySelector('.gcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
