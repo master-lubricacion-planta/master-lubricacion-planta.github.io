@@ -397,7 +397,7 @@ function renderMes(){
       const optsRC=['<option value="">relleno…</option>'].concat(RC.map(x=>`<option ${v.rc===x?'selected':''}>${x}</option>`)).join('');
       const optsE=['<option value="">estado…</option>'].concat(ESTADOS.map(x=>`<option ${v.est===x?'selected':''}>${x}</option>`)).join('');
       filas+=`<div class="item" data-n="${it.n}">
-        <div class="il"><span class="tag">${esc(it.tag)}</span> <span class="eqn">· ${esc(it.eq)}</span>${it.lub?` <span class="lubn">· ${esc(it.lub)}</span>`:''}${esPrev?'<span class="prevmark">(planilla)</span>':''}</div>
+        <div class="il"><span class="tag">${esc(it.tag)}</span> <span class="eqn">· ${esc(it.eq)}</span>${it.lub?` <span class="lubn">· ${esc(it.lub)}</span>`:''}${esPrev?'<span class="prevmark">(planilla)</span>':''}${(()=>{ for(let k=m-1;k>=1;k--){ const p2=efectivo(k,it.n); if(p2&&p2.m==='R') return ` <span class="isub" style="color:var(--ink-3);font-size:11px">últ. R: ${MESES[k-1].slice(0,3)}${p2.est?' · '+esc(p2.est):''}</span>`; } return ' <span class="isub" style="color:var(--orange-ink);font-size:11px">sin R este año</span>'; })()}</div>
         <div class="controles">
           <button class="echip R ${v.m==='R'?'on':''}" data-e="R">R</button>
           <button class="echip NT ${v.m==='NT'?'on':''}" data-e="NT">NT</button>
