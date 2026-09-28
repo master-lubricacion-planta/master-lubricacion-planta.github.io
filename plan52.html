@@ -286,7 +286,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v179</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v180</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -455,7 +455,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='179';
+  window.LUB_VERSION='180';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
