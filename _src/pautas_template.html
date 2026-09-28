@@ -545,6 +545,7 @@ function renderDias(){
   document.querySelectorAll('.dcard').forEach(b=>b.onclick=()=>{ view={name:'dia',week:w,di:+b.dataset.i}; render(); });
 }
 
+function duracion(hi,hf){ const m=s=>{ const x=/^(\d{1,2}):(\d{2})/.exec(s||''); return x?(+x[1])*60+(+x[2]):null; }; const a=m(hi),b=m(hf); if(a===null||b===null) return ''; let d=b-a; if(d<0) d+=24*60; return d>=60?Math.floor(d/60)+' h '+(d%60?d%60+' min':''):d+' min'; }
 function tarjetaOT(o,w,di,extra){
   if(!o.pauta) return `<div class="otcard nop">
     <div class="otinfo">
@@ -557,7 +558,8 @@ function tarjetaOT(o,w,di,extra){
   const pr=progress(o);
   const dd=load(o.ot);
   const cls=dd.cerrada?'done':(pr.done===0?'p0':(pr.done>=pr.total?'done':'part'));
-  const txt=dd.cerrada?'🔒 Cerrada':(pr.done===0?'Pendiente':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total));
+  const dur=dd.cerrada?duracion(dd.hini,dd.hter):'';
+  const txt=dd.cerrada?('🔒 Cerrada'+(dur?' · '+dur:'')):(pr.done===0?'Pendiente':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total));
   return `<button class="otcard" data-ot="${o.ot}" data-w="${w}" data-di="${di}">
     <div class="otinfo">
       <div class="tag mono">${esc(o.tag)}</div>
@@ -875,7 +877,7 @@ async function renderInforme(ot){
         <div><b>${esc(o.tag)}</b> · ${esc(o.desc)} · Semana ${view.week} · ${esc(dia.nombre)} ${esc(dia.fecha)}</div></div>
       <div style="text-align:right"><span class="otbox">OT ${esc(d.ot||o.ot)}</span><br>${esc(o.pauta)}</div>
     </div>
-    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b>${d.cerrada?` &nbsp; <span class="otbox">🔒 Finalizada por ${esc(d.cerradaPor||'')} · ${esc((d.cerradaEn||'').slice(0,10))}</span>`:' &nbsp; <i>(pauta abierta)</i>'}</div>
+    <div>Técnico(s): <b>${esc([d.tecnico,d.tecnico2].filter(Boolean).join(' / ')||'________________')}</b> &nbsp; Fecha: <b>${esc(d.fecha||'')}</b> &nbsp; Inicio: <b>${esc(d.hini||'')}</b> &nbsp; Término: <b>${esc(d.hter||'')}</b>${duracion(d.hini,d.hter)?' &nbsp; Duración: <b>'+duracion(d.hini,d.hter)+'</b>':''}${d.cerrada?` &nbsp; <span class="otbox">🔒 Finalizada por ${esc(d.cerradaPor||'')} · ${esc((d.cerradaEn||'').slice(0,10))}</span>`:' &nbsp; <i>(pauta abierta)</i>'}</div>
     ${(()=>{ const malos=p.acts.filter(a=>(d.acts[a.n]||{}).e==='M'); return malos.length?`<div style="margin:6px 0;padding:6px 8px;border:2px solid #b3261e;border-radius:6px"><b>⚠ ${malos.length} hallazgo(s) "M":</b> ${malos.map(a=>a.n+'. '+esc(a.d)+((d.acts[a.n]||{}).o?' — '+esc(d.acts[a.n].o):'')).join(' · ')}</div>`:''; })()}
     <table>
       <tr><th style="width:24px">N°</th><th>Actividad</th><th style="width:90px">Valor</th><th style="width:52px">Estado</th><th style="width:170px">Observación</th></tr>
