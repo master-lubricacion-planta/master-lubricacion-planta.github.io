@@ -292,7 +292,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v165</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v166</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -453,7 +453,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='165';
+  window.LUB_VERSION='166';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -789,6 +789,7 @@ function renderMes(){
       <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
       <button class="fchip ${filtro==='pend'?'on':''}" data-f="pend">Faltantes (sin R)</button>
       <button class="fchip ${filtro==='hechas'?'on':''}" data-f="hechas">Tomadas</button>
+      <input class="fchip" id="qbusca" placeholder="🔍 TAG o equipo" autocomplete="off" style="min-width:150px">
       <select class="fchip" id="fsel" aria-label="Área"><option value="">Todas las áreas</option>${Object.keys(areas).map(a=>`<option value="${a}" ${areaSel===a?'selected':''}>${esc(AREA_NAMES[a]||('Área '+a))} (${sa[a].r}/${sa[a].tot})</option>`).join('')}</select>
       <button class="fchip" id="verres">📋 Resumen / imprimir</button>
     </div>
@@ -799,6 +800,7 @@ function renderMes(){
   document.querySelectorAll('.fchip[data-f]').forEach(b=>b.onclick=()=>{ filtro=b.dataset.f; render(); });
   $('#verres').onclick=()=>{ view={name:'resumen',mes:m}; render(); };
   $('#fsel').onchange=()=>{ areaSel=$('#fsel').value; try{ localStorage.setItem('mu_area',areaSel); }catch(e){} render(); };
+  const qb=$('#qbusca'); if(qb) qb.oninput=()=>{ const t=qb.value.trim().toLowerCase(); document.querySelectorAll('.item').forEach(it=>{ it.style.display=(!t||it.querySelector('.il').textContent.toLowerCase().includes(t))?'':'none'; }); document.querySelectorAll('details.sec').forEach(s=>{ if(t){ s.open=true; const alguno=[...s.querySelectorAll('.item')].some(it=>it.style.display!=='none'); s.style.display=alguno?'':'none'; } else s.style.display=''; }); };
   document.querySelectorAll('.abar').forEach(b=>b.onclick=()=>{
     const sec=document.querySelector('#sec-'+b.dataset.a);
     if(sec){ sec.open=true; sec.scrollIntoView({behavior:'smooth',block:'start'}); }
