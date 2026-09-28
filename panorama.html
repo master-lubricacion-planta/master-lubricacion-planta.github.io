@@ -316,7 +316,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v181</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v182</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -485,7 +485,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='181';
+  window.LUB_VERSION='182';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -751,19 +751,20 @@ function renderSemanas(){
         const plan=PLANES[w]; let conp=0,done=0,cerr=0,m=0,tot=0;
         plan.days.forEach(d=>d.ots.forEach(o=>{ tot++; if(!o.pauta) return; conp++; const c=CLOUD[o.ot]; const pr=progress(o); if(pr.done>=pr.total&&pr.total) done++; if(c&&c.cerrada) cerr++; if(c&&c.acts){ const pp=byId[o.pauta]; pp.acts.forEach(a=>{ if(c.acts[a.n]&&c.acts[a.n].e==='M') m++; }); } }));
         const pct=conp?Math.round(100*done/conp):0;
-        window.__semRows.push([w,tot,conp,done,cerr,pct,m]);
-        return `<tr><td>Semana ${w}${w===SEMANA_ACTUAL?' <span class="hoytag">ACTUAL</span>':''}</td><td class="num">${conp}</td><td class="num">${done}</td><td class="num">${cerr}</td><td class="num" style="color:${pct>=90?'var(--ok)':(pct>=60?'var(--orange-ink)':'var(--bad)')}">${pct}%</td><td class="num" style="color:${m?'var(--bad)':'inherit'}">${m}</td></tr>`;
+        let nr=0; { const r2=rangoSemana(w); for(let i=0;i<7;i++){ const f=new Date(r2.ini); f.setDate(f.getDate()+i); const k=f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0')+'-'+String(f.getDate()).padStart(2,'0'); const rd=RUTA_CLOUD[k]; if((rd&&rd.vals&&Object.values(rd.vals).some(x=>x&&(String(x.v||'').trim()||x.e)))||RPREV[k]) nr++; } }
+        window.__semRows.push([w,tot,conp,done,cerr,pct,m,nr]);
+        return `<tr><td>Semana ${w}${w===SEMANA_ACTUAL?' <span class="hoytag">ACTUAL</span>':''}</td><td class="num">${conp}</td><td class="num">${done}</td><td class="num">${cerr}</td><td class="num" style="color:${pct>=90?'var(--ok)':(pct>=60?'var(--orange-ink)':'var(--bad)')}">${pct}%</td><td class="num" style="color:${m?'var(--bad)':'inherit'}">${m}</td><td class="num" style="color:${nr>=6?'var(--ok)':(nr>=4?'var(--orange-ink)':'var(--bad)')}">${nr}/7</td></tr>`;
       }).join('');
       const MESN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; const porMes={};
       window.__semRows.forEach(([w2,tot2,conp2,done2,cerr2,pct2,m2])=>{ const j=new Date(ANCHOR); j.setDate(j.getDate()+(w2-33)*7); const k=j.getFullYear()+'-'+String(j.getMonth()+1).padStart(2,'0'); const a=porMes[k]=porMes[k]||{sem:0,conp:0,done:0,cerr:0,m:0}; a.sem++; a.conp+=conp2; a.done+=done2; a.cerr+=cerr2; a.m+=m2; });
       const filasMes=Object.keys(porMes).sort().map(k=>{ const a=porMes[k]; const pct=a.conp?Math.round(100*a.done/a.conp):0; return `<tr><td>${MESN[+k.slice(5,7)-1]} ${k.slice(0,4)}</td><td class="num">${a.sem}</td><td class="num">${a.conp}</td><td class="num">${a.done}</td><td class="num">${a.cerr}</td><td class="num" style="color:${pct>=90?'var(--ok)':(pct>=60?'var(--orange-ink)':'var(--bad)')}">${pct}%</td><td class="num" style="color:${a.m?'var(--bad)':'inherit'}">${a.m}</td></tr>`; }).join('');
-      return `<div class="sec2"><h3>📆 Resumen mensual</h3><table class="tbl"><tr><th>Mes</th><th>Semanas</th><th>Con pauta</th><th>Completas</th><th>Cerradas</th><th>%</th><th>Hallazgos M</th></tr>${filasMes}</table><p class="daysub" style="margin:6px 0 0">Solo semanas cargadas en la app (${window.__semRows.length}).</p></div>`+`<div class="sec2"><h3 style="display:flex;justify-content:space-between;align-items:center">📈 Cumplimiento por semana <button class="vw-mini" id="bsemcsv" title="Descargar CSV para Excel">⬇ Excel</button></h3><table class="tbl"><tr><th>Semana</th><th>Con pauta</th><th>Completas</th><th>Cerradas</th><th>%</th><th>Hallazgos M</th></tr>${filas}</table></div>`;
+      return `<div class="sec2"><h3>📆 Resumen mensual</h3><table class="tbl"><tr><th>Mes</th><th>Semanas</th><th>Con pauta</th><th>Completas</th><th>Cerradas</th><th>%</th><th>Hallazgos M</th></tr>${filasMes}</table><p class="daysub" style="margin:6px 0 0">Solo semanas cargadas en la app (${window.__semRows.length}).</p></div>`+`<div class="sec2"><h3 style="display:flex;justify-content:space-between;align-items:center">📈 Cumplimiento por semana <button class="vw-mini" id="bsemcsv" title="Descargar CSV para Excel">⬇ Excel</button></h3><table class="tbl"><tr><th>Semana</th><th>Con pauta</th><th>Completas</th><th>Cerradas</th><th>%</th><th>Hallazgos M</th><th>Noches ruta</th></tr>${filas}</table></div>`;
     })()}
     <div class="wgrid">${cards}</div>`;
   document.querySelectorAll('.wcard').forEach(b=>b.onclick=()=>{ view={name:'dias',week:+b.dataset.w}; render(); });
   const bsc=$('#bsemcsv'); if(bsc) bsc.onclick=()=>{
     const celda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
-    const txt='\ufeff'+[['Semana','OT total','Con pauta digital','Completas','Cerradas','% cumplimiento','Hallazgos M'],...(window.__semRows||[])].map(f=>f.map(celda).join(';')).join('\r\n');
+    const txt='\ufeff'+[['Semana','OT total','Con pauta digital','Completas','Cerradas','% cumplimiento','Hallazgos M','Noches ruta (de 7)'],...(window.__semRows||[])].map(f=>f.map(celda).join(';')).join('\r\n');
     const b=new Blob([txt],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='cumplimiento_semanas.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   };
 }
