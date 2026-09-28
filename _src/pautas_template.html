@@ -562,12 +562,13 @@ function tarjetaOT(o,w,di,extra){
   const dd=load(o.ot);
   const cls=dd.cerrada?'done':(pr.done===0?'p0':(pr.done>=pr.total?'done':'part'));
   const dur=dd.cerrada?duracion(dd.hini,dd.hter):'';
+  const nM=Object.values(dd.acts||{}).filter(a=>a&&a.e==='M').length;
   const txt=dd.cerrada?('🔒 Cerrada'+(dur?' · '+dur:'')):(pr.done===0?'Pendiente':(pr.done>=pr.total?'✓ Completa':pr.done+'/'+pr.total));
   return `<button class="otcard" data-ot="${o.ot}" data-w="${w}" data-di="${di}">
     <div class="otinfo">
       <div class="tag mono">${esc(o.tag)}</div>
       <div class="otd">${esc(o.desc)}</div>
-      <div class="otmeta">OT ${o.ot} · ${esc(byId[o.pauta].titulo)} · ${esc(o.pauta)}${extra?' · '+esc(extra):''}</div>
+      <div class="otmeta">OT ${o.ot} · ${esc(byId[o.pauta].titulo)} · ${esc(o.pauta)}${extra?' · '+esc(extra):''}${nM?` · <span style="color:var(--bad);font-weight:800">${nM} M</span>`:''}</div>
     </div>
     <div class="prog"><span class="ring ${cls}">${txt}</span></div>
   </button>`;
