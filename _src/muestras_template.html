@@ -389,6 +389,7 @@ function renderMes(){
     for(const it of areas[a]){
       const v=efectivo(m,it.n)||{};
       if(filtro==='pend' && v.m==='R') continue;
+      if(filtro==='sinrep' && !(v.m==='R' && !v.rep)) continue;
       if(filtro==='hechas' && v.m!=='R') continue;
       visibles++;
       const esPrev=!vals[it.n] && (PREV[String(m)]||{})[String(it.n)];
@@ -432,6 +433,7 @@ function renderMes(){
       <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
       <button class="fchip ${filtro==='pend'?'on':''}" data-f="pend">Faltantes (sin R)</button>
       <button class="fchip ${filtro==='hechas'?'on':''}" data-f="hechas">Tomadas</button>
+      <button class="fchip ${filtro==='sinrep'?'on':''}" data-f="sinrep">Sin n° reporte</button>
       <input class="fchip" id="qbusca" placeholder="🔍 TAG o equipo" autocomplete="off" style="min-width:150px">
       <select class="fchip" id="fsel" aria-label="Área"><option value="">Todas las áreas</option>${Object.keys(areas).map(a=>`<option value="${a}" ${areaSel===a?'selected':''}>${esc(AREA_NAMES[a]||('Área '+a))} (${sa[a].r}/${sa[a].tot})</option>`).join('')}</select>
       <button class="fchip" id="verres">📋 Resumen / imprimir</button>
