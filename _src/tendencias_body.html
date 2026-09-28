@@ -180,7 +180,8 @@ document.getElementById('kpis').innerHTML=
    <div class="kpi"><b>${DATA.length}</b><span>puntos</span></div>
    <div class="kpi"><b>8</b><span>campañas</span></div>
    <div class="kpi"><b style="color:var(--severo)">${nS}</b><span>severas</span></div>
-   <div class="kpi"><b style="color:var(--anormal)">${nA}</b><span>anormales</span></div>`;
+   <div class="kpi"><b style="color:var(--anormal)">${nA}</b><span>anormales</span></div>
+   <div class="kpi"><b style="color:var(--precaucion,var(--anormal))">${DATA.filter(d=>{ const f=d[3][d[3].length-1][0]; return (Date.now()-new Date(f+'T12:00:00').getTime())/86400000>45; }).length}</b><span>sin muestra &gt;45 d</span></div>`;
 
 /* ---------- Campañas ---------- */
 const camp={};
