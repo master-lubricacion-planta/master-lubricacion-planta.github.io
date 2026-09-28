@@ -201,6 +201,9 @@ table.pl{border-collapse:collapse;width:100%;font-size:11.5px;min-width:680px}
 .bvolver{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent-ink);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
 .bvolver.cal{background:var(--accent-soft)}
 .bvolver svg{width:15px;height:15px;fill:currentColor}
+.filtros{display:flex;gap:6px;flex-wrap:wrap}
+.fchip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer}
+.fchip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
 </style>
 </head>
 <body>
@@ -703,8 +706,10 @@ function renderTendencias(){
   /* --- grafico grande del equipo seleccionado --- */
   if(!window.__tendSel || !map[window.__tendSel]) window.__tendSel = filas.length? filas[0].id : null;
   const selId=window.__tendSel;
+  window.__tendRango=window.__tendRango||'todo';
   function grafico(id){
-    const serie=Object.keys(map[id]).sort().map(f2=>[f2,map[id][f2]]);
+    const desdeR=window.__tendRango==='4s'?new Date(Date.now()-28*86400000).toISOString().slice(0,10):(window.__tendRango==='3m'?new Date(Date.now()-92*86400000).toISOString().slice(0,10):'');
+    const serie=Object.keys(map[id]).filter(f2=>f2>=desdeR).sort().map(f2=>[f2,map[id][f2]]);
     const meta=META[id];
     if(serie.length<2) return '<div class="hint">Sin historial suficiente para graficar.</div>';
     const W=860,H=280,L=74,R=14,T=16,B=34;
@@ -793,6 +798,7 @@ function renderTendencias(){
     <div class="dash">
       <h3 style="margin:0 0 8px">Comportamiento del equipo en el tiempo</h3>
       <select id="tsel" style="width:100%;max-width:520px;padding:9px 10px;font-size:14px;font-weight:700;border:1.5px solid var(--accent);border-radius:10px;background:var(--bg);color:var(--ink);margin-bottom:10px">${optsSel}</select>
+      <div class="filtros" style="margin:0 0 8px">${[['4s','Últimas 4 semanas'],['3m','Últimos 3 meses'],['todo','Todo el año']].map(([k,l])=>`<button class="fchip ${window.__tendRango===k?'on':''}" data-r="${k}">${l}</button>`).join('')}</div>
       <div id="tgraf">${selId?grafico(selId):''}</div>
       <div class="btnbar" style="margin:8px 0 0"><button class="btn ghost" id="tcsv">⬇ Excel de este punto</button></div>
     </div>
@@ -802,6 +808,7 @@ function renderTendencias(){
     <div style="height:30px"></div>`;
   const sel=$('#tsel');
   if(sel) sel.onchange=()=>{ window.__tendSel=sel.value; $('#tgraf').innerHTML=grafico(sel.value); };
+  document.querySelectorAll('.filtros .fchip[data-r]').forEach(b=>b.onclick=()=>{ window.__tendRango=b.dataset.r; document.querySelectorAll('.filtros .fchip[data-r]').forEach(x=>x.classList.toggle('on',x===b)); if(window.__tendSel) $('#tgraf').innerHTML=grafico(window.__tendSel); });
   const tc=$('#tcsv'); if(tc) tc.onclick=()=>{ const id=window.__tendSel; if(!id||!map[id]) return; const meta=META[id]||{}; const filas=[['Fecha','Valor','Unidad','Punto','Sección']].concat(Object.keys(map[id]).sort().map(f=>[f,String(map[id][f]).replace('.',','),meta.u||'',(meta.l||'')+(meta.sub?' · '+meta.sub:''),meta.sec||''])); const celda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }; const b=new Blob(['\ufeff'+filas.map(f=>f.map(celda).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='ruta_'+id+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); };
   document.querySelectorAll('.titem').forEach((el,ix)=>{
     el.style.cursor='pointer';
