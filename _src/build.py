@@ -14,6 +14,7 @@ _FB='https://www.gstatic.com/firebasejs/10.14.1/'
 _SDK_APP='<script src="'+_FB+'firebase-app-compat.js"></script>'
 _SDK_AUTH='<script src="'+_FB+'firebase-auth-compat.js"></script>'
 _SDK_FS='<script src="'+_FB+'firebase-firestore-compat.js"></script>'
+_SDK_ST='<script src="'+_FB+'firebase-storage-compat.js"></script>'
 def _buildv():
     _s=open(os.path.join(pwa,'sw.js'),encoding='utf-8').read()
     return str(int(re.search(r'lubricacion-v(\d+)',_s).group(1))+1)
@@ -22,6 +23,7 @@ def gate(html):
     # el candado necesita firebase-app + auth + firestore antes del <body>
     if _SDK_APP in html:
         if _SDK_AUTH not in html: html=html.replace(_SDK_APP,_SDK_APP+'\n'+_SDK_AUTH,1)
+        if _SDK_ST not in html: html=html.replace(_SDK_FS,_SDK_FS+'\n'+_SDK_ST,1)
     else:
         html=html.replace('</head>',_SDK_APP+'\n'+_SDK_AUTH+'\n'+_SDK_FS+'\n</head>',1)
     return re.sub(r'<body[^>]*>', lambda m: m.group(0)+'\n'+_gate.replace('__BUILDV__',_buildv()), html, count=1)

@@ -11,6 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
 <style>
 :root{
   --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
@@ -242,7 +243,7 @@ html.lub-viewer #fabsave{display:none!important}
 html.lub-viewer .offlinetag{display:none!important}
 /* pautas */
 html.lub-viewer #blimpiar,html.lub-viewer .borrartop,html.lub-viewer #bemail,
-html.lub-viewer #femaillock,html.lub-viewer .fotos{display:none!important}
+html.lub-viewer #femaillock,html.lub-viewer .fotos label,html.lub-viewer .fotos .del{display:none!important}
 html.lub-viewer .btnbar:has(#bemail){display:none!important}
 html.lub-viewer #form input,html.lub-viewer #form textarea,html.lub-viewer .chip{pointer-events:none;opacity:.75}
 /* ruta crítica (el select de tendencias #tsel sigue activo: no está en esta lista) */
@@ -278,7 +279,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v200</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v201</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -457,8 +458,9 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); }));
     Promise.all(p).catch(function(){}).then(function(){ return auth.signOut(); }).catch(function(){}).then(function(){ location.replace(location.pathname); });
   }
-  window.LUB_VERSION='200';
+  window.LUB_VERSION='201';
   var NOVEDADES=[
+    ['v201','Fotos de las pautas en la nube ☁: se ven desde cualquier tablet o PC (también en modo visualizador). Sin señal quedan en el equipo (⏳) y suben solas después.'],
     ['v191–200','Página de ayuda ❓, Compartir ronda, cierre de sesión con borrado local (mantén presionado "Salir"), indicadores nuevos (OT en papel, sin muestra >45 días), última muestra R por punto, consumo mes vs mes anterior.'],
     ['v181–190','Motivo obligatorio al reprogramar/cancelar en Plan 52, noches de ruta por semana, rango del gráfico de tendencias, filtro "sin n° reporte", lista "para comprar", imprimir listado del Maestro, tecla "/", Compartir en Plan 52 y Muestras.'],
     ['v161–180','Pautas: "N/A al resto", filtros por estado, duración, OT "hecha en papel", límites de MEDIR; Ruta: delta vs anoche, Excel por punto, aviso de ronda no registrada; buscadores en Plan 52/Muestras; Excel de stock y movimientos; resumen mensual; equipos sin muestra; Usuarios: instrucciones por correo y área/turno; aviso de versión nueva.'],

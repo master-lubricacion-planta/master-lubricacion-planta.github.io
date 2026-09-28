@@ -11,6 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
 <style>
 :root{
   --bg:#f4f6fa; --surface:#ffffff; --line:#dde3ee; --ink:#101a33; --ink-2:#4a5776; --ink-3:#8391ad;
@@ -150,6 +151,9 @@ html.lub-viewer .bpapel{display:none}
 .fslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .fslot .del{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.65);color:#fff;border:0;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer;z-index:2}
 .fslot .cam{font-size:26px}
+.fslot .fnube{position:absolute;left:5px;bottom:5px;z-index:2;font-size:12px;font-weight:800;border-radius:999px;padding:2px 7px;background:rgba(0,0,0,.6);color:#fff}
+.fslot .fnube.pend{background:rgba(180,90,0,.85)}
+.fslot.vacio{cursor:default;border-style:solid}
 .btnbar{display:flex;gap:8px;margin:14px 0 30px}
 .btn{flex:1;padding:13px;border-radius:11px;border:0;font-weight:800;font-size:15px;cursor:pointer}
 .btn.primary{background:var(--accent);color:#fff}
@@ -318,7 +322,7 @@ html.lub-viewer #fabsave{display:none!important}
 html.lub-viewer .offlinetag{display:none!important}
 /* pautas */
 html.lub-viewer #blimpiar,html.lub-viewer .borrartop,html.lub-viewer #bemail,
-html.lub-viewer #femaillock,html.lub-viewer .fotos{display:none!important}
+html.lub-viewer #femaillock,html.lub-viewer .fotos label,html.lub-viewer .fotos .del{display:none!important}
 html.lub-viewer .btnbar:has(#bemail){display:none!important}
 html.lub-viewer #form input,html.lub-viewer #form textarea,html.lub-viewer .chip{pointer-events:none;opacity:.75}
 /* ruta crítica (el select de tendencias #tsel sigue activo: no está en esta lista) */
@@ -354,7 +358,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v200</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v201</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -533,8 +537,9 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); }));
     Promise.all(p).catch(function(){}).then(function(){ return auth.signOut(); }).catch(function(){}).then(function(){ location.replace(location.pathname); });
   }
-  window.LUB_VERSION='200';
+  window.LUB_VERSION='201';
   var NOVEDADES=[
+    ['v201','Fotos de las pautas en la nube ☁: se ven desde cualquier tablet o PC (también en modo visualizador). Sin señal quedan en el equipo (⏳) y suben solas después.'],
     ['v191–200','Página de ayuda ❓, Compartir ronda, cierre de sesión con borrado local (mantén presionado "Salir"), indicadores nuevos (OT en papel, sin muestra >45 días), última muestra R por punto, consumo mes vs mes anterior.'],
     ['v181–190','Motivo obligatorio al reprogramar/cancelar en Plan 52, noches de ruta por semana, rango del gráfico de tendencias, filtro "sin n° reporte", lista "para comprar", imprimir listado del Maestro, tecla "/", Compartir en Plan 52 y Muestras.'],
     ['v161–180','Pautas: "N/A al resto", filtros por estado, duración, OT "hecha en papel", límites de MEDIR; Ruta: delta vs anoche, Excel por punto, aviso de ronda no registrada; buscadores en Plan 52/Muestras; Excel de stock y movimientos; resumen mensual; equipos sin muestra; Usuarios: instrucciones por correo y área/turno; aviso de versión nueva.'],
@@ -704,7 +709,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   <div id="form"></div>
   <div id="informe"></div>
 </main>
-<footer class="noprint">Prototipo pautas digitales · 📴 No requiere internet: los datos y fotos se guardan en este dispositivo · Admin: Nicolás Saravia</footer>
+<footer class="noprint">Prototipo pautas digitales · 📴 Funciona sin internet: datos y fotos quedan en este dispositivo y suben a la nube con señal · Admin: Nicolás Saravia</footer>
 <div class="savemsg" id="savemsg">✓ Guardado</div>
 <button class="fab-save noprint" id="fabsave"><span class="ic">💾</span><span class="fabtxt">Guardar pauta</span></button>
 <script>
@@ -749,6 +754,10 @@ try{
   cloudDb.enablePersistence({synchronizeTabs:true}).catch(()=>{});
   cloudOk=true;
 }catch(e){ cloudOk=false; }
+/* Fotos en la nube (Firebase Storage, plan Blaze): cada foto queda primero en el
+   dispositivo (IndexedDB) y se sube a pautas/<OT>/<n>.jpg; la URL se guarda en el
+   doc de la OT (campo fotos) para verla desde cualquier equipo/tablet/PC. */
+let cloudSt=null; try{ if(firebase.storage) cloudSt=firebase.storage(); }catch(e){ cloudSt=null; }
 
 /* Multiusuario (fase 2, sep-2026): cada escritura lleva quién y cuándo, y sube SOLO
    los campos que cambiaron con merge profundo — dos parejas en la misma OT desde
@@ -769,6 +778,7 @@ function fusionar(local,nube){ /* la nube (ya fusionada) manda sobre lo local, c
   for(const k of ['ot','tecnico','tecnico2','fecha','hini','hter','obsg','registradoEn','cerrada','cerradaPor','cerradaEn']) if(nube[k]!==undefined) r[k]=nube[k];
   r.acts=r.acts||{};
   for(const n in (nube.acts||{})){ r.acts[n]=Object.assign({}, r.acts[n]||{}, nube.acts[n]); }
+  if(nube.fotos!==undefined) r.fotos=nube.fotos||{};
   return r;
 }
 let escuchaOT=null, escuchaFn=null;
@@ -801,6 +811,37 @@ async function fotoDel(k){ const db=await idb(); return new Promise((res)=>{ con
 function comprimir(file){ return new Promise(res=>{ const img=new Image(); img.onload=()=>{ const M=1100; let w=img.width,h=img.height; if(w>M){h=h*M/w;w=M} if(h>M){w=w*M/h;h=M}
   const c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
   c.toBlob(b=>res(b),'image/jpeg',.65); URL.revokeObjectURL(img.src); }; img.src=URL.createObjectURL(file); }); }
+
+/* ---- Subida de fotos a la nube. Si no hay señal (o Storage aún no está
+   habilitado) la foto queda marcada "pendiente" y se reintenta al volver
+   la conexión o al reabrir la pauta. */
+function fotoRuta(ot,i){ return 'pautas/'+String(ot).replace(/[^\w.-]/g,'_')+'/'+i+'.jpg'; }
+async function subirFoto(ot,i,blob){
+  if(!cloudSt || !cloudOk || window.LUB_VIEWER) return false;
+  if(!navigator.onLine) return false;
+  try{
+    const ref=cloudSt.ref(fotoRuta(ot,i));
+    await ref.put(blob,{contentType:'image/jpeg',customMetadata:{ot:String(ot),por:ME().nombre||'',email:ME().email||''}});
+    const url=await ref.getDownloadURL();
+    const d=load(ot); d.fotos=d.fotos||{}; d.fotos[i]=url; if(d.fotosPend){ delete d.fotosPend[i]; }
+    localStorage.setItem(K(ot),JSON.stringify(d));
+    const carga={ot:d.ot||ot, fotos:{[i]:url}, actualizadoPor:quien(), updatedAt:new Date().toISOString()};
+    await cloudDb.collection('pautas').doc(ot).set(carga,{merge:true});
+    return true;
+  }catch(e){ return false; }
+}
+async function borrarFotoNube(ot,i){
+  try{ if(cloudSt) await cloudSt.ref(fotoRuta(ot,i)).delete().catch(()=>{}); }catch(e){}
+  try{ if(cloudOk) cloudDb.collection('pautas').doc(ot).set({fotos:{[i]:firebase.firestore.FieldValue.delete()},actualizadoPor:quien(),updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{}); }catch(e){}
+}
+/* reintenta las fotos que quedaron en el dispositivo sin subir */
+async function subirPendientes(ot){
+  if(window.LUB_VIEWER) return;
+  const d=load(ot); const pend=d.fotosPend||{}; let n=0;
+  for(const i of Object.keys(pend)){ const b=await fotoGet(ot+'_'+i); if(!b){ delete pend[i]; continue; } if(await subirFoto(ot,i,b)) n++; }
+  if(n){ flash('☁ '+n+' foto(s) subida(s)'); if(view.name==='formulario'&&view.ot===ot) renderFotos(otObj(ot),load(ot)); }
+}
+window.addEventListener('online',()=>{ if(view.name==='formulario'&&view.ot) subirPendientes(view.ot); });
 
 function otObj(ot){ for(const w of Object.values(PLANES)) for(const d of w.days) for(const o of d.ots) if(o.ot===ot) return o; return null; }
 function limFor(o,a){ const ov=(OVERRIDES[o.pauta]||{})[o.tag]||{}; return {lim: ov[a.n]||a.lim, custom: !!ov[a.n]}; }
@@ -998,7 +1039,7 @@ function syncFromCloudIfNeeded(ot){
        se completó en el celular. */
     localStorage.setItem(K(ot),JSON.stringify({
       ot:cloud.ot||'', tecnico:cloud.tecnico||'', tecnico2:cloud.tecnico2||'', fecha:cloud.fecha||'', hini:cloud.hini||'', hter:cloud.hter||'',
-      obsg:cloud.obsg||'', acts:cloud.acts||{}, registradoEn:cloud.registradoEn||''
+      obsg:cloud.obsg||'', acts:cloud.acts||{}, registradoEn:cloud.registradoEn||'', fotos:cloud.fotos||{}
     }));
     if(view.name==='formulario' && view.ot===ot){ flash('☁ Datos traídos desde la nube'); render(); }
   }).catch(()=>{});
@@ -1055,7 +1096,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
       <div class="tag mono">${esc(o.tag)} <a class="alink" href="tendencias.html?tag=${encodeURIComponent(o.tag)}" title="Ver análisis de aceite de este equipo">📈 Aceite</a><a class="alink" href="ayuda.html#pautas" title="Cómo se llena una pauta">❓</a></div>
       <div class="fd">${esc(o.desc)} · ${esc(dia.nombre)} ${esc(dia.fecha)} · ${esc(p.titulo)} (${esc(o.pauta)})</div>
       ${cerrada?`<div class="cerradabox">🔒 Pauta finalizada por <b>${esc(d.cerradaPor||'')}</b> · ${esc(d.fecha||'')} ${esc(d.hter||'')}${esAdmin?' <button class="btn ghost mini" id="breabrir">Reabrir</button>':''}</div>`:'<div class="offlinetag">📴 Funciona sin internet — se guarda en este teléfono</div><br>'}
-      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=200" alt="Equipo">`:''}
+      ${hasImg?`<img class="eqimg" src="pautas-img/${o.pauta}.jpg?v=201" alt="Equipo">`:''}
       <div class="otfield">
         <label>⚠ N° Orden de Trabajo (obligatorio)</label>
         <input id="fot" inputmode="numeric" placeholder="Ej: ${o.ot}" value="${esc(d.ot||o.ot)}">
@@ -1118,7 +1159,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
     if((d.acts[n]||{}).e==='M' && !(d.acts[n]||{}).o) el.classList.add('need-obs');
   });
   const borrarTodo=async()=>{ if(confirm('¿Borrar TODOS los datos y fotos ingresados en esta pauta? Esta acción no se puede deshacer.')){
-    localStorage.removeItem(K(ot)); for(let i=0;i<3;i++) await fotoDel(ot+'_'+i);
+    localStorage.removeItem(K(ot)); for(let i=0;i<3;i++){ await fotoDel(ot+'_'+i); try{ if(cloudSt) cloudSt.ref(fotoRuta(ot,i)).delete().catch(()=>{}); }catch(e){} }
     /* borrar también la copia en la nube: si queda, al reabrir la pauta el sync
        la traería de vuelta y los datos "borrados" resucitarían */
     try{ if(cloudOk) cloudDb.collection('pautas').doc(ot).delete().catch(()=>{}); }catch(e){}
@@ -1150,6 +1191,7 @@ const ahoraHM=()=>{ const n=new Date(); return String(n.getHours()).padStart(2,'
   const breab=$('#breabrir');
   if(breab) breab.onclick=()=>{ if(!confirm('¿Reabrir esta pauta para edición?')) return; d.cerrada=false; save(ot,d,{cerrada:false}); render(); };
   renderFotos(o,d);
+  subirPendientes(ot);
   historialEquipo(o,ot);
   const hdr=document.querySelector('header'); if(hdr) document.documentElement.style.setProperty('--hh',hdr.offsetHeight+'px');
   const bs=$('#bsig'); if(bs) bs.onclick=()=>{ const pend=[...document.querySelectorAll('.act')].find(el=>!el.querySelector('.chip.on')); if(!pend){ flash('✓ No quedan actividades pendientes'); return; } pend.scrollIntoView({behavior:'smooth',block:'center'}); pend.classList.add('resalta'); setTimeout(()=>pend.classList.remove('resalta'),1200); };
@@ -1225,22 +1267,30 @@ async function renderFotos(o,d){
     return;
   }
   box.className='fotos';
-  const slots=[];
-  for(let i=0;i<3;i++) slots.push(await fotoGet(cur+'_'+i));
+  const slots=[]; const nube=d.fotos||{}; const pend=d.fotosPend||{};
+  for(let i=0;i<3;i++){ const b=await fotoGet(cur+'_'+i); slots.push(b?{src:URL.createObjectURL(b),local:true,nube:!!nube[i],pend:!!pend[i]}:(nube[i]?{src:nube[i],local:false,nube:true,pend:false}:null)); }
+  const ver=!!window.LUB_VIEWER;
   box.innerHTML=`<h3>📷 Fotografías (3)</h3>
-    <p class="fsub">Toca un recuadro para tomar la foto con la cámara o elegirla de la galería.</p>
-    <div class="fgrid">${slots.map((b,i)=> b
-      ? `<div class="fslot" data-i="${i}"><img src="${URL.createObjectURL(b)}"><button class="del" data-i="${i}">✕</button></div>`
-      : `<label class="fslot"><span class="cam">📷</span>Foto ${i+1}<input type="file" accept="image/*" capture="environment" data-i="${i}" hidden></label>`
+    <p class="fsub">${ver?'Fotos tomadas en terreno (solo lectura).':'Toca un recuadro para tomar la foto con la cámara o elegirla de la galería. Se guardan en este equipo y suben a la nube con señal.'}</p>
+    <div class="fgrid">${slots.map((f,i)=> f
+      ? `<div class="fslot" data-i="${i}"><img src="${f.src}" loading="lazy"><span class="fnube ${f.nube?'ok':'pend'}" title="${f.nube?'Guardada en la nube':'Pendiente de subir a la nube'}">${f.nube?'☁':'⏳'}</span>${ver?'':`<button class="del" data-i="${i}">✕</button>`}</div>`
+      : (ver?`<div class="fslot vacio"><span class="cam">—</span>Sin foto ${i+1}</div>`:`<label class="fslot"><span class="cam">📷</span>Foto ${i+1}<input type="file" accept="image/*" capture="environment" data-i="${i}" hidden></label>`)
     ).join('')}</div>`;
+  box.querySelectorAll('.fslot img').forEach(im=>im.onclick=()=>{ const w=window.open('','_blank'); if(w){ w.document.write('<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="'+im.src+'" style="max-width:100%;max-height:100vh"></body>'); } });
+  if(ver) return;
   box.querySelectorAll('input[type=file]').forEach(inp=>inp.addEventListener('change',async e=>{
     const f=e.target.files[0]; if(!f) return;
+    const i=inp.dataset.i; const ot=cur;
     const blob=await comprimir(f);
-    await fotoPut(cur+'_'+inp.dataset.i, blob);
+    await fotoPut(ot+'_'+i, blob);
+    const dd=load(ot); dd.fotosPend=dd.fotosPend||{}; dd.fotosPend[i]=true; localStorage.setItem(K(ot),JSON.stringify(dd));
     flash('📷 Foto guardada');
-    renderFotos(o,load(cur));
+    renderFotos(o,load(ot));
+    const ok=await subirFoto(ot,i,blob);
+    if(ok) flash('☁ Foto subida a la nube'); else flash('📴 Foto guardada aquí; sube con señal');
+    if(view.name==='formulario'&&view.ot===ot) renderFotos(o,load(ot));
   }));
-  box.querySelectorAll('.del').forEach(b=>b.onclick=async()=>{ await fotoDel(cur+'_'+b.dataset.i); renderFotos(o,load(cur)); });
+  box.querySelectorAll('.del').forEach(b=>b.onclick=async()=>{ if(!confirm('¿Borrar esta foto?')) return; const i=b.dataset.i; await fotoDel(cur+'_'+i); const dd=load(cur); if(dd.fotos) delete dd.fotos[i]; if(dd.fotosPend) delete dd.fotosPend[i]; localStorage.setItem(K(cur),JSON.stringify(dd)); borrarFotoNube(cur,i); renderFotos(o,load(cur)); });
 }
 
 async function renderInforme(ot){

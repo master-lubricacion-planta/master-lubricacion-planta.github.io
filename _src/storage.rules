@@ -1,0 +1,33 @@
+// Reglas de Firebase Storage — proyecto lubricacion-teck-qb (fotos de pautas)
+// Pegar en: console.firebase.google.com/project/lubricacion-teck-qb/storage → Reglas → Publicar
+//
+// · Ver fotos exige sesión iniciada (cualquier rol, incluido visualizador).
+// · Subir/borrar exige rol admin o tecnico (usuarios/{uid}.rol en Firestore),
+//   o el correo del administrador fijo. Solo imágenes, máximo 2 MB cada una.
+// · Las fotos viven en pautas/<OT>/<0|1|2>.jpg
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function conSesion() { return request.auth != null; }
+    function adminFijo() { return conSesion() && request.auth.token.email in ['nicolassaraviaalegria@gmail.com']; }
+    function rol() {
+      return firestore.exists(/databases/(default)/documents/usuarios/$(request.auth.uid))
+        ? firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol : '';
+    }
+    function puedeEscribir() { return adminFijo() || rol() == 'admin' || rol() == 'tecnico'; }
+
+    match /pautas/{ot}/{foto} {
+      allow read: if conSesion();
+      allow create, update: if puedeEscribir()
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if puedeEscribir();
+    }
+
+    // todo lo demás, cerrado
+    match /{todo=**} {
+      allow read, write: if false;
+    }
+  }
+}
