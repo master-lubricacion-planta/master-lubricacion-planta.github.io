@@ -320,9 +320,10 @@ function select(tag){
     const e=EST[s[1]];
     return `<tr><td>${s[0].slice(8,10)}-${s[0].slice(5,7)}-26</td><td>${s[2]}</td><td><span class="est" style="background:var(${e[2]});color:var(${e[1]})">${e[0]}</span></td>${s[3].map((v,i)=>`<td>${fmt(v,i)}</td>`).join('')}</tr>`;
   }).join('');
+  window.__eqCsv=()=>{ const filas=[['TAG','Componente','Fecha','Reporte','Estado'].concat(PARAMS.map(p=>p[0]+' ('+p[1]+')'))].concat(ss.map(s=>[t,cmpn,s[0],s[2],EST[s[1]][0]].concat(PARAMS.map(p=>{ const v=s[3][p[2]]; return v==null?'':String(v).replace('.',','); })))); const celda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }; const b=new Blob(['\ufeff'+filas.map(f=>f.map(celda).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='analisis_'+t+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); };
   det.innerHTML=`
     <div class="det-head">
-      <div><div class="tagline">${t} · ${AREA_NAMES[area]||('Área '+area)} <a class="xl2" href="index.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Ver en el Maestro">🔎 Maestro</a><a class="xl2" href="pautas.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Pautas de este equipo">📋 Pautas</a><a class="xl2 noprint" href="#" onclick="document.body.classList.add('imp-eq');window.print();setTimeout(()=>document.body.classList.remove('imp-eq'),1500);return false" title="Imprimir o guardar en PDF este equipo">🖨 PDF</a></div><h3>${cmpn}</h3>
+      <div><div class="tagline">${t} · ${AREA_NAMES[area]||('Área '+area)} <a class="xl2" href="index.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Ver en el Maestro">🔎 Maestro</a><a class="xl2" href="pautas.html?q=${encodeURIComponent(t.split('-').slice(0,3).join('-'))}" title="Pautas de este equipo">📋 Pautas</a><a class="xl2 noprint" href="#" onclick="document.body.classList.add('imp-eq');window.print();setTimeout(()=>document.body.classList.remove('imp-eq'),1500);return false" title="Imprimir o guardar en PDF este equipo">🖨 PDF</a><a class="xl2 noprint" href="#" id="eqcsv" title="Excel con las muestras de este equipo">⬇ Excel</a></div><h3>${cmpn}</h3>
       <div class="meta">${ss.length} muestras en 2026 · puntos coloreados según el estado del informe de esa muestra</div></div>
     </div>
     <div class="timeline">${tl}</div>
@@ -330,6 +331,7 @@ function select(tag){
     <div class="tblwrap"><table>
       <thead><tr><th>Fecha</th><th>Muestra</th><th>Estado</th><th>Fe</th><th>Cu</th><th>Cr</th><th>Pb</th><th>Si</th><th>Al</th><th>Ni</th><th>PQI</th><th>V40</th><th>V100</th><th>TAN</th><th>Agua</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
+  const ec=document.getElementById('eqcsv'); if(ec) ec.onclick=(e)=>{ e.preventDefault(); window.__eqCsv(); };
 }
 
 // arranque: el peor equipo del ranking
