@@ -278,7 +278,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v167</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v168</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -439,7 +439,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='167';
+  window.LUB_VERSION='168';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -556,6 +556,8 @@ const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','
 const $=s=>document.querySelector(s);
 const esc=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const nf=n=>Number(n).toLocaleString('es-CL',{maximumFractionDigits:1});
+const csvCelda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+const descargarCsv=(nombre,filas)=>{ const b=new Blob(['\ufeff'+filas.map(f=>f.map(csvCelda).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); };
 
 const firebaseConfig = {
   apiKey: "AIzaSyANENea2R3eQHZufJipvEWIkMKwVvqJeVs",
@@ -701,8 +703,9 @@ function renderStock(){
       <div class="kpi"><div class="v">${MAESTRO.length}</div><div class="l">Productos</div></div>
     </div>
     ${chips('stock')}
-    <input id="qprod" class="qprod" placeholder="🔍 Filtrar producto (ej: Omala 220, Gadus)" autocomplete="off">
+    <div style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input id="qprod" class="qprod" style="margin:0;flex:1" placeholder="🔍 Filtrar producto (ej: Omala 220, Gadus)" autocomplete="off"><button class="fchipsel" id="stockcsv" style="cursor:pointer">⬇ Excel</button></div>
     ${html}`;
+  $('#stockcsv').onclick=()=>{ const hoy=new Date().toISOString().slice(0,10); descargarCsv('stock_lubricantes_'+hoy+'.csv',[['Producto','Viscosidad','Tipo','Ubicación','Stock','Unidad','Mínimo','Estado','Días de stock (≈)']].concat(MAESTRO.map(m=>{ const v=st[m.id]; return [m.prod,m.visc||'',m.tipo,m.ubi||'',String(v).replace('.',','),m.uni,m.min,v<m.min?'BAJO MÍNIMO':(v<m.min*1.5?'JUSTO':'OK'),ritmo[m.id]?Math.round(v/ritmo[m.id]):'']; }))); };
   const qp=$('#qprod'); qp.oninput=()=>{ const ts=qp.value.trim().toLowerCase().split(/\s+/).filter(Boolean); document.querySelectorAll('.prod').forEach(p=>{ const txt=(p.querySelector('.pn').textContent+' '+(p.querySelector('.pv')||{textContent:''}).textContent+' '+(p.querySelector('.pubi')||{textContent:''}).textContent).toLowerCase(); p.style.display=ts.every(t=>txt.includes(t))?'':'none'; }); };
 }
 
@@ -747,10 +750,11 @@ function renderMovs(){
       <div style="margin-bottom:10px"><label style="font-size:10.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px">Observación</label><input id="mobs" style="width:100%;padding:9px 10px;font-size:15px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)" placeholder="Ej: se deja nivel óptimo…"></div>
       <button class="btn" id="mguardar">💾 Guardar movimiento</button>
     </div>
-    <div class="grp" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Historial (últimos 80)<select id="fprod" class="fchipsel"><option value="">Todos los productos</option>${MAESTRO.map(m=>`<option value="${m.id}" ${movProd===String(m.id)?'selected':''}>${esc(m.prod)}</option>`).join('')}</select>${movProd?`<span style="font-weight:600;text-transform:none;letter-spacing:0">${listaF.length} movimiento${listaF.length!==1?'s':''}</span>`:''}</div>
+    <div class="grp" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Historial (últimos 80)<select id="fprod" class="fchipsel"><option value="">Todos los productos</option>${MAESTRO.map(m=>`<option value="${m.id}" ${movProd===String(m.id)?'selected':''}>${esc(m.prod)}</option>`).join('')}</select>${movProd?`<span style="font-weight:600;text-transform:none;letter-spacing:0">${listaF.length} movimiento${listaF.length!==1?'s':''}</span>`:''}<button class="fchipsel" id="movcsv" style="cursor:pointer;margin-left:auto">⬇ Excel</button></div>
     <div class="plist">${filas||'<div class="hint">Sin movimientos aún.</div>'}</div>`;
   let tipoMov='SALIDA';
   $('#fprod').onchange=()=>{ movProd=$('#fprod').value; render(); };
+  $('#movcsv').onclick=()=>{ descargarCsv('movimientos_lubricantes'+(movProd?'_'+movProd:'')+'.csv',[['Fecha','Movimiento','Producto','Cantidad','Unidad','Área','OT/Equipo','Responsable','Observación','Origen']].concat(listaF.map(mv=>{ const m=byId[mv.id]||{}; return [mv.f||'',mv.mov,m.prod||'',String(mv.cant).replace('.',','),m.uni||'',mv.area||'',mv.eq||'',mv.resp||'',mv.obs||'',mv.app?'app':'planilla']; }))); };
   $('#msal').onclick=()=>{ tipoMov='SALIDA'; $('#msal').classList.add('on'); $('#ment').classList.remove('on'); };
   $('#ment').onclick=()=>{ tipoMov='ENTRADA'; $('#ment').classList.add('on'); $('#msal').classList.remove('on'); };
   $('#mguardar').onclick=()=>{
