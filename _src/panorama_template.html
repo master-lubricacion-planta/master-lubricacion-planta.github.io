@@ -362,11 +362,11 @@ function renderDias(){
   if(!plan){
     body=`<div class="hint">📭 El programa de la Semana ${w} aún no está cargado.</div>`;
   } else {
-    let tot={done:0,part:0,p0:0,sind:0};
+    let tot={done:0,part:0,p0:0,sind:0,papel:0};
     body=plan.days.map((d,i)=>{
       let dd=0,dpart=0,dp0=0,dsind=0;
       d.ots.forEach(o=>{
-        if(!o.pauta){ dsind++; return; }
+        if(!o.pauta){ if(CLOUD[o.ot]&&CLOUD[o.ot].papel) tot.papel++; else dsind++; return; }
         const pr=progress(o); const cls=statusClass(pr);
         if(cls==='done') dd++; else if(cls==='part') dpart++; else dp0++;
       });
@@ -464,7 +464,7 @@ function renderDias(){
       <div class="sec2"><h3>🌙 Ronda nocturna (Ruta Crítica)</h3>${nochesHtml.join('')}<p class="daysub" style="margin:8px 0 0">Pasa el cursor sobre una noche para ver el nochero. Tendencias y detalle en la pestaña Ruta Crítica.</p>
       ${(()=>{ const al=alertasRuta(fechasSem); return al.length?`<h3 style="margin-top:12px">🌡 Desviaciones ≥25% esta semana (${al.length})</h3><table class="tbl"><tr><th>Noche</th><th>Punto</th><th>Valor</th><th>Prom.</th><th>Desv.</th></tr>${al.slice(0,15).map(a=>`<tr><td>${a.f.slice(8,10)}-${a.f.slice(5,7)}</td><td>${esc(a.meta.l)}${a.meta.sub?' · '+esc(a.meta.sub):''}<br><span style="color:var(--ink-3);font-size:11px">${esc(a.meta.sec)}</span></td><td class="num" style="color:${Math.abs(a.pct)>=25?'var(--bad)':'inherit'}">${String(a.v).replace('.',',')} ${esc(a.meta.u)}</td><td class="num">${a.prom.toFixed(1).replace('.',',')}</td><td class="num" style="color:var(--bad)">${a.pct>0?'+':''}${a.pct.toFixed(0)}%</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:8px 0 0">Sin desviaciones ≥25% respecto al histórico en las rondas de esta semana.</p>'; })()}</div>
       <div class="sec2"><h3>🛢 Lubricantes bajo stock mínimo</h3>${(()=>{ const b=stockBajo(); return b.length?`<table class="tbl"><tr><th>Producto</th><th>Ubicación</th><th>Stock</th><th>Mínimo</th></tr>${b.map(x=>`<tr><td>${esc(x.prod)}</td><td>${esc(x.ubi||'')}</td><td class="num" style="color:var(--bad)">${x.stock.toLocaleString('es-CL',{maximumFractionDigits:1})} ${esc(x.uni)}</td><td class="num">${x.min.toLocaleString('es-CL')} ${esc(x.uni)}</td></tr>`).join('')}</table>`:'<p class="daysub" style="margin:0">Todos los lubricantes están sobre su stock mínimo. 👍</p>'; })()}</div>
-      <div class="sec2"><h3>📭 Sin pauta digital</h3><p class="daysub" style="margin:0">${tot.sind} OT de la semana no tienen pauta xlsx en Máximo (PDF escaneado o sin adjunto); se ejecutan en papel.</p></div>`;
+      <div class="sec2"><h3>📭 Sin pauta digital</h3><p class="daysub" style="margin:0">${tot.sind+tot.papel} OT de la semana no tienen pauta xlsx en Máximo (PDF escaneado o sin adjunto); se ejecutan en papel. <b>${tot.papel}</b> ya marcadas como hechas en papel${tot.papel?' ('+plan.days.flatMap(d=>d.ots).filter(o=>!o.pauta&&CLOUD[o.ot]&&CLOUD[o.ot].papel).map(o=>esc(o.tag)+' OT '+o.ot).join(', ')+')':''}.</p></div>`;
     } else if(subvista==='tecnico' && tecSel){
       const cards=[]; let cer=0,com=0,prog=0,mm=0;
       plan.days.forEach((d,di)=>d.ots.forEach(o=>{ if(!o.pauta) return; const c=CLOUD[o.ot]; if(!c) return; const nombre=(c.tecnico||(c.actualizadoPor&&c.actualizadoPor.nombre)||'').trim(); if(nombre!==tecSel) return; const pr=progress(o); const cls=statusClass(pr); if(c.cerrada) cer++; else if(cls==='done') com++; else prog++; const p2=byId[o.pauta]; const m=p2.acts.filter(a=>c.acts&&c.acts[a.n]&&c.acts[a.n].e==='M').length; mm+=m;
