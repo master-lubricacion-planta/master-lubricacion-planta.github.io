@@ -133,6 +133,7 @@ html.lub-viewer .secacc{display:none}
 #form.solopend .itemrow:has(input.iv.filled),#form.solopend .itemrow:has(select.ie.set){display:none}
 .itemrow input.iv.warn{border-color:var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
 .itemrow input.iv.alert{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.itemrow .iu .idelta{display:block;font-size:10px;font-weight:700;white-space:nowrap}
 .itemrow .iu .iref{display:block;font-size:10px;font-weight:600;color:var(--ink-3);white-space:nowrap}
 .desvbox{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;font-weight:700}
 .desvbox .alert{color:var(--bad)} .desvbox .warn{color:var(--orange-ink)}
@@ -324,7 +325,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v164</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v165</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -485,7 +486,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='164';
+  window.LUB_VERSION='165';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -848,6 +849,8 @@ function statsPuntos(excluirFecha){
   return out;
 }
 function desviacion(id,v,ST){ const st=ST[id]; const n=parseFloat(String(v||'').replace(',','.')); if(!st||st.n<3||isNaN(n)||Math.abs(st.prom)<0.5) return null; return (n-st.prom)/Math.abs(st.prom)*100; }
+function valorAnoche(f,id){ const ant=new Date(f+'T12:00:00'); ant.setDate(ant.getDate()-1); const fa=iso(ant); const dd=load(fa); const v=dd.vals&&dd.vals[id]&&dd.vals[id].v; if(v!==undefined&&String(v).trim()) return parseFloat(String(v).replace(',','.')); const pr=RPREV[fa]&&RPREV[fa][id]; return typeof pr==='number'?pr:null; }
+function pintarDelta(inp,f){ let b=inp.parentElement.querySelector('.idelta'); const v=parseFloat(String(inp.value||'').replace(',','.')); const va=valorAnoche(f,inp.dataset.id); if(isNaN(v)||va===null){ if(b) b.remove(); return; } const d=v-va; if(!b){ b=document.createElement('span'); b.className='idelta'; inp.parentElement.querySelector('.iu').appendChild(b); } b.textContent=(d>0?'▲ +':(d<0?'▼ ':'= '))+Math.abs(d).toFixed(1).replace('.',',')+' vs anoche'; b.style.color=Math.abs(d)>=5?'var(--bad)':'var(--ink-3)'; }
 function pintarDesv(inp,ST){ const pct=desviacion(inp.dataset.id,inp.value,ST); inp.classList.remove('warn','alert'); inp.title=''; if(pct===null) return; if(Math.abs(pct)>=25) inp.classList.add('alert'); else if(Math.abs(pct)>=15) inp.classList.add('warn'); if(Math.abs(pct)>=15) inp.title=(pct>0?'+':'')+pct.toFixed(0)+'% respecto al promedio histórico ('+ST[inp.dataset.id].prom.toFixed(1).replace('.',',')+')'; }
 
 function renderRegistro(){
@@ -931,7 +934,7 @@ function renderRegistro(){
     let box=document.querySelector('.desvbox'); if(!box){ const av=$('#ravance'); if(!av) return; av.insertAdjacentHTML('afterend','<div class="desvbox"></div>'); box=document.querySelector('.desvbox'); }
     box.innerHTML=(nAlert?`<span class="alert">🔴 ${nAlert} fuera de rango (≥25% del promedio)</span>`:'')+(nWarn?`<span class="warn">🟠 ${nWarn} a revisar (≥15%)</span>`:'')+((nAlert||nWarn)?'':'<span style="color:var(--ink-3);font-weight:600">Sin desviaciones respecto al histórico</span>');
   }
-  document.querySelectorAll('input.iv').forEach(i=>{ pintarDesv(i,ST); i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); pintarDesv(i,ST); resumenDesv(); }); });
+  document.querySelectorAll('input.iv').forEach(i=>{ pintarDesv(i,ST); pintarDelta(i,f); i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); pintarDesv(i,ST); pintarDelta(i,f); resumenDesv(); }); });
   resumenDesv();
   document.querySelectorAll('select.ie').forEach(s=>s.addEventListener('change',e=>{ punto(s.dataset.id); s.classList.toggle('set',!!s.value); }));
   if(window.LUB && LUB.tecnicos) LUB.tecnicos().then(lista=>{ const dl=$('#lnocheros'); if(dl) dl.innerHTML=lista.filter(n=>n!==d.noc).map(n=>`<option value="${esc(n)}">`).join(''); }).catch(()=>{});

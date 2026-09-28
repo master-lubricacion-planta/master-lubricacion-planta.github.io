@@ -132,6 +132,7 @@ html.lub-viewer .secacc{display:none}
 #form.solopend .itemrow:has(input.iv.filled),#form.solopend .itemrow:has(select.ie.set){display:none}
 .itemrow input.iv.warn{border-color:var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
 .itemrow input.iv.alert{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.itemrow .iu .idelta{display:block;font-size:10px;font-weight:700;white-space:nowrap}
 .itemrow .iu .iref{display:block;font-size:10px;font-weight:600;color:var(--ink-3);white-space:nowrap}
 .desvbox{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12.5px;font-weight:700}
 .desvbox .alert{color:var(--bad)} .desvbox .warn{color:var(--orange-ink)}
@@ -490,6 +491,8 @@ function statsPuntos(excluirFecha){
   return out;
 }
 function desviacion(id,v,ST){ const st=ST[id]; const n=parseFloat(String(v||'').replace(',','.')); if(!st||st.n<3||isNaN(n)||Math.abs(st.prom)<0.5) return null; return (n-st.prom)/Math.abs(st.prom)*100; }
+function valorAnoche(f,id){ const ant=new Date(f+'T12:00:00'); ant.setDate(ant.getDate()-1); const fa=iso(ant); const dd=load(fa); const v=dd.vals&&dd.vals[id]&&dd.vals[id].v; if(v!==undefined&&String(v).trim()) return parseFloat(String(v).replace(',','.')); const pr=RPREV[fa]&&RPREV[fa][id]; return typeof pr==='number'?pr:null; }
+function pintarDelta(inp,f){ let b=inp.parentElement.querySelector('.idelta'); const v=parseFloat(String(inp.value||'').replace(',','.')); const va=valorAnoche(f,inp.dataset.id); if(isNaN(v)||va===null){ if(b) b.remove(); return; } const d=v-va; if(!b){ b=document.createElement('span'); b.className='idelta'; inp.parentElement.querySelector('.iu').appendChild(b); } b.textContent=(d>0?'▲ +':(d<0?'▼ ':'= '))+Math.abs(d).toFixed(1).replace('.',',')+' vs anoche'; b.style.color=Math.abs(d)>=5?'var(--bad)':'var(--ink-3)'; }
 function pintarDesv(inp,ST){ const pct=desviacion(inp.dataset.id,inp.value,ST); inp.classList.remove('warn','alert'); inp.title=''; if(pct===null) return; if(Math.abs(pct)>=25) inp.classList.add('alert'); else if(Math.abs(pct)>=15) inp.classList.add('warn'); if(Math.abs(pct)>=15) inp.title=(pct>0?'+':'')+pct.toFixed(0)+'% respecto al promedio histórico ('+ST[inp.dataset.id].prom.toFixed(1).replace('.',',')+')'; }
 
 function renderRegistro(){
@@ -573,7 +576,7 @@ function renderRegistro(){
     let box=document.querySelector('.desvbox'); if(!box){ const av=$('#ravance'); if(!av) return; av.insertAdjacentHTML('afterend','<div class="desvbox"></div>'); box=document.querySelector('.desvbox'); }
     box.innerHTML=(nAlert?`<span class="alert">🔴 ${nAlert} fuera de rango (≥25% del promedio)</span>`:'')+(nWarn?`<span class="warn">🟠 ${nWarn} a revisar (≥15%)</span>`:'')+((nAlert||nWarn)?'':'<span style="color:var(--ink-3);font-weight:600">Sin desviaciones respecto al histórico</span>');
   }
-  document.querySelectorAll('input.iv').forEach(i=>{ pintarDesv(i,ST); i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); pintarDesv(i,ST); resumenDesv(); }); });
+  document.querySelectorAll('input.iv').forEach(i=>{ pintarDesv(i,ST); pintarDelta(i,f); i.addEventListener('change',e=>{ punto(i.dataset.id); i.classList.toggle('filled',!!i.value.trim()); pintarDesv(i,ST); pintarDelta(i,f); resumenDesv(); }); });
   resumenDesv();
   document.querySelectorAll('select.ie').forEach(s=>s.addEventListener('change',e=>{ punto(s.dataset.id); s.classList.toggle('set',!!s.value); }));
   if(window.LUB && LUB.tecnicos) LUB.tecnicos().then(lista=>{ const dl=$('#lnocheros'); if(dl) dl.innerHTML=lista.filter(n=>n!==d.noc).map(n=>`<option value="${esc(n)}">`).join(''); }).catch(()=>{});
