@@ -498,7 +498,7 @@ function renderSemanas(){
       const cerradas=conp.filter(o=>load(o.ot).cerrada).length;
       hoyHtml=`<div class="hoybox">
         <div class="dayhdr" style="margin-top:0">📅 Hoy · ${esc(d.nombre)} ${esc(d.fecha)} <span class="hoytag">SEMANA ${SEMANA_ACTUAL}</span></div>
-        <p class="daysub">${d.ots.length} OT programadas · ${conp.length} con pauta digital · ${cerradas} cerradas</p>
+        <p class="daysub">${d.ots.length} OT programadas · ${conp.length} con pauta digital · ${cerradas} cerradas${(()=>{ let m=0; conp.forEach(o=>{ const dd=load(o.ot); Object.values(dd.acts||{}).forEach(a=>{ if(a&&a.e==='M') m++; }); }); return m?` · <span style="color:var(--bad);font-weight:800">${m} hallazgo${m>1?'s':''} M</span>`:''; })()}</p>
         <div id="hoylista" ${d.ots.length>6?'class="colapsado"':''}>${d.ots.slice().sort((a,b)=>{ const pr=o=>{ if(!o.pauta) return 5; const dd=load(o.ot); if(dd.cerrada) return 4; const pg=progress(o); if(pg.done>=pg.total) return 3; if(pg.done>0) return 1; return 2; }; return pr(a)-pr(b); }).map(o=>tarjetaOT(o,SEMANA_ACTUAL,di)).join('')}</div>
         ${d.ots.length>6?`<button class="bvolver" id="hoymas" style="width:100%;justify-content:center">Ver las ${d.ots.length} OT de hoy</button>`:''}
       </div>`;
