@@ -230,6 +230,15 @@ scored.slice(0,12).forEach(x=>{
   b.addEventListener('click',()=>{select(x.d[0]);document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'})});
   rk.appendChild(b);
 });
+/* equipos sin muestra hace más de 45 días (fuera de la frecuencia mensual) */
+(function(){
+  const hoy=Date.now(); const viejos=DATA.map(d=>{ const ss=d[3]; const f=ss[ss.length-1][0]; const dias=Math.floor((hoy-new Date(f+'T12:00:00').getTime())/86400000); return {tag:d[0],cmpn:d[1],f,dias}; }).filter(x=>x.dias>45).sort((a,b)=>b.dias-a.dias);
+  if(!viejos.length) return;
+  const box=document.createElement('details'); box.className='card'; box.style.marginTop='14px';
+  box.innerHTML=`<summary style="cursor:pointer;font-weight:800">⏰ ${viejos.length} equipos sin muestra hace más de 45 días</summary><div class="rank-grid" style="margin-top:10px">${viejos.slice(0,60).map(x=>`<button class="rk" data-t="${x.tag}"><div class="tag">${x.tag}</div><div class="cmp">${x.cmpn}</div><div class="why"><span class="pill p-P">última ${x.f.slice(8,10)}-${x.f.slice(5,7)} · ${x.dias} días</span></div></button>`).join('')}</div>`;
+  rk.insertAdjacentElement('afterend',box);
+  box.querySelectorAll('.rk').forEach(b=>b.addEventListener('click',()=>{ select(b.dataset.t); document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'}); }));
+})();
 
 function spark(d){
   const fes=d[3].map(s=>s[3][0]);
