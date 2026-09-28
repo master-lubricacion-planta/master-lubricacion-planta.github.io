@@ -215,6 +215,10 @@ tbody=tbody[:_m.start(1)]+'LUB.datos.tendencias'+tbody[_m.end(1):]
 open(os.path.join(pwa,'tendencias.html'),'w',encoding='utf-8').write(gate(
     nube(ttpl.replace('__TENDENCIAS_BODY__',tbody),{}).replace('__TECKLOGO__',tecklogo)))
 
+# Ayuda (guía rápida para técnicos y jefatura)
+atpl=open(base+'/ayuda_template.html',encoding='utf-8').read()
+open(os.path.join(pwa,'ayuda.html'),'w',encoding='utf-8').write(gate(atpl.replace('__TECKLOGO__',tecklogo)))
+
 # Usuarios (administración de cuentas; solo rol admin, el candado redirige al resto)
 utpl=open(base+'/usuarios_template.html',encoding='utf-8').read()
 open(os.path.join(pwa,'usuarios.html'),'w',encoding='utf-8').write(gate(
@@ -243,6 +247,8 @@ if './muestras.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./muestras.html', './manifest.json'")
 if './consumo.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./consumo.html', './manifest.json'")
+if './ayuda.html' not in sw:
+    sw=sw.replace("'./manifest.json'","'./ayuda.html', './manifest.json'")
 if './usuarios.html' not in sw:
     sw=sw.replace("'./manifest.json'","'./usuarios.html', './manifest.json'")
 open(os.path.join(pwa,'sw.js'),'w',encoding='utf-8').write(sw)

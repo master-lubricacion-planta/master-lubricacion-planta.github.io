@@ -1,5 +1,5 @@
-const CACHE = 'lubricacion-v190';
-const ASSETS = ['./', './index.html', './pautas.html', './panorama.html', './ruta.html', './tendencias.html', './plan52.html', './muestras.html', './consumo.html', './usuarios.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE = 'lubricacion-v191';
+const ASSETS = ['./', './index.html', './pautas.html', './panorama.html', './ruta.html', './tendencias.html', './plan52.html', './muestras.html', './consumo.html', './usuarios.html', './ayuda.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
