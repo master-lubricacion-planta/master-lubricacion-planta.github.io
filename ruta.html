@@ -328,7 +328,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v192</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v193</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -498,7 +498,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='192';
+  window.LUB_VERSION='193';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -919,6 +919,7 @@ function renderRegistro(){
     ${(()=>{ const ant=new Date(f+'T12:00:00'); ant.setDate(ant.getDate()-1); const fa=iso(ant); const da=load(fa); return da.obs?`<div class="obsant">📝 Noche anterior (${fmt(ant)}${da.noc?', '+esc(da.noc):''}): <i>"${esc(da.obs)}"</i></div>`:''; })()}
     <textarea class="obsg" id="robs" placeholder="Anomalías, ruidos, fugas, equipos con temperatura alta…">${esc(d.obs||'')}</textarea>
     ${cerrada?'':'<div class="btnbar"><button class="btn primary finalizar" id="rfinalizar" type="button">✅ Finalizar ronda</button></div>'}
+    <div class="btnbar"><button class="btn ghost" id="rcompartir" type="button">📤 Compartir resumen de la ronda</button></div>
     <div class="btnbar">
       <button class="btn ghost" id="rborrar">Borrar registro</button>
     </div>
@@ -976,6 +977,13 @@ function renderRegistro(){
     d.cerrada=true; d.cerradaPor=ME().nombre||''; d.cerradaEn=n.toISOString();
     save(f,d,{noc:d.noc,noc2:d.noc2,hora:d.hora,obs:d.obs,hfin:d.hfin,cerrada:true,cerradaPor:d.cerradaPor,cerradaEn:d.cerradaEn});
     flash('🔒 Ronda finalizada'); render();
+  };
+  $('#rcompartir').onclick=async()=>{
+    recoger(); const ST2=statsPuntos(f); const alertas=[]; let n=0;
+    RUTA.forEach(s=>s.items.forEach(it=>{ const st=d.vals[it[0]]; if(!st||!(String(st.v||'').trim()||st.e)) return; n++; const pct=desviacion(it[0],st.v,ST2); if(pct!==null&&Math.abs(pct)>=15) alertas.push(`${Math.abs(pct)>=25?'🔴':'🟠'} ${it[1]}${it[2]?' '+it[2]:''}: ${String(st.v).replace('.',',')} ${it[3]} (${pct>0?'+':''}${pct.toFixed(0)}% vs prom.)`); }));
+    const txt=[`*Ruta Crítica · ${NOMBRES_DIA[di]} ${fmt(fecha)}*`,`Nochero(s): ${[d.noc,d.noc2].filter(Boolean).join(' / ')||'—'} · ${n}/${NITEMS} puntos${d.cerrada?' · 🔒 cerrada '+(d.hfin||''):''}`,alertas.length?`Desviaciones (${alertas.length}):`:'✅ Sin desviaciones ≥15%',...alertas.slice(0,15),d.obs?`Obs: ${d.obs}`:'',`(${location.origin}${location.pathname}?f=${f})`].filter(Boolean).join('\n');
+    try{ if(navigator.share){ await navigator.share({title:'Ronda '+fmt(fecha),text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+    try{ await navigator.clipboard.writeText(txt); flash('📋 Resumen copiado'); }catch(e){ alert(txt); }
   };
   const rr=$('#rreabrir'); if(rr) rr.onclick=()=>{ if(!confirm('¿Reabrir esta ronda para edición?')) return; d.cerrada=false; save(f,d,{cerrada:false}); render(); };
   const fab=$('#fabsave'); if(cerrada) fab.classList.remove('show'); else fab.classList.add('show');

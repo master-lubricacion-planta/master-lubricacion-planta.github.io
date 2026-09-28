@@ -552,6 +552,7 @@ function renderRegistro(){
     ${(()=>{ const ant=new Date(f+'T12:00:00'); ant.setDate(ant.getDate()-1); const fa=iso(ant); const da=load(fa); return da.obs?`<div class="obsant">📝 Noche anterior (${fmt(ant)}${da.noc?', '+esc(da.noc):''}): <i>"${esc(da.obs)}"</i></div>`:''; })()}
     <textarea class="obsg" id="robs" placeholder="Anomalías, ruidos, fugas, equipos con temperatura alta…">${esc(d.obs||'')}</textarea>
     ${cerrada?'':'<div class="btnbar"><button class="btn primary finalizar" id="rfinalizar" type="button">✅ Finalizar ronda</button></div>'}
+    <div class="btnbar"><button class="btn ghost" id="rcompartir" type="button">📤 Compartir resumen de la ronda</button></div>
     <div class="btnbar">
       <button class="btn ghost" id="rborrar">Borrar registro</button>
     </div>
@@ -609,6 +610,13 @@ function renderRegistro(){
     d.cerrada=true; d.cerradaPor=ME().nombre||''; d.cerradaEn=n.toISOString();
     save(f,d,{noc:d.noc,noc2:d.noc2,hora:d.hora,obs:d.obs,hfin:d.hfin,cerrada:true,cerradaPor:d.cerradaPor,cerradaEn:d.cerradaEn});
     flash('🔒 Ronda finalizada'); render();
+  };
+  $('#rcompartir').onclick=async()=>{
+    recoger(); const ST2=statsPuntos(f); const alertas=[]; let n=0;
+    RUTA.forEach(s=>s.items.forEach(it=>{ const st=d.vals[it[0]]; if(!st||!(String(st.v||'').trim()||st.e)) return; n++; const pct=desviacion(it[0],st.v,ST2); if(pct!==null&&Math.abs(pct)>=15) alertas.push(`${Math.abs(pct)>=25?'🔴':'🟠'} ${it[1]}${it[2]?' '+it[2]:''}: ${String(st.v).replace('.',',')} ${it[3]} (${pct>0?'+':''}${pct.toFixed(0)}% vs prom.)`); }));
+    const txt=[`*Ruta Crítica · ${NOMBRES_DIA[di]} ${fmt(fecha)}*`,`Nochero(s): ${[d.noc,d.noc2].filter(Boolean).join(' / ')||'—'} · ${n}/${NITEMS} puntos${d.cerrada?' · 🔒 cerrada '+(d.hfin||''):''}`,alertas.length?`Desviaciones (${alertas.length}):`:'✅ Sin desviaciones ≥15%',...alertas.slice(0,15),d.obs?`Obs: ${d.obs}`:'',`(${location.origin}${location.pathname}?f=${f})`].filter(Boolean).join('\n');
+    try{ if(navigator.share){ await navigator.share({title:'Ronda '+fmt(fecha),text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+    try{ await navigator.clipboard.writeText(txt); flash('📋 Resumen copiado'); }catch(e){ alert(txt); }
   };
   const rr=$('#rreabrir'); if(rr) rr.onclick=()=>{ if(!confirm('¿Reabrir esta ronda para edición?')) return; d.cerrada=false; save(f,d,{cerrada:false}); render(); };
   const fab=$('#fabsave'); if(cerrada) fab.classList.remove('show'); else fab.classList.add('show');
