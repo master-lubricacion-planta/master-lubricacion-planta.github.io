@@ -278,7 +278,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v185</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v186</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -447,7 +447,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='185';
+  window.LUB_VERSION='186';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -711,6 +711,7 @@ function renderStock(){
       <div class="kpi"><div class="v">${MAESTRO.length}</div><div class="l">Productos</div></div>
     </div>
     ${chips('stock')}
+    ${(()=>{ const pr=MAESTRO.map(m=>({m,v:st[m.id],d:ritmo[m.id]?st[m.id]/ritmo[m.id]:null})).filter(x=>x.d!==null&&x.d<30).sort((a,b)=>a.d-b.d); return pr.length?`<div class="dash" style="margin-bottom:12px"><h3>🛒 Para comprar: se agotan antes de 30 días (al ritmo actual)</h3>${pr.map(x=>`<div class="abar"><span class="an">${esc(x.m.prod)}</span><span class="atrack"><i style="width:${Math.max(3,Math.min(100,x.d/30*100))}%;background:${x.d<15?'var(--bad)':'var(--orange)'}"></i></span><span class="av">≈ ${Math.round(x.d)} días · ${nf(x.v)} ${esc(x.m.uni)}</span></div>`).join('')}</div>`:''; })()}
     <div style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input id="qprod" class="qprod" style="margin:0;flex:1" placeholder="🔍 Filtrar producto (ej: Omala 220, Gadus)" autocomplete="off"><button class="fchipsel" id="stockcsv" style="cursor:pointer">⬇ Excel</button></div>
     ${html}`;
   $('#stockcsv').onclick=()=>{ const hoy=new Date().toISOString().slice(0,10); descargarCsv('stock_lubricantes_'+hoy+'.csv',[['Producto','Viscosidad','Tipo','Ubicación','Stock','Unidad','Mínimo','Estado','Días de stock (≈)']].concat(MAESTRO.map(m=>{ const v=st[m.id]; return [m.prod,m.visc||'',m.tipo,m.ubi||'',String(v).replace('.',','),m.uni,m.min,v<m.min?'BAJO MÍNIMO':(v<m.min*1.5?'JUSTO':'OK'),ritmo[m.id]?Math.round(v/ritmo[m.id]):'']; }))); };

@@ -345,6 +345,7 @@ function renderStock(){
       <div class="kpi"><div class="v">${MAESTRO.length}</div><div class="l">Productos</div></div>
     </div>
     ${chips('stock')}
+    ${(()=>{ const pr=MAESTRO.map(m=>({m,v:st[m.id],d:ritmo[m.id]?st[m.id]/ritmo[m.id]:null})).filter(x=>x.d!==null&&x.d<30).sort((a,b)=>a.d-b.d); return pr.length?`<div class="dash" style="margin-bottom:12px"><h3>🛒 Para comprar: se agotan antes de 30 días (al ritmo actual)</h3>${pr.map(x=>`<div class="abar"><span class="an">${esc(x.m.prod)}</span><span class="atrack"><i style="width:${Math.max(3,Math.min(100,x.d/30*100))}%;background:${x.d<15?'var(--bad)':'var(--orange)'}"></i></span><span class="av">≈ ${Math.round(x.d)} días · ${nf(x.v)} ${esc(x.m.uni)}</span></div>`).join('')}</div>`:''; })()}
     <div style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input id="qprod" class="qprod" style="margin:0;flex:1" placeholder="🔍 Filtrar producto (ej: Omala 220, Gadus)" autocomplete="off"><button class="fchipsel" id="stockcsv" style="cursor:pointer">⬇ Excel</button></div>
     ${html}`;
   $('#stockcsv').onclick=()=>{ const hoy=new Date().toISOString().slice(0,10); descargarCsv('stock_lubricantes_'+hoy+'.csv',[['Producto','Viscosidad','Tipo','Ubicación','Stock','Unidad','Mínimo','Estado','Días de stock (≈)']].concat(MAESTRO.map(m=>{ const v=st[m.id]; return [m.prod,m.visc||'',m.tipo,m.ubi||'',String(v).replace('.',','),m.uni,m.min,v<m.min?'BAJO MÍNIMO':(v<m.min*1.5?'JUSTO':'OK'),ritmo[m.id]?Math.round(v/ritmo[m.id]):'']; }))); };
