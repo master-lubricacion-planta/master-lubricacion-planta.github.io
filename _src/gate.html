@@ -226,6 +226,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     conn.hidden=true;
     try{ db.waitForPendingWrites().then(function(){ if(navigator.onLine) estadoConn('ok','☁ Sincronizado',2500); }); }catch(e){}
   }
+  document.addEventListener('keydown',function(ev){ if(ev.key!=='/'||ev.ctrlKey||ev.metaKey||ev.altKey) return; var t=ev.target; if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable)) return; var q=document.getElementById('q')||document.getElementById('qbuscar')||document.getElementById('qprod')||document.getElementById('qbusca'); if(q){ ev.preventDefault(); q.focus(); q.select&&q.select(); } });
   var topb=$('lubtop'); topb.onclick=function(){ window.scrollTo({top:0,behavior:'smooth'}); };
   window.addEventListener('scroll',function(){ topb.hidden=window.scrollY<600; },{passive:true});
   window.addEventListener('online',function(){ estadoConn('pend','☁ Conectado — subiendo cambios…'); revisarConn(); });
