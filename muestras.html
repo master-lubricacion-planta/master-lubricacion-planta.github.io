@@ -292,7 +292,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v189</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v190</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -462,7 +462,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='189';
+  window.LUB_VERSION='190';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -878,7 +878,7 @@ function renderResumen(){
   $('#resumen').innerHTML=`
     <div class="dayhdr">📋 Resumen ${MESES[m-1]} 2026 · Toma de muestras</div>
     <p class="daysub">${st.r}/${ITEMS.length} tomadas — cumplimiento ${Math.round(100*st.r/ITEMS.length)}% · ${st.nt} no tomadas · ${st.sin} sin registro — vista para revisar, imprimir o traspasar a la planilla Excel.</p>
-    <div class="btnbar noprint"><button class="btn primary" id="pimp">🖨 Imprimir / PDF</button><button class="btn ghost" id="pcsv">⬇ Excel</button></div>
+    <div class="btnbar noprint"><button class="btn primary" id="pimp">🖨 Imprimir / PDF</button><button class="btn ghost" id="pcsv">⬇ Excel</button><button class="btn ghost" id="pshare">📤 Compartir</button></div>
     <div class="plwrap"><table class="pl"><tr><th>Área</th><th>Puntos</th><th>Tomadas</th><th>NT</th><th>Faltan</th><th>%</th></tr>${porArea}</table></div>
     <div style="height:12px"></div>
     <div class="plwrap"><table class="pl">
@@ -887,6 +887,8 @@ function renderResumen(){
     </table></div>
     <div style="height:30px"></div>`;
   $('#pimp').onclick=()=>window.print();
+  const compartir=async(titulo,txt)=>{ try{ if(navigator.share){ await navigator.share({title:titulo,text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; } try{ await navigator.clipboard.writeText(txt); alert('Resumen copiado — pégalo en WhatsApp o correo.'); }catch(e){ alert(txt); } };
+  $('#pshare').onclick=()=>{ const lineas=Object.keys(sa).map(a=>`• ${AREA_NAMES[a]||a}: ${sa[a].r}/${sa[a].tot}${sa[a].tot-sa[a].r?' (faltan '+(sa[a].tot-sa[a].r)+')':''}`); compartir('Muestras '+MESES[m-1],[`*Toma de muestras · ${MESES[m-1]} 2026*`,`${st.r}/${ITEMS.length} tomadas · ${Math.round(100*st.r/ITEMS.length)}% · ${st.nt} NT · ${st.sin} sin registro`,'Por área:',...lineas,`(${location.origin}${location.pathname})`].join('\n')); };
   $('#pcsv').onclick=()=>{ const filas=[['Mes','Área','TAG','Equipo','Lubricante','R/NT','Día','Relleno','N° reporte','Estado','Por','Fecha']]; for(const a of Object.keys(areas)) for(const it of areas[a]){ const v=efectivo(m,it.n)||{}; filas.push([MESES[m-1],AREA_NAMES[a]||a,it.tag,it.eq,it.lub||'',v.m||'',v.d!=null?DIAS[v.d]:'',v.rc||'',v.rep||'',v.est||'',v.por||'',(v.t||'').slice(0,10)]); } descargarCsv('muestras_'+MESES[m-1].toLowerCase()+'_2026.csv',filas); };
 }
 
