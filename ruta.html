@@ -324,7 +324,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v163</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v164</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -485,7 +485,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='163';
+  window.LUB_VERSION='164';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -1148,6 +1148,7 @@ function renderTendencias(){
       <h3 style="margin:0 0 8px">Comportamiento del equipo en el tiempo</h3>
       <select id="tsel" style="width:100%;max-width:520px;padding:9px 10px;font-size:14px;font-weight:700;border:1.5px solid var(--accent);border-radius:10px;background:var(--bg);color:var(--ink);margin-bottom:10px">${optsSel}</select>
       <div id="tgraf">${selId?grafico(selId):''}</div>
+      <div class="btnbar" style="margin:8px 0 0"><button class="btn ghost" id="tcsv">⬇ Excel de este punto</button></div>
     </div>
     <p class="daysub" style="margin:0 2px 8px">Toca cualquier equipo de la lista para verlo en el gráfico.</p>
     <div class="tlist">${lista||'<div class="hint">Aún no hay historial suficiente.</div>'}</div>
@@ -1155,6 +1156,7 @@ function renderTendencias(){
     <div style="height:30px"></div>`;
   const sel=$('#tsel');
   if(sel) sel.onchange=()=>{ window.__tendSel=sel.value; $('#tgraf').innerHTML=grafico(sel.value); };
+  const tc=$('#tcsv'); if(tc) tc.onclick=()=>{ const id=window.__tendSel; if(!id||!map[id]) return; const meta=META[id]||{}; const filas=[['Fecha','Valor','Unidad','Punto','Sección']].concat(Object.keys(map[id]).sort().map(f=>[f,String(map[id][f]).replace('.',','),meta.u||'',(meta.l||'')+(meta.sub?' · '+meta.sub:''),meta.sec||''])); const celda=v=>{ v=(v==null?'':String(v)); return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }; const b=new Blob(['\ufeff'+filas.map(f=>f.map(celda).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='ruta_'+id+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); };
   document.querySelectorAll('.titem').forEach((el,ix)=>{
     el.style.cursor='pointer';
     el.onclick=()=>{ const id=top[ix].id; window.__tendSel=id; if(sel) sel.value=id; $('#tgraf').innerHTML=grafico(id); $('#tgraf').closest('.dash').scrollIntoView({behavior:'smooth',block:'start'}); };
