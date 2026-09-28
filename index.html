@@ -134,7 +134,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v186</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v187</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -303,7 +303,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
   }
   function salir(){ try{ localStorage.removeItem('lub_sesion_ini'); sessionStorage.removeItem('lub_confirmado'); }catch(e){} auth.signOut().then(function(){ location.reload(); }); }
   $('lubsalir').onclick=salir; $('lubgsalir2').onclick=salir;
-  window.LUB_VERSION='186';
+  window.LUB_VERSION='187';
   var NOVEDADES=[
     ['v158–160','Botón "Compartir" en cada pauta y en Supervisión (resumen listo para WhatsApp/correo).'],
     ['v152–157','Tablet: aviso "¿Sigues siendo X?" tras 12 h, pantalla completa, "Hoy" ordenado por prioridad; Tendencias imprime la ficha; Maestro copia el TAG; Ruta acepta enlace directo a una noche.'],
@@ -534,6 +534,7 @@ footer{padding:8px 14px 28px;text-align:center;font-size:11.5px;color:var(--ink-
 .rchip.x{color:var(--ink-3);font-family:inherit}
 .xl{font-size:13px;text-decoration:none;margin-left:6px;opacity:.8;vertical-align:1px}
 .xl:hover{opacity:1}
+@media print{ header,#home,#pwabar,#pwaios,.noprint,#lubuserbar,#lubviewerchip,#lubtop,#lubconn{display:none!important} body{background:#fff} .equip{break-inside:avoid;box-shadow:none;border:1px solid #999} }
 </style>
 
 <header>
@@ -804,7 +805,7 @@ function render(){
   const shown=list.slice(0,80);
   if(terms.length && list.length && q.value.trim().length>=3){ try{ const t=q.value.trim(); let rec=JSON.parse(localStorage.getItem('mx_recientes')||'[]'); rec=[t].concat(rec.filter(x=>x.toLowerCase()!==t.toLowerCase())).slice(0,6); localStorage.setItem('mx_recientes',JSON.stringify(rec)); }catch(e){} }
   const a=areaFilter?(AREAS[areaFilter]||{name:areaFilter}):null;
-  const manualLink = a&&a.manual ? ` <a class="mlink" href="${a.manual}" target="_blank" rel="noopener">Manual Interactivo ↗</a>` : '';
+  const manualLink = (a&&a.manual ? ` <a class="mlink" href="${a.manual}" target="_blank" rel="noopener">Manual Interactivo ↗</a>` : '') + ` <a class="mlink noprint" href="#" onclick="document.querySelectorAll('.equip').forEach(e=>e.classList.add('open'));window.print();return false" title="Imprimir o guardar en PDF este listado">🖨 Imprimir listado</a>`;
   countEl.innerHTML=esc((a?`${a.name} (${areaFilter.replace('Area ','Área ')}) · `:'')+`${list.length} equipo${list.length!==1?'s':''}`+(list.length>80?' — mostrando 80, afina la búsqueda':''))+manualLink;
   const autoOpen=shown.length<=3;
   resultsEl.innerHTML = shown.map(e=>`
