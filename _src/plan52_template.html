@@ -404,6 +404,7 @@ function renderSemana(){
       <button class="fchip ${filtro==='todas'?'on':''}" data-f="todas">Todas</button>
       <button class="fchip ${filtro==='pend'?'on':''}" data-f="pend">Pendientes (sin R)</button>
       <button class="fchip ${filtro==='hechas'?'on':''}" data-f="hechas">Realizadas</button>
+      <input class="fchip" id="qbusca" placeholder="🔍 TAG o equipo" autocomplete="off" style="min-width:150px">
       <select class="fchip" id="fsel" aria-label="Área"><option value="">Todas las áreas</option>${Object.keys(areas).map(a=>`<option value="${a}" ${areaSel===a?'selected':''}>${esc(AREA_NAMES[a]||('Área '+a))}</option>`).join('')}</select>
       <button class="fchip" id="verres">📋 Resumen / imprimir</button>
     </div>
@@ -414,6 +415,7 @@ function renderSemana(){
   document.querySelectorAll('.fchip[data-f]').forEach(b=>b.onclick=()=>{ filtro=b.dataset.f; render(); });
   $('#verres').onclick=()=>{ view={name:'resumen',week:w}; render(); };
   $('#fsel').onchange=()=>{ areaSel=$('#fsel').value; try{ localStorage.setItem('p52_area',areaSel); }catch(e){} render(); };
+  const qb=$('#qbusca'); if(qb) qb.oninput=()=>{ const t=qb.value.trim().toLowerCase(); document.querySelectorAll('.item').forEach(it=>{ it.style.display=(!t||it.querySelector('.il').textContent.toLowerCase().includes(t))?'':'none'; }); document.querySelectorAll('details.sec').forEach(s=>{ if(t){ s.open=true; const alguno=[...s.querySelectorAll('.item')].some(it=>it.style.display!=='none'); s.style.display=alguno?'':'none'; } else s.style.display=''; }); };
 
   function setVal(n,mut){
     const cur=load(w);
