@@ -217,7 +217,7 @@ try{
   cloudOk=true;
 }catch(e){ cloudOk=false; }
 
-/* movimientos registrados en la app: {mid:{f,mov,id,cant,area,eq,resp,obs}} */
+/* movimientos registrados en la app: {mid:{f,mov,id,cant,area,eq,resp,obs}}; exportables a Excel (v169) */
 const loadMovs=()=>{ try{return JSON.parse(localStorage.getItem('cons_movs'))||{}}catch(e){return {}} };
 const ME=()=>window.LUB_USER||{uid:'',nombre:'',email:''};
 function quien(){ const m=ME(); return {uid:m.uid||'',nombre:m.nombre||'',email:m.email||''}; }
