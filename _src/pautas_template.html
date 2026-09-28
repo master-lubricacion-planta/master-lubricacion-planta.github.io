@@ -98,6 +98,9 @@ main{padding:14px;max-width:820px;margin:0 auto}
 
 .otcard{width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;box-shadow:var(--shadow);padding:13px 14px;cursor:pointer;display:flex;align-items:center;gap:12px}
 .otcard.nop{cursor:default;opacity:.62}
+.otcard.nop.papel{opacity:.85}
+.bpapel{display:block;margin-top:6px;border:1.5px solid var(--ok);background:var(--surface);color:var(--ok);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;cursor:pointer}
+html.lub-viewer .bpapel{display:none}
 .otcard .otinfo{flex:1;min-width:0}
 .otcard .tag{font-weight:800;font-size:15px}
 .otcard .otd{font-size:13px;color:var(--ink-2);margin-top:1px}
@@ -547,14 +550,14 @@ function renderDias(){
 
 function duracion(hi,hf){ const m=s=>{ const x=/^(\d{1,2}):(\d{2})/.exec(s||''); return x?(+x[1])*60+(+x[2]):null; }; const a=m(hi),b=m(hf); if(a===null||b===null) return ''; let d=b-a; if(d<0) d+=24*60; return d>=60?Math.floor(d/60)+' h '+(d%60?d%60+' min':''):d+' min'; }
 function tarjetaOT(o,w,di,extra){
-  if(!o.pauta) return `<div class="otcard nop">
+  if(!o.pauta){ const pp=load(o.ot); return `<div class="otcard nop ${pp.papel?'papel':''}">
     <div class="otinfo">
       <div class="tag mono">${esc(o.tag)}</div>
       <div class="otd">${esc(o.desc)}</div>
-      <div class="otmeta">OT ${o.ot} · ${esc(o.esp)}${extra?' · '+esc(extra):''}</div>
+      <div class="otmeta">OT ${o.ot} · ${esc(o.esp)}${extra?' · '+esc(extra):''}${pp.papel?' · 📄 en papel por '+esc(pp.papelPor||'')+' '+esc((pp.papelEn||'').slice(0,10)):''}</div>
     </div>
-    <div class="prog"><span class="ring sind">Sin pauta digital</span></div>
-  </div>`;
+    <div class="prog">${pp.papel?'<span class="ring done">📄 Hecha en papel</span>':'<span class="ring sind">Sin pauta digital</span><button class="bpapel" data-ot="'+o.ot+'" type="button">✓ Hecha en papel</button>'}</div>
+  </div>`; }
   const pr=progress(o);
   const dd=load(o.ot);
   const cls=dd.cerrada?'done':(pr.done===0?'p0':(pr.done>=pr.total?'done':'part'));
@@ -571,6 +574,8 @@ function tarjetaOT(o,w,di,extra){
 }
 function enlazarTarjetas(){
   document.querySelectorAll('.otcard[data-ot]').forEach(b=>b.onclick=()=>{ view={name:'formulario',week:+b.dataset.w,di:+b.dataset.di,ot:b.dataset.ot}; render(); });
+  /* OT sin pauta xlsx: se ejecutan con la pauta impresa; aquí solo se deja constancia */
+  document.querySelectorAll('.bpapel').forEach(b=>b.onclick=(ev)=>{ ev.stopPropagation(); if(window.LUB_VIEWER) return; const ot=b.dataset.ot; if(!confirm('¿Marcar la OT '+ot+' como ejecutada con la pauta en papel?')) return; const dd=load(ot); dd.papel=true; dd.papelPor=ME().nombre||''; dd.papelEn=new Date().toISOString(); localStorage.setItem(K(ot),JSON.stringify(dd)); if(cloudOk){ try{ cloudDb.collection('pautas').doc(ot).set({ot:ot,papel:true,papelPor:dd.papelPor,papelEn:dd.papelEn,actualizadoPor:quien(),updatedAt:dd.papelEn},{merge:true}).catch(()=>{}); }catch(e){} } flash('📄 OT marcada como hecha en papel'); render(); });
 }
 let filtroDia='todas';
 function renderDia(){
