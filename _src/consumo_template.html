@@ -463,6 +463,7 @@ function renderTend(){
     <div class="kpis">
       <div class="kpi oil"><div class="v">${nf(mesL)} L</div><div class="l">Aceite salido · ${MESES[hoy.getMonth()]}</div></div>
       <div class="kpi gr"><div class="v">${nf(mesKg)} kg</div><div class="l">Grasa salida · ${MESES[hoy.getMonth()]}</div></div>
+      ${(()=>{ const ant=new Date(hoy.getFullYear(),hoy.getMonth()-1,1); const kAnt=ant.getFullYear()+'-'+String(ant.getMonth()+1).padStart(2,'0'); const a=porMes[kAnt]||{L:0,kg:0}; const d=a.L?Math.round((mesL-a.L)/a.L*100):null; return `<div class="kpi ${d===null?'':(d>20?'bad':(d<-20?'ok':''))}"><div class="v">${d===null?'—':(d>0?'+':'')+d+'%'}</div><div class="l">Aceite vs ${MESES[ant.getMonth()]} (${nf(a.L)} L)</div></div>`; })()}
       <div class="kpi"><div class="v">${sal.length}</div><div class="l">Salidas registradas</div></div>
     </div>
     ${chips('tend')}

@@ -278,7 +278,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     <div class="gfoot">Solo personal autorizado · Admin: Nicolás Saravia</div>
   </div>
 </div>
-<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v197</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
+<div id="lubuserbar">👤&nbsp;<span id="lubuname"></span><span class="lubsep">·</span><span id="lubrolt"></span><a id="lubsuper" href="panorama.html" hidden><span class="lubsep">·</span>&nbsp;📊 Supervisión</a><a id="lubusuarios" href="usuarios.html" hidden><span class="lubsep">·</span>&nbsp;Usuarios</a><span class="lubsep">·</span><a id="lubtema" title="Cambiar tema: automático / oscuro / claro">🌗 Auto</a><span class="lubsep">·</span><a href="ayuda.html" title="Guía rápida de la app">❓</a><span class="lubsep">·</span><a id="lubfull" title="Pantalla completa">⛶</a><span class="lubsep">·</span><a id="lubver" title="Versión de la app · toca para buscar actualización">v198</a><span class="lubsep">·</span><a id="lubsalir">Salir</a></div>
 <div id="lubviewerchip">👁 Modo visualizador — solo lectura</div>
 <div id="lubconn" hidden></div>
 <button id="lubtop" title="Volver arriba" hidden>↑</button>
@@ -457,7 +457,7 @@ html.lub-viewer .mform,html.lub-viewer .mdel,html.lub-viewer .psal{display:none!
     if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); }));
     Promise.all(p).catch(function(){}).then(function(){ return auth.signOut(); }).catch(function(){}).then(function(){ location.replace(location.pathname); });
   }
-  window.LUB_VERSION='197';
+  window.LUB_VERSION='198';
   var NOVEDADES=[
     ['v191–200','Página de ayuda ❓, Compartir ronda, cierre de sesión con borrado local (mantén presionado "Salir"), indicadores nuevos (OT en papel, sin muestra >45 días), última muestra R por punto, consumo mes vs mes anterior.'],
     ['v181–190','Motivo obligatorio al reprogramar/cancelar en Plan 52, noches de ruta por semana, rango del gráfico de tendencias, filtro "sin n° reporte", lista "para comprar", imprimir listado del Maestro, tecla "/", Compartir en Plan 52 y Muestras.'],
@@ -842,6 +842,7 @@ function renderTend(){
     <div class="kpis">
       <div class="kpi oil"><div class="v">${nf(mesL)} L</div><div class="l">Aceite salido · ${MESES[hoy.getMonth()]}</div></div>
       <div class="kpi gr"><div class="v">${nf(mesKg)} kg</div><div class="l">Grasa salida · ${MESES[hoy.getMonth()]}</div></div>
+      ${(()=>{ const ant=new Date(hoy.getFullYear(),hoy.getMonth()-1,1); const kAnt=ant.getFullYear()+'-'+String(ant.getMonth()+1).padStart(2,'0'); const a=porMes[kAnt]||{L:0,kg:0}; const d=a.L?Math.round((mesL-a.L)/a.L*100):null; return `<div class="kpi ${d===null?'':(d>20?'bad':(d<-20?'ok':''))}"><div class="v">${d===null?'—':(d>0?'+':'')+d+'%'}</div><div class="l">Aceite vs ${MESES[ant.getMonth()]} (${nf(a.L)} L)</div></div>`; })()}
       <div class="kpi"><div class="v">${sal.length}</div><div class="l">Salidas registradas</div></div>
     </div>
     ${chips('tend')}
