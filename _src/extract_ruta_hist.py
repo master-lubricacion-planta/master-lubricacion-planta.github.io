@@ -66,49 +66,69 @@ def parse_val(v):
 wb = openpyxl.load_workbook(SRC, data_only=True)
 prev = {}
 usadas = 0
+
+def fila_fechas(ws, t, col_t):
+    """Fila de fechas de la seccion (t+1 o t+2): devuelve (fila, [cols de fecha >= col_t])."""
+    for rr in (t + 1, t + 2):
+        if rr > ws.max_row: break
+        cols = [c.column for c in ws[rr] if isinstance(c.value, (datetime.datetime, datetime.date)) and c.column >= col_t]
+        if len(cols) >= 3: return rr, cols
+    return None, []
+
+def fecha_de(ws, rr, col, w, di):
+    """Fecha por numero de semana y dia (ancla): las fechas escritas en las celdas a veces
+    vienen corridas un dia (p.ej. semana 39 con 25-09..01-10), asi que no se usan."""
+    return fecha(w, di)
+
 for name in wb.sheetnames:
-    m = re.fullmatch(r'Semana\s*0?(\d+)', name.strip())
+    m = re.fullmatch(r'Semana\s*0?(\d+)', name.strip(), re.I)
     if not m: continue
     w = int(m.group(1))
     if w < 13: continue  # layout antiguo, sin extraer
     ws = wb[name]
-    # ubicar titulos por columna de busqueda
-    titulos = {1: {}, 11: {}}
-    for col in (1, 11):
-        for r in range(1, ws.max_row + 1):
-            v = ws.cell(row=r, column=col).value
-            if v is None: continue
-            t = nrm(v)
-            if len(t) > 8:
-                titulos[col][r] = t
-    for pat, col, tipo, prm in SEC:
+    # titulos en cualquier columna (la otra administracion los pone en B y P en vez de A y K)
+    titulos = []
+    for r in range(1, ws.max_row + 1):
+        for c in ws[r]:
+            v = c.value
+            if isinstance(v, str):
+                t = nrm(v)
+                if len(t) > 8: titulos.append((r, c.column, t))
+    for pat, _col, tipo, prm in SEC:
         rx = re.compile(pat)
-        tr = None
-        for r, t in titulos[col].items():
-            if rx.search(t): tr = r; break
-        if tr is None: continue
-        if tipo == 'filas':
-            for off, iid in prm['items'].items():
-                for di in range(7):
-                    pv = parse_val(ws.cell(row=tr + off, column=prm['c0'] + di).value)
-                    if pv:
-                        prev.setdefault(fecha(w, di), {})[iid] = pv[1]
-                        usadas += 1
-        elif tipo == 'molinos':
-            for off, (ida, idb) in prm['items'].items():
-                for di in range(7):
-                    for k, iid in ((0, ida), (1, idb)):
-                        pv = parse_val(ws.cell(row=tr + off, column=12 + 2 * di + k).value)
+        hit = next(((r, c) for r, c, t in titulos if rx.search(t)), None)
+        if hit is None: continue
+        tr, tc = hit
+        if tipo in ('filas', 'molinos'):
+            fr, fcols = fila_fechas(ws, tr, tc)
+            if not fcols: continue
+            c0 = fcols[0]
+            if tipo == 'filas':
+                for off, iid in prm['items'].items():
+                    for di in range(7):
+                        pv = parse_val(ws.cell(row=tr + off, column=c0 + di).value)
                         if pv:
-                            prev.setdefault(fecha(w, di), {})[iid] = pv[1]
+                            prev.setdefault(fecha_de(ws, fr, c0 + di, w, di), {})[iid] = pv[1]
                             usadas += 1
+            else:
+                for off, (ida, idb) in prm['items'].items():
+                    for di in range(7):
+                        for k, iid in ((0, ida), (1, idb)):
+                            pv = parse_val(ws.cell(row=tr + off, column=c0 + 2 * di + k).value)
+                            if pv:
+                                prev.setdefault(fecha_de(ws, fr, c0 + 2 * di, w, di), {})[iid] = pv[1]
+                                usadas += 1
         elif tipo == 'scrubber':
             ids = ['scrllm', 'scrlcm', 'scrltv', 'scrlv', 'scramp']
             for di in range(7):
+                rr = tr + 3 + di
+                if rr > ws.max_row: break
+                dc = next((c.column for c in ws[rr] if isinstance(c.value, (datetime.datetime, datetime.date))), None)
+                if dc is None: dc = tc  # fecha escrita como texto: la columna de fecha coincide con la del titulo
                 for j, iid in enumerate(ids):
-                    pv = parse_val(ws.cell(row=tr + 3 + di, column=2 + j).value)
+                    pv = parse_val(ws.cell(row=rr, column=dc + 1 + j).value)
                     if pv:
-                        prev.setdefault(fecha(w, di), {})[iid] = pv[1]
+                        prev.setdefault(fecha_de(ws, rr, dc, w, di), {})[iid] = pv[1]
                         usadas += 1
 
 json.dump(prev, open('rprev.json', 'w', encoding='utf-8'), ensure_ascii=False)
